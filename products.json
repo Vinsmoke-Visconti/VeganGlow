@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "name": "Serum Rau Má Phục Hồi",
+        "price": 245000,
+        "category": "Serum",
+        "ingredients": "Rau má, B5",
+        "image_url": "https://link-anh-san-pham-1.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Tẩy tế bào chết Cà phê Đắk Lắk",
+        "price": 165000,
+        "category": "Cleanser",
+        "ingredients": "Cà phê, bơ ca cao",
+        "image_url": "https://link-anh-san-pham-2.jpg"
+    }
+]
