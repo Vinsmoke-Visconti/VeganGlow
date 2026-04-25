@@ -14,7 +14,8 @@ dist/
 build/
 .turbo/
 
-# Environment files (local only)
+# Environment files
+.env
 .env.local
 .env.development.local
 .env.test.local
