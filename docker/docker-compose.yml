@@ -1,30 +1,30 @@
 # ============================================
 # VeganGlow — Docker Compose (Development)
-# Runs frontend + Supabase local stack
+# Runs web app + Supabase local stack
 # ============================================
 
 version: '3.9'
 
 services:
-  frontend:
+  web:
     build:
-      context: ../frontend
-      dockerfile: ../docker/Dockerfile.frontend
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${SUPABASE_ANON_KEY}
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
     volumes:
-      - ../frontend/src:/app/src
-      - ../frontend/public:/app/public
+      - ../apps/web/src:/app/src
+      - ../apps/web/public:/app/public
     depends_on:
       - supabase-studio
     restart: unless-stopped
 
   # Note: For full Supabase local stack, use `supabase start`
-  # This compose file is for the frontend container only in dev
+  # This compose file is for the web container only in dev
   supabase-studio:
     image: supabase/studio:latest
     ports:

@@ -55,13 +55,13 @@ docker-compose.override.yml
 .supabase/
 supabase/.temp/
 
-# Mobile (Capacitor)
-mobile/android/.gradle/
-mobile/android/build/
-mobile/android/app/build/
-mobile/android/local.properties
-mobile/ios/App/Pods/
-mobile/ios/DerivedData/
+# Mobile (Capacitor) — apps/mobile/
+apps/mobile/android/.gradle/
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/local.properties
+apps/mobile/ios/App/Pods/
+apps/mobile/ios/DerivedData/
 *.xcworkspace
 *.xcuserdata
 
@@ -73,3 +73,6 @@ mobile/ios/DerivedData/
 # Misc
 *.log
 pass_word_supadase.txt
+
+.vercel
+.env*.local

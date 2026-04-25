@@ -1,135 +1,109 @@
-# 🌿 VeganGlow
+# VeganGlow — Fullstack Monorepo
 
-**Website TMĐT mỹ phẩm thuần chay Việt Nam**
+> Mỹ phẩm thuần chay Việt Nam — B2C eCommerce Platform
 
-Đồ án môn Quản trị hệ thống thông tin — Xây dựng hệ thống thương mại điện tử mỹ phẩm thuần chay với đầy đủ tính năng: đăng ký/đăng nhập, danh mục sản phẩm, giỏ hàng, thanh toán, quản lý đơn hàng, admin dashboard.
-
----
-
-## 🏗️ Kiến trúc dự án
+## Cấu trúc dự án
 
 ```
 VeganGlow/
-├── frontend/         # Next.js 16 (App Router, TypeScript)
-├── backend/          # Supabase (Postgres, Edge Functions, Auth, Storage)
-│   ├── supabase/
-│   │   ├── config.toml
-│   │   ├── migrations/   # SQL migrations (schema + seed)
-│   │   └── functions/    # Deno Edge Functions
-│   └── scripts/          # DB utility scripts
-├── mobile/           # Capacitor.js (iOS + Android)
-├── docker/           # Docker & docker-compose
-├── docs/             # Documentation
-├── scripts/          # Setup & deploy scripts
-└── .github/          # CI/CD workflows
+│
+├── apps/                          # 🚀 CÁC ỨNG DỤNG CHẠY ĐƯỢC
+│   ├── web/                       # 🌐 Next.js Web App (User + Admin)
+│   │   └── src/
+│   │       ├── app/               #   App Router — Trang User (Home, Cart, Checkout)
+│   │       │   ├── (auth)/        #     Đăng nhập / Đăng ký
+│   │       │   ├── cart/          #     Giỏ hàng
+│   │       │   ├── checkout/      #     Thanh toán
+│   │       │   ├── products/      #     Chi tiết sản phẩm (slug)
+│   │       │   ├── orders/        #     Lịch sử đơn hàng
+│   │       │   └── profile/       #     Trang cá nhân
+│   │       └── pages/             #   Pages Router — Admin Panel
+│   │           ├── admin/         #     🔐 Quản trị (Products, Orders, Users)
+│   │           │   ├── products/  #       CRUD Sản phẩm
+│   │           │   ├── orders/    #       Quản lý đơn hàng
+│   │           │   └── users/     #       Quản lý người dùng
+│   │           └── api/           #     API Routes (server-side logic)
+│   │
+│   ├── mobile/                    # 📱 Mobile App (Capacitor — iOS & Android)
+│   │   └── capacitor.config.ts    #   Cấu hình Capacitor
+│   │
+│   └── backend/                   # 🗄️  Supabase Backend
+│       ├── supabase/
+│       │   ├── functions/         #   Edge Functions (Deno)
+│       │   └── migrations/        #   Database migrations
+│       ├── schema.sql             #   Schema đầy đủ (Tables + RLS)
+│       └── seed.sql               #   Dữ liệu mẫu 6 sản phẩm
+│
+├── packages/                      # 📦 CODE DÙNG CHUNG (Shared Libraries)
+│   ├── database/                  # 🔌 @veganglow/database
+│   │   └── src/
+│   │       ├── index.ts           #   Entry point — export tất cả
+│   │       ├── database.ts        #   TypeScript types (Auto-generated từ Supabase)
+│   │       ├── helpers.ts         #   Tables<T>, TablesInsert<T>, TablesUpdate<T>
+│   │       └── clients/           #   Supabase Clients cho từng môi trường
+│   │           ├── client.ts      #     Browser Client (use client)
+│   │           ├── server.ts      #     Server Client (Server Components)
+│   │           └── middleware.ts  #     Middleware Client (session refresh)
+│   │
+│   ├── ui/                        # 🎨 @veganglow/ui
+│   │   └── src/
+│   │       ├── index.ts           #   Entry point — export tất cả components
+│   │       └── components/        #   Shared UI Components
+│   │           ├── Navbar.js      #     Thanh điều hướng
+│   │           ├── Footer.js      #     Footer
+│   │           ├── Layout.js      #     Layout User
+│   │           ├── AdminLayout.js #     Layout Admin
+│   │           └── AdminSidebar.js#     Sidebar Admin
+│   │
+│   └── typescript-config/         # ⚙️  @veganglow/typescript-config
+│       ├── base.json              #   Config gốc (Strict mode)
+│       └── nextjs.json            #   Config cho Next.js
+│
+├── docker/                        # 🐳 Docker
+│   ├── Dockerfile.frontend        #   Build image cho Web App
+│   ├── docker-compose.yml         #   Dev environment
+│   └── docker-compose.prod.yml    #   Production environment
+│
+├── .github/workflows/             # ⚡ CI/CD (GitHub Actions)
+│   ├── ci.yml                     #   Lint + Type-check + Build on PR
+│   ├── deploy-frontend.yml        #   Auto-deploy lên Vercel khi push main
+│   └── deploy-docker.yml          #   Auto-push Docker image lên Docker Hub
+│
+├── package.json                   # 📋 Monorepo root — npm workspaces
+├── pnpm-workspace.yaml            # 📋 pnpm workspace config (khuyên dùng)
+└── vercel.json                    # ▲  Vercel deployment config
 ```
 
-## 🛠 Tech Stack
+## Phân vai trò
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | Next.js 16, React 19, TypeScript, CSS Modules |
-| **Backend** | Supabase (Postgres 15, Edge Functions / Deno) |
-| **Auth** | Supabase Auth (Email + Social login) |
-| **Storage** | Supabase Storage (product images) |
-| **State** | Zustand (cart), React hooks (auth, products) |
-| **Mobile** | Capacitor.js 6 → iOS (App Store) + Android (CH Play) |
-| **Deploy** | Vercel (frontend), Supabase Cloud (backend) |
-| **CI/CD** | GitHub Actions (lint → build → deploy) |
-| **Container** | Docker + docker-compose |
+| Vai trò | Nhìn vào đâu | Làm gì |
+|---|---|---|
+| **Frontend Dev** | `apps/web/src/app/` | Xây dựng trang User (Next.js App Router) |
+| **Admin Dev** | `apps/web/src/pages/admin/` | Xây dựng trang Quản trị |
+| **Mobile Dev** | `apps/mobile/` | Phát triển iOS/Android với Capacitor |
+| **Backend/DB Dev** | `apps/backend/` | Viết Edge Functions, quản lý migrations |
+| **UI/Design Dev** | `packages/ui/` | Tạo design system, shared components |
+| **DevOps** | `docker/`, `.github/workflows/` | CI/CD, containers, deployment |
 
-## 🚀 Quick Start
-
-### 1. Clone & Setup
+## Lệnh hay dùng
 
 ```bash
-git clone https://github.com/Vinsmoke-Visconti/VeganGlow.git
-cd VeganGlow
-npm run setup
-```
-
-### 2. Configure Environment
-
-Copy `.env.example` → `.env.local` and fill in your Supabase credentials:
-
-```bash
-cp .env.example .env.local
-```
-
-### 3. Setup Database
-
-1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
-2. Run `backend/supabase/migrations/00001_init_schema.sql` in SQL Editor
-3. Run `backend/supabase/migrations/00002_seed_data.sql` for sample data
-
-### 4. Run Development Server
-
-```bash
+# Chạy web local
 npm run dev
-```
 
-Visit `http://localhost:3000`
+# Rebuild database types từ Supabase
+npm run db:types
 
-## 📱 Mobile App
+# Deploy Supabase Edge Functions
+npm run functions:deploy
 
-Build for App Store & CH Play using Capacitor:
-
-```bash
-# First, build static export
-cd frontend && npm run build
-
-# Sync with native projects
-cd ../mobile
-npm install
-npx cap sync
-
-# Open in IDE
-npx cap open android   # Android Studio
-npx cap open ios       # Xcode
-```
-
-## 🐳 Docker
-
-```bash
-# Development
-npm run docker:dev
-
-# Production
+# Build Docker image
 npm run docker:prod
 ```
 
-## 🌿 Git Branching
+## Tech Stack
 
-| Branch | Mục đích |
-|--------|----------|
-| `main` | Production — auto-deploy |
-| `develop` | Integration / staging |
-| `feature/*` | Tính năng mới |
-| `hotfix/*` | Sửa lỗi khẩn |
-| `release/*` | Stabilization trước release |
-
-## 📋 Available Commands
-
-| Command | Description |
-|---------|------------|
-| `npm run dev` | Start dev server (Next.js) |
-| `npm run build` | Production build |
-| `npm run lint` | ESLint check |
-| `npm run format` | Prettier format |
-| `npm run type-check` | TypeScript check |
-| `npm run db:generate-types` | Regenerate DB types |
-| `npm run db:reset` | Reset & reseed database |
-| `npm run functions:deploy` | Deploy Edge Functions |
-| `npm run mobile:android` | Open Android Studio |
-| `npm run mobile:ios` | Open Xcode |
-| `npm run docker:dev` | Dev with Docker |
-| `npm run setup` | First-time setup |
-| `npm run deploy` | Deploy all services |
-
-## 👥 Team
-
-- **Vinsmoke-Visconti** — Lead Developer
-
-## 📄 License
-
-MIT © VeganGlow Team
+- **Web:** Next.js 16 (App Router + Pages Router), TypeScript, Supabase SSR
+- **Mobile:** Capacitor (iOS + Android), chia sẻ DB types với Web
+- **Backend:** Supabase (PostgreSQL, Auth, Edge Functions, RLS)
+- **Deploy:** Vercel (Web), Docker Hub (Container), GitHub Actions (CI/CD)

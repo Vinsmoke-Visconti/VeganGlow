@@ -1,6 +1,6 @@
 # ============================================
 # VeganGlow — Deploy Supabase Edge Functions
-# Triggered on changes to backend/functions
+# Triggered on changes to backend functions
 # ============================================
 
 name: Deploy Functions
@@ -9,7 +9,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/supabase/functions/**'
+      - 'apps/backend/supabase/functions/**'
       - '.github/workflows/deploy-functions.yml'
 
 jobs:

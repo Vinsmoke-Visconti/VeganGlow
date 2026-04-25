@@ -1,0 +1,16 @@
+{
+  "name": "@veganglow/backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VeganGlow Backend — Supabase Schema, Migrations, Edge Functions",
+  "scripts": {
+    "db:push": "supabase db push --linked",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --project-id hijzebtakmkyrowdqtrd > ../../packages/database/src/database.ts",
+    "functions:deploy": "supabase functions deploy --project-ref hijzebtakmkyrowdqtrd",
+    "functions:serve": "supabase functions serve"
+  },
+  "devDependencies": {
+    "supabase": "^1.0.0"
+  }
+}
