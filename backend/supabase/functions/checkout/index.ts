@@ -2,7 +2,6 @@
 // POST /functions/v1/checkout
 // Body: { items: [{ product_id, quantity }], address, payment_method }
 
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { createUserClient, createAdminClient } from '../_shared/supabase.ts';
 
@@ -20,7 +19,7 @@ interface CheckoutBody {
   payment_method: 'cod' | 'card';
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
