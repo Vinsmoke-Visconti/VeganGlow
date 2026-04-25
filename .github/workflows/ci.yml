@@ -30,19 +30,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install dependencies (monorepo root)
+      - name: Install dependencies
         run: npm install
 
       - name: Run ESLint
-        working-directory: apps/web
         run: npm run lint
 
       - name: TypeScript type check
-        working-directory: apps/web
-        run: npx tsc --noEmit
+        run: npm run type-check
 
       - name: Build
-        working-directory: apps/web
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
