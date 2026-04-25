@@ -1,31 +1,34 @@
 {
-  "name": "veganglow",
+  "name": "veganglow-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "VeganGlow — Website TMĐT mỹ phẩm thuần chay",
+  "description": "VeganGlow — Fullstack Monorepo (Web, Mobile, Backend)",
   "workspaces": [
-    "frontend",
-    "mobile"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=frontend",
-    "build": "npm run build --workspace=frontend",
-    "start": "npm run start --workspace=frontend",
-    "lint": "npm run lint --workspace=frontend",
+    "// --- DEV ---": "",
+    "dev": "npm run dev --workspace=apps/web",
+    "dev:mobile": "npm run sync --workspace=apps/mobile",
+    "// --- BUILD ---": "",
+    "build": "npm run build --workspace=apps/web",
+    "build:all": "npm run build --workspaces --if-present",
+    "// --- LINT & TYPE ---": "",
+    "lint": "npm run lint --workspace=apps/web",
+    "type-check": "npm run type-check --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "type-check": "npm run type-check --workspace=frontend",
-    "db:generate-types": "bash backend/scripts/generate-types.sh",
-    "db:reset": "bash backend/scripts/reset-db.sh",
-    "db:migrate": "supabase db push --linked",
-    "functions:deploy": "supabase functions deploy --project-ref $SUPABASE_PROJECT_REF",
-    "mobile:sync": "npm run sync --workspace=mobile",
-    "mobile:android": "npm run android --workspace=mobile",
-    "mobile:ios": "npm run ios --workspace=mobile",
+    "// --- DATABASE ---": "",
+    "db:push": "npm run db:push --workspace=apps/backend",
+    "db:types": "npm run db:types --workspace=apps/backend",
+    "db:reset": "npm run db:reset --workspace=apps/backend",
+    "// --- FUNCTIONS ---": "",
+    "functions:deploy": "npm run functions:deploy --workspace=apps/backend",
+    "functions:serve": "npm run functions:serve --workspace=apps/backend",
+    "// --- DEPLOY ---": "",
+    "deploy": "bash scripts/deploy.sh",
     "docker:dev": "docker compose -f docker/docker-compose.yml up --build",
-    "docker:prod": "docker compose -f docker/docker-compose.prod.yml up --build -d",
-    "setup": "bash scripts/setup.sh",
-    "deploy": "bash scripts/deploy.sh"
+    "docker:prod": "docker compose -f docker/docker-compose.prod.yml up --build -d"
   },
   "devDependencies": {
     "prettier": "^3.4.0",
@@ -33,16 +36,12 @@
     "lint-staged": "^15.2.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,css,md}": [
-      "prettier --write"
-    ]
+    "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,css,md}": ["prettier --write"]
   },
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   }
 }
+

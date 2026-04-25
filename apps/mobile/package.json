@@ -1,0 +1,23 @@
+{
+  "name": "@veganglow/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VeganGlow Mobile App (Capacitor — iOS & Android)",
+  "scripts": {
+    "sync": "cap sync",
+    "android": "cap run android",
+    "ios": "cap run ios",
+    "build": "echo 'Mobile build: Run sync after web build'",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@veganglow/typescript-config": "*",
+    "typescript": "^5.6.3"
+  }
+}

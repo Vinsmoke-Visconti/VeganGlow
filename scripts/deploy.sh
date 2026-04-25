@@ -8,12 +8,10 @@ set -e
 
 echo "🚀 Deploying VeganGlow..."
 
-# Deploy frontend to Vercel
+# Deploy frontend to Vercel (from monorepo root)
 echo ""
 echo "📦 Deploying frontend to Vercel..."
-cd frontend
 vercel --prod
-cd ..
 
 # Deploy Edge Functions
 echo ""
