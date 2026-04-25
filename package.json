@@ -1,22 +1,48 @@
 {
-  "name": "veganglow_app",
-  "version": "0.1.0",
+  "name": "veganglow",
+  "version": "1.0.0",
   "private": true,
+  "description": "VeganGlow — Website TMĐT mỹ phẩm thuần chay",
+  "workspaces": [
+    "frontend",
+    "mobile"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.104.0",
-    "lucide-react": "^1.8.0",
-    "next": "16.2.4",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
+    "start": "npm run start --workspace=frontend",
+    "lint": "npm run lint --workspace=frontend",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "type-check": "npm run type-check --workspace=frontend",
+    "db:generate-types": "bash backend/scripts/generate-types.sh",
+    "db:reset": "bash backend/scripts/reset-db.sh",
+    "db:migrate": "supabase db push --linked",
+    "functions:deploy": "supabase functions deploy --project-ref $SUPABASE_PROJECT_REF",
+    "mobile:sync": "npm run sync --workspace=mobile",
+    "mobile:android": "npm run android --workspace=mobile",
+    "mobile:ios": "npm run ios --workspace=mobile",
+    "docker:dev": "docker compose -f docker/docker-compose.yml up --build",
+    "docker:prod": "docker compose -f docker/docker-compose.prod.yml up --build -d",
+    "setup": "bash scripts/setup.sh",
+    "deploy": "bash scripts/deploy.sh"
   },
   "devDependencies": {
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4"
+    "prettier": "^3.4.0",
+    "husky": "^9.1.0",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   }
 }
