@@ -18,9 +18,8 @@ export default function StorefrontNavbar() {
     >
       <div className={`container ${styles.headerContainer}`}>
         <div className={styles.logo}>
-          <Link href="/">
-            <span className={styles.logoText}>VeganGlow</span>
-            <span className={styles.logoDot}>.</span>
+          <Link href="/" className={styles.logoLink}>
+            <img src="/logo.png" alt="VeganGlow Logo" className={styles.logoImg} />
           </Link>
         </div>
         
