@@ -2,40 +2,50 @@
 
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
 import styles from './checkout.module.css';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { createOrder } from '@/app/actions/checkout';
 
 export default function CheckoutPage() {
   const { cartItems, totalAmount, clearCart } = useCart();
   const [isSuccess, setIsSuccess] = useState(false);
+  const [orderCode, setOrderCode] = useState<string>('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   if (isSuccess) {
     return (
       <div className={styles.container} style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <motion.div 
+        <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           style={{ textAlign: 'center', maxWidth: '500px' }}
         >
-          <motion.div 
+          <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "spring" }}
+            transition={{ delay: 0.3, type: 'spring' }}
             style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}
           >
             <CheckCircle2 size={80} color="#10b981" />
           </motion.div>
           <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#064e3b' }}>Đặt hàng thành công!</h1>
           <p style={{ color: '#4b5563', marginBottom: '2rem', lineHeight: 1.6 }}>
-            Cảm ơn bạn đã tin tưởng và lựa chọn VeganGlow. Đơn hàng của bạn đang được xử lý và sẽ được giao trong thời gian sớm nhất. 
-            Mã đơn hàng: <strong>#VG{Math.floor(Math.random() * 100000)}</strong>
+            Cảm ơn bạn đã tin tưởng và lựa chọn VeganGlow. Đơn hàng của bạn đang được xử lý và sẽ được giao trong thời gian sớm nhất.
+            <br />
+            Mã đơn hàng: <strong>#{orderCode}</strong>
           </p>
-          <Link href="/products" className={styles.continueBtn} style={{ display: 'inline-block', backgroundColor: '#10b981', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
-            Tiếp tục mua sắm
-          </Link>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+            <Link href="/orders" style={{ display: 'inline-block', backgroundColor: '#10b981', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
+              Xem đơn hàng
+            </Link>
+            <Link href="/products" style={{ display: 'inline-block', border: '1px solid #10b981', color: '#10b981', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
+              Tiếp tục mua sắm
+            </Link>
+          </div>
         </motion.div>
       </div>
     );
@@ -50,13 +60,36 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Simulate API call for checkout
-    setTimeout(() => {
-      clearCart();
-      setIsSuccess(true);
-    }, 1000);
+    if (submitting) return;
+    setErrorMsg('');
+    setSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    const paymentMethod = (formData.get('payment') as string) === 'card' ? 'card' : 'cod';
+
+    const result = await createOrder({
+      items: cartItems.map((it) => ({ id: it.id, quantity: it.quantity })),
+      customer_name: (formData.get('customer_name') as string) || '',
+      phone: (formData.get('phone') as string) || '',
+      email: (formData.get('email') as string) || '',
+      address: (formData.get('address') as string) || '',
+      city: (formData.get('city') as string) || 'TP. Hồ Chí Minh',
+      payment_method: paymentMethod,
+      note: (formData.get('note') as string) || '',
+    });
+
+    setSubmitting(false);
+
+    if (!result.success) {
+      setErrorMsg(result.error);
+      return;
+    }
+
+    setOrderCode(result.order_code);
+    clearCart();
+    setIsSuccess(true);
   };
 
   return (
@@ -69,8 +102,7 @@ export default function CheckoutPage() {
       </motion.div>
 
       <div className={styles.content}>
-        {/* Checkout Form */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
@@ -78,38 +110,47 @@ export default function CheckoutPage() {
         >
           <div className={styles.card}>
             <h2>Thông tin giao hàng</h2>
+            {errorMsg && (
+              <div style={{ padding: '12px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '1rem' }}>
+                {errorMsg}
+              </div>
+            )}
             <form id="checkout-form" onSubmit={handleSubmit}>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label>Họ và tên</label>
-                  <input type="text" required placeholder="Nhập họ và tên..." />
+                  <input name="customer_name" type="text" required maxLength={120} placeholder="Nhập họ và tên..." />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Số điện thoại</label>
-                  <input type="tel" required placeholder="Nhập số điện thoại..." />
+                  <input name="phone" type="tel" required pattern="(0|\+84)\d{9,10}" placeholder="VD: 0901234567" />
                 </div>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
                   <label>Email</label>
-                  <input type="email" required placeholder="Nhập địa chỉ email..." />
+                  <input name="email" type="email" required placeholder="Nhập địa chỉ email..." />
                 </div>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
                   <label>Địa chỉ giao hàng</label>
-                  <input type="text" required placeholder="Nhập địa chỉ nhận hàng..." />
+                  <input name="address" type="text" required maxLength={250} placeholder="Số nhà, tên đường, phường/xã..." />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Tỉnh / Thành phố</label>
+                  <input name="city" type="text" required defaultValue="TP. Hồ Chí Minh" maxLength={100} />
                 </div>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
                   <label>Ghi chú (Tùy chọn)</label>
-                  <textarea rows={3} placeholder="Ghi chú thêm về đơn hàng..."></textarea>
+                  <textarea name="note" rows={3} maxLength={500} placeholder="Ghi chú thêm về đơn hàng..."></textarea>
                 </div>
               </div>
 
               <h2 style={{ marginTop: '2rem' }}>Phương thức thanh toán</h2>
               <div className={styles.paymentMethods}>
                 <label className={styles.paymentMethod}>
-                  <input type="radio" name="payment" defaultChecked />
+                  <input type="radio" name="payment" value="cod" defaultChecked />
                   <span>Thanh toán khi nhận hàng (COD)</span>
                 </label>
                 <label className={styles.paymentMethod} style={{ opacity: 0.6 }}>
-                  <input type="radio" name="payment" disabled />
+                  <input type="radio" name="payment" value="card" disabled />
                   <span>Chuyển khoản ngân hàng (Đang bảo trì)</span>
                 </label>
               </div>
@@ -117,8 +158,7 @@ export default function CheckoutPage() {
           </div>
         </motion.div>
 
-        {/* Order Summary */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
@@ -155,12 +195,20 @@ export default function CheckoutPage() {
               <span className={styles.totalPrice}>{totalAmount.toLocaleString('vi-VN')}đ</span>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               form="checkout-form"
+              disabled={submitting}
               className={styles.submitBtn}
+              style={submitting ? { opacity: 0.7, cursor: 'not-allowed' } : undefined}
             >
-              Hoàn tất đặt hàng
+              {submitting ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <Loader2 size={16} className="animate-spin" /> Đang xử lý...
+                </span>
+              ) : (
+                'Hoàn tất đặt hàng'
+              )}
             </button>
           </div>
         </motion.div>

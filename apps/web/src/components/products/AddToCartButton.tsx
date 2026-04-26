@@ -29,7 +29,7 @@ export default function AddToCartButton({ product, className }: { product: any, 
         transition: 'all 0.3s ease',
         cursor: 'pointer',
         border: 'none',
-        backgroundColor: isAdded ? '#10b981' : '#1b4332',
+        background: isAdded ? 'var(--color-success)' : 'var(--gradient-primary)',
         color: 'white',
       }}
     >
