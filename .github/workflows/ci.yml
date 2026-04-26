@@ -34,7 +34,7 @@ jobs:
         run: npm install
 
       - name: Run ESLint
-        run: npm run lint
+        run: cd apps/web && npm run lint
 
       - name: TypeScript type check
         run: npm run type-check
