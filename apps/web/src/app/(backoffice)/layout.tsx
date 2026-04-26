@@ -11,7 +11,7 @@ export default function BackofficeLayout({
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <Link href="/admin/dashboard" className={styles.logo}>
+          <Link href="/admin" className={styles.logo}>
             VeganGlow<span className={styles.logoAccent}>Admin</span>
           </Link>
         </div>
@@ -19,7 +19,7 @@ export default function BackofficeLayout({
         <nav className={styles.sidebarNav}>
           <div className={styles.navGroup}>
             <span className={styles.navGroupTitle}>Tổng quan</span>
-            <Link href="/admin/dashboard" className={styles.navItem}>
+            <Link href="/admin" className={styles.navItem}>
               📊 Dashboard
             </Link>
           </div>
@@ -39,13 +39,13 @@ export default function BackofficeLayout({
 
           <div className={styles.navGroup}>
             <span className={styles.navGroupTitle}>Hệ thống</span>
-            <Link href="/admin/system/users" className={styles.navItem}>
+            <Link href="/admin/users" className={styles.navItem}>
               👥 Nhân sự
             </Link>
-            <Link href="/admin/system/roles" className={styles.navItem}>
+            <Link href="/admin/roles" className={styles.navItem}>
               🔐 Phân quyền
             </Link>
-            <Link href="/admin/system/settings" className={styles.navItem}>
+            <Link href="/admin/settings" className={styles.navItem}>
               ⚙️ Cài đặt
             </Link>
           </div>

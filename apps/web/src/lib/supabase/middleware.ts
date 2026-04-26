@@ -43,7 +43,7 @@ export async function updateSession(request: NextRequest) {
 
     // If logged in but on login page, redirect to dashboard
     if (pathname === '/admin/login') {
-      url.pathname = '/admin/dashboard';
+      url.pathname = '/admin';
       return NextResponse.redirect(url);
     }
 
@@ -59,7 +59,7 @@ export async function updateSession(request: NextRequest) {
     if (pathname.startsWith('/admin/system')) {
       const { data: isSuperAdmin } = await supabase.rpc('is_super_admin');
       if (!isSuperAdmin) {
-        url.pathname = '/admin/dashboard';
+        url.pathname = '/admin';
         return NextResponse.redirect(url);
       }
     }

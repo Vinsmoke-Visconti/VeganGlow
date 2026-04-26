@@ -1,7 +1,24 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import EnvGuard from '@/components/EnvGuard';
+import { Outfit, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
+
+// Configure premium fonts
+const fontBody = Outfit({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-body',
+  weight: ['300', '400', '500', '600'],
+});
+
+const fontHeading = Cormorant_Garamond({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-heading',
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -47,8 +64,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <body>
+    <html lang="vi" suppressHydrationWarning className={`${fontBody.variable} ${fontHeading.variable}`}>
+      <body className="antialiased">
         <EnvGuard>
           {children}
         </EnvGuard>

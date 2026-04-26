@@ -1,108 +1,138 @@
 import styles from './page.module.css';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import AddToCartButton from '@/components/products/AddToCartButton';
 import { Database } from '@/types/database';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
+import { ArrowRight, Leaf, Shield, Heart, Sparkles } from 'lucide-react';
 
 export default async function Home() {
   const supabase = await createClient();
   const { data: products } = await supabase.from('products').select('*').limit(4);
+
 
   return (
     <div className={styles.main}>
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <div className={styles.heroBadge}>✨ Khám phá Vẻ Đẹp Thuần Chay</div>
-          <h1 className={styles.heroTitle}>
-            Nuôi Dưỡng Làn Da <br/>
-            Từ <span className={styles.heroAccent}>Thiên Nhiên</span>
-          </h1>
-          <p className={styles.heroDescription}>
-            Sản phẩm mỹ phẩm 100% thuần chay, kết tinh từ những nguyên liệu tự nhiên tốt nhất của Việt Nam, mang lại vẻ đẹp bền vững và an toàn tuyệt đối.
-          </p>
-          <div className={styles.heroActions}>
-            <Link href="/products" className={styles.btnPrimary}>Mua sắm ngay</Link>
-            <Link href="/about" className={styles.btnSecondary}>Tìm hiểu thêm</Link>
-          </div>
+          <FadeIn direction="down" delay={0.1}>
+            <div className={styles.heroBadge}>
+              <Sparkles size={16} className="inline mr-2" />
+              Khám phá Vẻ Đẹp Thuần Chay
+            </div>
+          </FadeIn>
+          
+          <FadeIn direction="up" delay={0.2}>
+            <h1 className={styles.heroTitle}>
+              Nuôi Dưỡng Làn Da <br/>
+              Từ <span className={styles.heroAccent}>Thiên Nhiên</span>
+            </h1>
+          </FadeIn>
+          
+          <FadeIn direction="up" delay={0.3}>
+            <p className={styles.heroDescription}>
+              Sản phẩm mỹ phẩm 100% thuần chay, kết tinh từ những nguyên liệu tự nhiên tốt nhất của Việt Nam, mang lại vẻ đẹp bền vững và an toàn tuyệt đối.
+            </p>
+          </FadeIn>
+          
+          <FadeIn direction="up" delay={0.4}>
+            <div className={styles.heroActions}>
+              <Link href="/products" className={styles.btnPrimary}>
+                Mua sắm ngay <ArrowRight size={18} />
+              </Link>
+              <Link href="/about" className={styles.btnSecondary}>Tìm hiểu thêm</Link>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       <div className="container">
         {/* Categories Section */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Danh Mục Sản Phẩm</h2>
-          <p className={styles.sectionSubtitle}>Dành riêng cho từng nhu cầu của làn da</p>
-          <div className={styles.categoriesGrid}>
-            {['Serum', 'Toner', 'Mặt Nạ', 'Sữa Rửa Mặt', 'Kem Dưỡng'].map((cat, i) => (
-              <div key={i} className={styles.categoryCard}>
-                <div className={styles.categoryIcon}>🌿</div>
-                <span className={styles.categoryName}>{cat}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+        <FadeIn direction="up">
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Danh Mục Sản Phẩm</h2>
+            <p className={styles.sectionSubtitle}>Dành riêng cho từng nhu cầu của làn da</p>
+            <StaggerContainer className={styles.categoriesGrid}>
+              {['Serum', 'Toner', 'Mặt Nạ', 'Sữa Rửa Mặt', 'Kem Dưỡng'].map((cat, i) => (
+                <StaggerItem key={i} className={styles.categoryCard}>
+                  <div className={styles.categoryIcon}><Leaf size={24} color="#10b981" /></div>
+                  <span className={styles.categoryName}>{cat}</span>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </section>
+        </FadeIn>
 
         {/* Featured Products */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>
-          <p className={styles.sectionSubtitle}>Những sản phẩm được yêu thích nhất</p>
-          <div className={styles.productsGrid}>
-            {products && products.length > 0 ? (
-              products.map((p: any) => (
-                <div key={p.id} className={styles.productCard}>
-                  <div className={styles.productImageWrap}>
-                    <div className={styles.productBadge}>Best Seller</div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={p.image_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=B7E4C7&color=1B4332&size=400`} 
-                      alt={p.name} 
-                      className={styles.productImage} 
-                    />
-                  </div>
-                  <div className={styles.productInfo}>
-                    <span className={styles.productCategory}>Skincare</span>
-                    <h3 className={styles.productName}>{p.name}</h3>
-                    <div className={styles.productMeta}>
-                      <span className={styles.productRating}>★ {p.rating}</span>
-                      <span className={styles.productReviews}>({p.review_count} đánh giá)</span>
+        <FadeIn direction="up">
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>
+            <p className={styles.sectionSubtitle}>Những sản phẩm được yêu thích nhất</p>
+            <StaggerContainer className={styles.productsGrid}>
+              {products && products.length > 0 ? (
+                products.map((p: any) => (
+                  <StaggerItem key={p.id} className={styles.productCard}>
+                    <Link href={`/products/${p.slug}`} className={styles.productImageWrap}>
+                      <div className={styles.productBadge}>Best Seller</div>
+                      <img 
+                        src={p.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=B7E4C7&color=1B4332&size=400`} 
+                        alt={p.name} 
+                        className={styles.productImage} 
+                      />
+                    </Link>
+                    <div className={styles.productInfo}>
+                      <span className={styles.productCategory}>Skincare</span>
+                      <Link href={`/products/${p.slug}`}>
+                        <h3 className={styles.productName}>{p.name}</h3>
+                      </Link>
+                      <div className={styles.productMeta}>
+                        <span className={styles.productRating}>★ {p.rating}</span>
+                        <span className={styles.productReviews}>({p.reviews_count} đánh giá)</span>
+                      </div>
+                      <div className={styles.productFooter}>
+                        <span className={styles.productPrice}>
+                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(p.price))}
+                        </span>
+                        <AddToCartButton product={p} className={styles.miniCartBtn} />
+                      </div>
                     </div>
-                    <span className={styles.productPrice}>
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>Chưa có sản phẩm.</p>
-            )}
-          </div>
-          <div className={styles.viewAll}>
-            <Link href="/products" className={styles.btnSecondary}>Xem tất cả sản phẩm</Link>
-          </div>
-        </section>
+                  </StaggerItem>
+                ))
+              ) : (
+                <p>Chưa có sản phẩm.</p>
+              )}
+            </StaggerContainer>
+            <div className={styles.viewAll}>
+              <Link href="/products" className={styles.btnSecondary}>Xem tất cả sản phẩm</Link>
+            </div>
+          </section>
+        </FadeIn>
       </div>
+
 
       {/* Why Choose Us */}
       <section className={styles.whySection}>
         <div className="container">
-          <h2 className={styles.sectionTitle}>Vì Sao Chọn VeganGlow?</h2>
-          <div className={styles.whyGrid}>
-            <div className={styles.whyCard}>
-              <span className={styles.whyIcon}>🌱</span>
-              <h3>100% Thuần Chay</h3>
-              <p>Cam kết không sử dụng thành phần từ động vật và không thử nghiệm trên động vật.</p>
-            </div>
-            <div className={styles.whyCard}>
-              <span className={styles.whyIcon}>🔬</span>
-              <h3>Chuẩn Y Khoa</h3>
-              <p>Được nghiên cứu và kiểm nghiệm da liễu, an toàn cho cả làn da nhạy cảm nhất.</p>
-            </div>
-            <div className={styles.whyCard}>
-              <span className={styles.whyIcon}>🇻🇳</span>
-              <h3>Nguyên Liệu Việt Nam</h3>
-              <p>Chiết xuất từ những thảo mộc quý giá đặc hữu của vùng nhiệt đới Việt Nam.</p>
-            </div>
-          </div>
+          <FadeIn direction="up">
+            <StaggerContainer className={styles.whyGrid}>
+              <StaggerItem className={styles.whyCard}>
+                <span className={styles.whyIcon}><Leaf size={32} color="#10b981" /></span>
+                <h3>100% Thuần Chay</h3>
+                <p>Cam kết không sử dụng thành phần từ động vật và không thử nghiệm trên động vật.</p>
+              </StaggerItem>
+              <StaggerItem className={styles.whyCard}>
+                <span className={styles.whyIcon}><Shield size={32} color="#10b981" /></span>
+                <h3>Chuẩn Y Khoa</h3>
+                <p>Được nghiên cứu và kiểm nghiệm da liễu, an toàn cho cả làn da nhạy cảm nhất.</p>
+              </StaggerItem>
+              <StaggerItem className={styles.whyCard}>
+                <span className={styles.whyIcon}><Heart size={32} color="#10b981" /></span>
+                <h3>Nguyên Liệu Việt Nam</h3>
+                <p>Chắt lọc tinh túy từ rau má, diếp cá, hoa đậu biếc và các loại thảo mộc địa phương.</p>
+              </StaggerItem>
+            </StaggerContainer>
+          </FadeIn>
         </div>
       </section>
     </div>

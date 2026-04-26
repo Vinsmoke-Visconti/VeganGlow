@@ -48,9 +48,11 @@
   --color-warning: hsl(31, 100%, 48%);
   --color-info: hsl(203, 39%, 44%);
 
-  /* Typography */
-  --font-heading: 'Playfair Display', serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typography 
+     Note: --font-heading and --font-body are injected by Next.js font/google in layout.tsx 
+     We define fallbacks here just in case. */
+  --font-heading: 'Cormorant Garamond', 'Playfair Display', serif;
+  --font-body: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Font Sizes */
