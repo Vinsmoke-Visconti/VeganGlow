@@ -13,26 +13,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
-      - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${SUPABASE_ANON_KEY}
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
-    volumes:
-      - ../apps/web/src:/app/src
-      - ../apps/web/public:/app/public
-    depends_on:
-      - supabase-studio
-    restart: unless-stopped
-
-  # Note: For full Supabase local stack, use `supabase start`
-  # This compose file is for the web container only in dev
-  supabase-studio:
-    image: supabase/studio:latest
-    ports:
-      - "54323:3000"
-    environment:
-      - SUPABASE_URL=http://supabase-kong:8000
-      - STUDIO_PG_META_URL=http://supabase-meta:8080
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
     restart: unless-stopped
 
 volumes:
-  supabase-data:
+  node_modules:

@@ -225,6 +225,105 @@
 }
 
 .activityTime {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Charts */
+.chartContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 200px;
+  padding-top: 2rem;
+  gap: 0.5rem;
+}
+
+.chartColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.chartBar {
+  width: 100%;
+  background-color: #10b981;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: height 0.3s ease;
+  min-height: 5px;
+}
+
+.chartBar:hover {
+  background-color: #059669;
+}
+
+.barValue {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+}
+
+.barLabel {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Top Products */
+.topProducts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.topProductItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.productRank {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.topProductItem:nth-child(1) .productRank {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.productDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.topProductName {
+  font-weight: 500;
+  color: #111827;
+}
+
+.topProductSales {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.topProductRevenue {
+  font-weight: 600;
+  color: #10b981;
 }

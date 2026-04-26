@@ -294,7 +294,6 @@
 }
 
 .productPrice {
-  margin-top: auto;
   font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-primary-dark);
@@ -303,6 +302,25 @@
 [data-theme='dark'] .productPrice {
   color: var(--color-primary-100);
 }
+
+.productFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.miniCartBtn {
+  padding: 0.5rem !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+}
+
+.miniCartBtn span {
+  display: none;
+}
+
 
 .viewAll {
   display: flex;

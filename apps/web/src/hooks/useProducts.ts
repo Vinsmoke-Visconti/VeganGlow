@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/client';
 import type { Product, ProductFilters, ProductWithCategory } from '@/types/product';
 import type { Category } from '@/types/product';
 import { PRODUCTS_PER_PAGE } from '@/lib/constants';
@@ -13,7 +13,7 @@ export function useProducts(filters?: ProductFilters) {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
 
-  const supabase = createClient();
+  const supabase = createBrowserClient();
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -91,7 +91,7 @@ export function useProducts(filters?: ProductFilters) {
 export function useProduct(slug: string) {
   const [product, setProduct] = useState<ProductWithCategory | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = createBrowserClient();
 
   useEffect(() => {
     const fetchProduct = async () => {
