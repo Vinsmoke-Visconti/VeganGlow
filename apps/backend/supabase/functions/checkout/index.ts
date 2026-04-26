@@ -115,13 +115,16 @@ Deno.serve(async (req: Request) => {
 
     if (itemsError) throw itemsError;
 
-    // Update stock
+    // Atomic stock decrement (prevents oversell race condition)
     for (const item of body.items) {
-      await adminClient.rpc('', {}); // Stock update would go here
-      await adminClient
-        .from('products')
-        .update({ stock: products.find((p) => p.id === item.product_id)!.stock - item.quantity })
-        .eq('id', item.product_id);
+      const { data: ok, error: stockErr } = await adminClient.rpc('decrement_stock', {
+        p_product_id: item.product_id,
+        p_quantity: item.quantity,
+      });
+      if (stockErr || ok === false) {
+        const product = products.find((p) => p.id === item.product_id);
+        throw new Error(`Hết hàng: ${product?.name ?? item.product_id}`);
+      }
     }
 
     return new Response(

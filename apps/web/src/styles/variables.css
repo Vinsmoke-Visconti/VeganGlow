@@ -39,8 +39,14 @@
   --glass-shadow: 0 8px 32px 0 hsla(var(--primary-h), var(--primary-s), 15%, 0.1);
   --glass-blur: blur(12px);
 
+  /* Same-tone Botanical Gradients */
   --gradient-primary: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+  --gradient-soft: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
+  --gradient-luxury: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+  --gradient-botanical: linear-gradient(135deg, #e9f5db 0%, #cfe1b9 100%);
+  --gradient-sunset: linear-gradient(135deg, var(--color-secondary-light) 0%, var(--color-secondary) 100%);
   --gradient-hero: linear-gradient(135deg, hsla(var(--primary-h), 43%, 95%, 0.9) 0%, hsla(51, 87%, 94%, 0.9) 100%);
+  --gradient-card: linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%);
 
   /* Status */
   --color-success: hsl(151, 43%, 36%);
