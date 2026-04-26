@@ -23,23 +23,24 @@
   height: var(--header-height);
 }
 
-.logoText {
-  font-family: var(--font-heading);
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  letter-spacing: -0.02em;
+.logoLink {
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition-fast);
 }
 
-[data-theme='dark'] .logoText {
-  color: var(--color-primary-50);
+.logoLink:hover {
+  transform: scale(1.02);
 }
 
-.logoDot {
-  color: var(--color-secondary);
-  font-family: var(--font-heading);
-  font-size: var(--text-2xl);
-  font-weight: 700;
+.logoImg {
+  height: 40px; /* Adjust based on logo proportions */
+  width: auto;
+  display: block;
+}
+
+[data-theme='dark'] .logoImg {
+  filter: brightness(1.1);
 }
 
 .nav {
