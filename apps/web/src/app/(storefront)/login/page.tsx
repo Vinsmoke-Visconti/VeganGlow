@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { Suspense, useActionState } from 'react';
 import { login } from '@/app/actions/auth';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -8,12 +8,11 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import styles from './auth.module.css';
 import { createBrowserClient } from '@/lib/supabase/client';
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const message = searchParams.get('message');
   const redirectTo = searchParams.get('redirectTo') || '/';
 
-  // We use standard React 19 form actions
   const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
     formData.append('redirectTo', redirectTo);
     return login(prevState, formData);
@@ -46,27 +45,27 @@ export default function LoginPage() {
         <form action={formAction} className={styles.form}>
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.label}>Email</label>
-            <input 
-              id="email" 
-              name="email" 
-              type="email" 
-              required 
-              className={styles.input} 
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className={styles.input}
               placeholder="you@example.com"
             />
           </div>
-          
+
           <div className={styles.inputGroup}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <label htmlFor="password" className={styles.label}>Mật khẩu</label>
               <Link href="/forgot-password" className={styles.link} style={{ fontSize: '0.875rem' }}>Quên mật khẩu?</Link>
             </div>
-            <input 
-              id="password" 
-              name="password" 
-              type="password" 
-              required 
-              className={styles.input} 
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className={styles.input}
               placeholder="••••••••"
             />
           </div>
@@ -93,5 +92,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }
