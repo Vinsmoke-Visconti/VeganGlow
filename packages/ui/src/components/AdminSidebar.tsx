@@ -19,14 +19,14 @@ export default function AdminSidebar({ LinkComponent = 'a' }: AdminSidebarProps)
 
   return (
     <aside className={styles.adminSidebar}>
-      <div className={styles.adminLogo}>
+      <div className={styles.adminSidebarBrand}>
         <Link href="/">
           <span>VeganGlow Admin</span>
         </Link>
       </div>
       <nav className={styles.adminNav}>
         {menuItems.map((item) => (
-          <Link key={item.name} href={item.href} className={styles.adminNavItem}>
+          <Link key={item.name} href={item.href} className={styles.adminNavLink}>
             <item.icon size={20} />
             <span>{item.name}</span>
           </Link>
