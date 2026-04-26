@@ -1,41 +1,56 @@
 /* ============================================
-   VeganGlow — Design System Variables
+   VeganGlow — Premium Design System Variables
    ============================================ */
 
 :root {
-  /* Brand Colors — Botanical / Vegan aesthetic */
-  --color-primary: #2D6A4F;
-  --color-primary-light: #40916C;
-  --color-primary-dark: #1B4332;
-  --color-primary-50: #D8F3DC;
-  --color-primary-100: #B7E4C7;
-  --color-primary-200: #95D5B2;
+  /* Brand Colors — HSL for alpha channel support */
+  --primary-h: 151;
+  --primary-s: 43%;
+  --primary-l: 36%;
+  
+  --color-primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
+  --color-primary-light: hsl(var(--primary-h), 38%, 49%);
+  --color-primary-dark: hsl(var(--primary-h), 43%, 15%);
+  --color-primary-50: hsl(var(--primary-h), 43%, 95%);
+  --color-primary-100: hsl(var(--primary-h), 43%, 85%);
+  --color-primary-200: hsl(var(--primary-h), 43%, 75%);
 
-  --color-secondary: #BC6C25;
-  --color-secondary-light: #DDA15E;
+  --color-secondary: hsl(30, 67%, 44%);
+  --color-secondary-light: hsl(32, 63%, 62%);
 
-  --color-accent: #606C38;
-  --color-accent-light: #7F8A50;
+  --color-accent: hsl(74, 32%, 32%);
+  --color-accent-light: hsl(72, 27%, 43%);
 
   /* Neutrals */
-  --color-bg: #FEFAE0;
-  --color-bg-secondary: #F5F0E1;
-  --color-bg-card: #FFFFFF;
-  --color-text: #1A1A1A;
-  --color-text-secondary: #5C5C5C;
-  --color-text-muted: #8A8A8A;
-  --color-border: #E0D8C0;
-  --color-border-light: #F0EBD8;
+  --color-bg: hsl(51, 87%, 94%);
+  --color-bg-secondary: hsl(45, 42%, 92%);
+  --color-bg-card: hsl(0, 0%, 100%);
+  
+  --color-text: hsl(0, 0%, 10%);
+  --color-text-secondary: hsl(0, 0%, 36%);
+  --color-text-muted: hsl(0, 0%, 54%);
+  
+  --color-border: hsl(45, 42%, 82%);
+  --color-border-light: hsl(45, 42%, 89%);
+
+  /* Premium Glassmorphism & Gradients */
+  --glass-bg: hsla(0, 0%, 100%, 0.7);
+  --glass-border: hsla(0, 0%, 100%, 0.3);
+  --glass-shadow: 0 8px 32px 0 hsla(var(--primary-h), var(--primary-s), 15%, 0.1);
+  --glass-blur: blur(12px);
+
+  --gradient-primary: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+  --gradient-hero: linear-gradient(135deg, hsla(var(--primary-h), 43%, 95%, 0.9) 0%, hsla(51, 87%, 94%, 0.9) 100%);
 
   /* Status */
-  --color-success: #2D6A4F;
-  --color-error: #D62828;
-  --color-warning: #F77F00;
-  --color-info: #457B9D;
+  --color-success: hsl(151, 43%, 36%);
+  --color-error: hsl(0, 74%, 50%);
+  --color-warning: hsl(31, 100%, 48%);
+  --color-info: hsl(203, 39%, 44%);
 
   /* Typography */
   --font-heading: 'Playfair Display', serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Font Sizes */
@@ -69,32 +84,42 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  /* Shadows - Elevated & Premium */
+  --shadow-sm: 0 2px 4px hsla(0, 0%, 0%, 0.04);
+  --shadow-md: 0 4px 12px hsla(0, 0%, 0%, 0.06);
+  --shadow-lg: 0 12px 24px hsla(0, 0%, 0%, 0.08);
+  --shadow-xl: 0 24px 48px hsla(0, 0%, 0%, 0.12);
+  --shadow-hover: 0 20px 40px hsla(var(--primary-h), var(--primary-s), 20%, 0.15);
 
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Layout */
   --max-width: 1280px;
-  --header-height: 72px;
+  --header-height: 80px;
   --sidebar-width: 280px;
 }
 
 /* Dark mode overrides */
 [data-theme='dark'] {
-  --color-bg: #0F1A14;
-  --color-bg-secondary: #162A1E;
-  --color-bg-card: #1C3326;
-  --color-text: #E8F5E9;
-  --color-text-secondary: #A5C4B1;
-  --color-text-muted: #6B8F7A;
-  --color-border: #2D5A40;
-  --color-border-light: #234A33;
+  --color-bg: hsl(151, 25%, 8%);
+  --color-bg-secondary: hsl(151, 30%, 12%);
+  --color-bg-card: hsl(151, 28%, 15%);
+  
+  --color-text: hsl(151, 30%, 96%);
+  --color-text-secondary: hsl(151, 20%, 75%);
+  --color-text-muted: hsl(151, 15%, 55%);
+  
+  --color-border: hsl(151, 25%, 25%);
+  --color-border-light: hsl(151, 25%, 20%);
+
+  --glass-bg: hsla(151, 28%, 15%, 0.7);
+  --glass-border: hsla(151, 30%, 96%, 0.1);
+  --glass-shadow: 0 8px 32px 0 hsla(0, 0%, 0%, 0.4);
+
+  --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  --gradient-hero: linear-gradient(135deg, hsla(151, 25%, 8%, 0.9) 0%, hsla(151, 30%, 12%, 0.9) 100%);
 }
