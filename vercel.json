@@ -3,7 +3,7 @@
   "framework": "nextjs",
   "buildCommand": "cd apps/web && npm run build",
   "outputDirectory": "apps/web/.next",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "devCommand": "cd apps/web && npm run dev",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" }
