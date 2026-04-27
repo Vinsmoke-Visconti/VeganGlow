@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { Plus, Edit, Trash2, Loader2, X, Tag } from 'lucide-react';
+import styles from '../admin-shared.module.css';
 
 type Category = {
   id: string;
@@ -19,11 +20,8 @@ export default function AdminCategories() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    slug: ''
-  });
+
+  const [formData, setFormData] = useState({ name: '', slug: '' });
 
   useEffect(() => {
     fetchCategories();
@@ -32,20 +30,16 @@ export default function AdminCategories() {
   async function fetchCategories() {
     setLoading(true);
     try {
-      // Fetch categories and their product counts
       const { data, error } = await supabase
         .from('categories')
-        .select(`
-          *,
-          products:products(count)
-        `)
+        .select('*, products:products(count)')
         .order('name', { ascending: true });
-      
+
       if (error) throw error;
 
       const formattedData = (data || []).map((cat: any) => ({
         ...cat,
-        product_count: cat.products?.[0]?.count || 0
+        product_count: cat.products?.[0]?.count || 0,
       }));
 
       setCategories(formattedData);
@@ -66,8 +60,7 @@ export default function AdminCategories() {
           .eq('id', editingCategory.id);
         if (error) throw error;
       } else {
-        const { error } = await (supabase.from('categories') as any)
-          .insert([formData]);
+        const { error } = await (supabase.from('categories') as any).insert([formData]);
         if (error) throw error;
       }
 
@@ -84,15 +77,15 @@ export default function AdminCategories() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa danh mục này? Các sản phẩm thuộc danh mục này sẽ không còn danh mục.')) {
+    if (
+      confirm(
+        'Bạn có chắc chắn muốn xóa danh mục này? Các sản phẩm thuộc danh mục này sẽ không còn danh mục.',
+      )
+    ) {
       try {
-        const { error } = await supabase
-          .from('categories')
-          .delete()
-          .eq('id', id);
-        
+        const { error } = await supabase.from('categories').delete().eq('id', id);
         if (error) throw error;
-        setCategories(categories.filter(c => c.id !== id));
+        setCategories(categories.filter((c) => c.id !== id));
       } catch (err: any) {
         alert('Lỗi khi xóa: ' + err.message);
       }
@@ -106,91 +99,86 @@ export default function AdminCategories() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+    <div className={styles.page}>
+      <header className={styles.pageHeader}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1a4d2e' }}>Quản lý danh mục</h1>
-          <p style={{ color: '#666' }}>Phân loại sản phẩm để khách hàng dễ dàng tìm kiếm.</p>
+          <h1 className={styles.pageTitle}>Quản lý danh mục</h1>
+          <p className={styles.pageSubtitle}>Phân loại sản phẩm để khách hàng dễ dàng tìm kiếm.</p>
         </div>
-        <button 
+        <button
+          className={styles.btnPrimary}
           onClick={() => {
             setEditingCategory(null);
             setFormData({ name: '', slug: '' });
             setIsModalOpen(true);
           }}
-          style={{ 
-            display: 'flex', 
-            gap: '0.5rem', 
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#10b981',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
         >
-          <Plus size={20} />
-          <span>Thêm danh mục</span>
+          <Plus size={18} />
+          Thêm danh mục
         </button>
       </header>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
+      <div className={styles.card}>
+        <div className={styles.tableScroll}>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem', gap: '1rem', color: '#666' }}>
-              <Loader2 className="animate-spin" />
+            <div className={styles.loadingState}>
+              <Loader2 className="animate-spin" size={22} />
               Đang tải danh mục...
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table className={styles.table}>
               <thead>
-                <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #eee' }}>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>DANH MỤC</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>SLUG</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>SỐ SẢN PHẨM</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>NGÀY TẠO</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>THAO TÁC</th>
+                <tr>
+                  <th>Danh mục</th>
+                  <th>Slug</th>
+                  <th>Số sản phẩm</th>
+                  <th>Ngày tạo</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((cat) => (
-                  <tr key={cat.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '40px', height: '40px', background: '#f0fdf4', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Tag size={20} color="#10b981" />
-                        </div>
-                        <span style={{ fontWeight: '600' }}>{cat.name}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem', color: '#666', fontSize: '0.875rem' }}>{cat.slug}</td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <span style={{ padding: '4px 12px', background: '#f3f4f6', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '600' }}>
-                        {cat.product_count} sản phẩm
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem', color: '#666', fontSize: '0.875rem' }}>
-                      {new Date(cat.created_at).toLocaleDateString('vi-VN')}
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button 
-                          onClick={() => openEditModal(cat)}
-                          style={{ padding: '0.5rem', border: '1px solid #eee', background: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                        >
-                          <Edit size={18} color="#666" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(cat.id)}
-                          style={{ padding: '0.5rem', border: '1px solid #eee', background: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                        >
-                          <Trash2 size={18} color="#ef4444" />
-                        </button>
-                      </div>
+                {categories.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>
+                      <div className={styles.emptyState}>Chưa có danh mục nào.</div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  categories.map((cat) => (
+                    <tr key={cat.id}>
+                      <td>
+                        <div className={styles.productCell}>
+                          <div
+                            className={styles.avatarSquare}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          >
+                            <Tag size={20} style={{ color: 'var(--color-primary)' }} />
+                          </div>
+                          <span style={{ fontWeight: 600 }}>{cat.name}</span>
+                        </div>
+                      </td>
+                      <td style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{cat.slug}</td>
+                      <td>
+                        <span className={`${styles.badge} ${styles.badgeNeutral}`}>
+                          {cat.product_count} sản phẩm
+                        </span>
+                      </td>
+                      <td style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+                        {new Date(cat.created_at).toLocaleDateString('vi-VN')}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button className={styles.btnOutline} onClick={() => openEditModal(cat)}>
+                            <Edit size={15} />
+                          </button>
+                          <button className={styles.btnDanger} onClick={() => handleDelete(cat.id)}>
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           )}
@@ -199,58 +187,48 @@ export default function AdminCategories() {
 
       {/* Category Modal */}
       {isModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '100%', maxWidth: '450px', padding: '2rem', position: 'relative' }}>
-            <button 
-              onClick={() => setIsModalOpen(false)} 
-              style={{ position: 'absolute', right: '1.5rem', top: '1.5rem', background: 'transparent', border: 'none', cursor: 'pointer' }}
-            >
-              <X size={24} color="#999" />
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <button className={styles.modalCloseBtn} onClick={() => setIsModalOpen(false)}>
+              <X size={20} />
             </button>
-            <h2 style={{ marginBottom: '1.5rem', color: '#1a4d2e' }}>{editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}</h2>
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>Tên danh mục</label>
-                <input 
-                  required 
-                  type="text" 
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #eee' }} 
-                  value={formData.name} 
+            <h2 className={styles.modalTitle}>
+              {editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}
+            </h2>
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Tên danh mục</label>
+                <input
+                  required
+                  type="text"
+                  className={styles.input}
+                  value={formData.name}
                   onChange={(e) => {
                     const name = e.target.value;
-                    const slug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                    const slug = name
+                      .toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[̀-ͯ]/g, '')
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/(^-|-$)+/g, '');
                     setFormData({ name, slug });
-                  }} 
-                />
-              </div>
-              
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>Slug (URL)</label>
-                <input 
-                  required 
-                  type="text" 
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #eee', backgroundColor: '#f9f9f9' }} 
-                  value={formData.slug} 
-                  readOnly
+                  }}
                 />
               </div>
 
-              <button 
-                type="submit" 
-                disabled={isSaving} 
-                style={{ 
-                  padding: '1rem', 
-                  marginTop: '1rem', 
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  opacity: isSaving ? 0.7 : 1 
-                }}
-              >
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Slug (URL)</label>
+                <input
+                  required
+                  type="text"
+                  readOnly
+                  className={`${styles.input} ${styles.inputReadonly}`}
+                  value={formData.slug}
+                />
+              </div>
+
+              <button type="submit" disabled={isSaving} className={styles.submitBtn}>
                 {isSaving ? 'Đang lưu...' : 'Lưu danh mục'}
               </button>
             </form>
