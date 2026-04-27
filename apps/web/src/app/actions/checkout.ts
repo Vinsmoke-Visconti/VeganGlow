@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sendOrderConfirmation } from '@/lib/email';
 
 type CheckoutItem = { id: string; quantity: number };
 
@@ -21,6 +22,7 @@ type CheckoutResult =
   | { success: false; error: string };
 
 const PHONE_REGEX = /^(0|\+84)\d{9,10}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function createOrder(input: CheckoutInput): Promise<CheckoutResult> {
   if (!input.items || input.items.length === 0) {
@@ -34,6 +36,9 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   }
   if (!input.address?.trim() || !input.city?.trim()) {
     return { success: false, error: 'Địa chỉ không hợp lệ.' };
+  }
+  if (!EMAIL_REGEX.test(input.email || '')) {
+    return { success: false, error: 'Email không hợp lệ.' };
   }
   if (!['cod', 'card'].includes(input.payment_method)) {
     return { success: false, error: 'Phương thức thanh toán không hợp lệ.' };
@@ -126,6 +131,13 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
 
   revalidatePath('/orders');
   revalidatePath('/products');
+
+  // 4. Gửi email xác nhận (Key thật đã được cấu hình trong env)
+  try {
+    await sendOrderConfirmation(input.email, orderRow.code, totalAmount);
+  } catch (error) {
+    console.error('Failed to send order confirmation email:', error);
+  }
 
   return { success: true, order_id: orderRow.id, order_code: orderRow.code };
 }
