@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { UserPlus, Search, Loader2, Shield, Mail, Phone, Edit, UserMinus } from 'lucide-react';
+import styles from '../admin-shared.module.css';
 
 type Role = {
   id: string;
@@ -39,15 +40,9 @@ export default function AdminStaff() {
       const [staffRes, rolesRes] = await Promise.all([
         supabase
           .from('staff_profiles')
-          .select(`
-            *,
-            roles:role_id (id, name, display_name)
-          `)
+          .select('*, roles:role_id (id, name, display_name)')
           .order('full_name', { ascending: true }),
-        supabase
-          .from('roles')
-          .select('id, name, display_name')
-          .neq('name', 'customer')
+        supabase.from('roles').select('id, name, display_name').neq('name', 'customer'),
       ]);
 
       if (staffRes.error) throw staffRes.error;
@@ -69,134 +64,129 @@ export default function AdminStaff() {
         .eq('id', staffId);
 
       if (error) throw error;
-      setStaff(staff.map(s => s.id === staffId ? { ...s, is_active: !currentStatus } : s));
+      setStaff(staff.map((s) => (s.id === staffId ? { ...s, is_active: !currentStatus } : s)));
     } catch (err: any) {
       alert('Lỗi khi cập nhật trạng thái: ' + err.message);
     }
   }
 
-  const filteredStaff = staff.filter(s => 
-    s.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredStaff = staff.filter(
+    (s) =>
+      s.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.email?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className={styles.page}>
+      <header className={styles.pageHeader}>
         <div>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1a4d2e' }}>Nhân sự & Phân quyền</h1>
-          <p style={{ color: '#666' }}>Quản lý đội ngũ nhân viên và các cấp độ truy cập hệ thống.</p>
+          <h1 className={styles.pageTitle}>Nhân sự & Phân quyền</h1>
+          <p className={styles.pageSubtitle}>Quản lý đội ngũ nhân viên và các cấp độ truy cập hệ thống.</p>
         </div>
         <button
+          className={styles.btnDark}
           onClick={() => alert('Tính năng thêm nhân sự sẽ được phát hành ở phiên bản tiếp theo.')}
-          style={{
-            display: 'flex', 
-            gap: '0.5rem', 
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#1a4d2e',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
         >
-          <UserPlus size={20} />
-          <span>Thêm nhân sự</span>
+          <UserPlus size={18} />
+          Thêm nhân sự
         </button>
       </header>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid #eee' }}>
-           <div style={{ position: 'relative', maxWidth: '400px' }}>
-              <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
-              <input 
-                type="text" 
-                placeholder="Tìm theo tên hoặc email..." 
-                style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: '8px', border: '1px solid #eee', outline: 'none' }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-           </div>
+      <div className={styles.card}>
+        <div className={styles.filterBar}>
+          <div className={styles.searchWrapper}>
+            <Search size={16} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Tìm theo tên hoặc email..."
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className={styles.tableScroll}>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem', gap: '1rem', color: '#666' }}>
-              <Loader2 className="animate-spin" />
+            <div className={styles.loadingState}>
+              <Loader2 className="animate-spin" size={22} />
               Đang tải danh sách nhân sự...
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table className={styles.table}>
               <thead>
-                <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #eee' }}>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>NHÂN VIÊN</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>VAI TRÒ</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>LIÊN HỆ</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>TRẠNG THÁI</th>
-                  <th style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>THAO TÁC</th>
+                <tr>
+                  <th>Nhân viên</th>
+                  <th>Vai trò</th>
+                  <th>Liên hệ</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredStaff.length === 0 ? (
                   <tr>
-                    <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#999' }}>Chưa có nhân sự nào được đăng ký.</td>
+                    <td colSpan={5}>
+                      <div className={styles.emptyState}>Chưa có nhân sự nào được đăng ký.</div>
+                    </td>
                   </tr>
-                ) : filteredStaff.map((member) => (
-                  <tr key={member.id} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#e8f5e9', color: '#1a4d2e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>
-                          {member.full_name?.charAt(0) || '?'}
-                        </div>
-                        <span style={{ fontWeight: '600' }}>{member.full_name}</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '12px', backgroundColor: '#f3f4f6', fontSize: '13px', fontWeight: '500' }}>
-                        <Shield size={14} color="#666" />
-                        {member.roles?.display_name}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#444' }}>
-                          <Mail size={14} color="#999" /> {member.email}
-                        </div>
-                        {member.phone && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#444' }}>
-                            <Phone size={14} color="#999" /> {member.phone}
+                ) : (
+                  filteredStaff.map((member) => (
+                    <tr key={member.id}>
+                      <td>
+                        <div className={styles.productCell}>
+                          <div className={styles.avatarCircle}>
+                            {member.full_name?.charAt(0)?.toUpperCase() || '?'}
                           </div>
-                        )}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <span style={{ 
-                        padding: '4px 10px', 
-                        borderRadius: '20px', 
-                        fontSize: '12px', 
-                        fontWeight: '600',
-                        backgroundColor: member.is_active ? '#d1fae5' : '#fee2e2',
-                        color: member.is_active ? '#10b981' : '#ef4444'
-                      }}>
-                        {member.is_active ? 'Đang hoạt động' : 'Tạm khóa'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem 1.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button style={{ padding: '0.5rem', border: '1px solid #eee', background: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                          <Edit size={16} color="#666" />
-                        </button>
-                        <button 
-                          onClick={() => toggleStatus(member.id, member.is_active)}
-                          style={{ padding: '0.5rem', border: '1px solid #eee', background: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                          <span style={{ fontWeight: 600 }}>{member.full_name}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`${styles.badge} ${styles.badgeNeutral}`}>
+                          <Shield size={12} />
+                          {member.roles?.display_name}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                            <Mail size={13} style={{ color: 'var(--color-text-muted)' }} />
+                            {member.email}
+                          </span>
+                          {member.phone && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                              <Phone size={13} style={{ color: 'var(--color-text-muted)' }} />
+                              {member.phone}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.badge} ${
+                            member.is_active ? styles.badgeSuccess : styles.badgeDanger
+                          }`}
                         >
-                          {member.is_active ? <UserMinus size={16} color="#ef4444" /> : <UserPlus size={16} color="#10b981" />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {member.is_active ? 'Đang hoạt động' : 'Tạm khóa'}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button className={styles.btnOutline}>
+                            <Edit size={15} />
+                          </button>
+                          <button
+                            className={member.is_active ? styles.btnDanger : styles.btnOutline}
+                            onClick={() => toggleStatus(member.id, member.is_active)}
+                            title={member.is_active ? 'Tạm khóa' : 'Kích hoạt lại'}
+                          >
+                            {member.is_active ? <UserMinus size={15} /> : <UserPlus size={15} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           )}

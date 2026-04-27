@@ -2,7 +2,21 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { Search, Loader2, User as UserIcon, Phone, MapPin, ShoppingBag } from 'lucide-react';
+import {
+  Search,
+  Loader2,
+  User as UserIcon,
+  Phone,
+  MapPin,
+  ShoppingBag,
+  X,
+  Mail,
+  Calendar,
+  TrendingUp,
+  Crown,
+  Eye,
+} from 'lucide-react';
+import styles from '../admin-shared.module.css';
 
 type Customer = {
   id: string;
@@ -25,11 +39,48 @@ type CustomerWithStats = Customer & {
   total_spent: number;
 };
 
+type CustomerOrder = {
+  id: string;
+  code: string | null;
+  total_amount: number;
+  status: string;
+  created_at: string;
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Chờ xử lý',
+  confirmed: 'Đã xác nhận',
+  shipping: 'Đang giao',
+  completed: 'Hoàn thành',
+  cancelled: 'Đã hủy',
+};
+
+const STATUS_BADGE: Record<string, string> = {
+  pending: 'badgePending',
+  confirmed: 'badgeInfo',
+  shipping: 'badgeShipping',
+  completed: 'badgeSuccess',
+  cancelled: 'badgeDanger',
+};
+
+const VIP_THRESHOLD = 5_000_000;
+
+function getCustomerTier(spent: number): { label: string; cls: string } | null {
+  if (spent >= VIP_THRESHOLD) return { label: 'VIP', cls: 'badgeSuccess' };
+  if (spent >= 1_000_000) return { label: 'Khách thân thiết', cls: 'badgeInfo' };
+  if (spent > 0) return { label: 'Khách mới', cls: 'badgeNeutral' };
+  return null;
+}
+
 export default function AdminCustomers() {
   const supabase = createBrowserClient();
   const [customers, setCustomers] = useState<CustomerWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  const [selected, setSelected] = useState<CustomerWithStats | null>(null);
+  const [selectedOrders, setSelectedOrders] = useState<CustomerOrder[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -42,10 +93,7 @@ export default function AdminCustomers() {
             .select('id, full_name, phone, address, ward, province, role, created_at')
             .eq('role', 'customer')
             .order('created_at', { ascending: false }),
-          supabase
-            .from('orders')
-            .select('user_id, total_amount')
-            .neq('status', 'cancelled'),
+          supabase.from('orders').select('user_id, total_amount').neq('status', 'cancelled'),
         ]);
 
         if (profilesRes.error) throw profilesRes.error;
@@ -73,8 +121,30 @@ export default function AdminCustomers() {
         if (alive) setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [supabase]);
+
+  async function openDetail(customer: CustomerWithStats) {
+    setSelected(customer);
+    setSelectedOrders([]);
+    setLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('id, code, total_amount, status, created_at')
+        .eq('user_id', customer.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      setSelectedOrders((data as CustomerOrder[]) || []);
+    } catch (err: any) {
+      alert('Lỗi khi tải đơn hàng: ' + err.message);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }
 
   const filtered = useMemo(() => {
     if (!search.trim()) return customers;
@@ -83,133 +153,415 @@ export default function AdminCustomers() {
       (c) =>
         c.full_name?.toLowerCase().includes(q) ||
         c.phone?.toLowerCase().includes(q) ||
-        c.province?.toLowerCase().includes(q)
+        c.province?.toLowerCase().includes(q),
     );
   }, [customers, search]);
 
-  const totals = useMemo(() => {
-    return customers.reduce(
-      (acc, c) => {
-        acc.totalSpent += c.total_spent;
-        acc.totalOrders += c.order_count;
-        if (c.order_count > 0) acc.activeBuyers += 1;
-        return acc;
-      },
-      { totalSpent: 0, totalOrders: 0, activeBuyers: 0 }
-    );
-  }, [customers]);
+  const totals = useMemo(
+    () =>
+      customers.reduce(
+        (acc, c) => {
+          acc.totalSpent += c.total_spent;
+          acc.totalOrders += c.order_count;
+          if (c.order_count > 0) acc.activeBuyers += 1;
+          if (c.total_spent >= VIP_THRESHOLD) acc.vip += 1;
+          return acc;
+        },
+        { totalSpent: 0, totalOrders: 0, activeBuyers: 0, vip: 0 },
+      ),
+    [customers],
+  );
+
+  const aov = totals.totalOrders > 0 ? totals.totalSpent / totals.totalOrders : 0;
+
+  const customerLifetimeOrders = selected
+    ? selectedOrders.filter((o) => o.status !== 'cancelled')
+    : [];
+  const lastOrderDate = selectedOrders[0]?.created_at;
+  const customerAov =
+    customerLifetimeOrders.length > 0
+      ? customerLifetimeOrders.reduce((s, o) => s + Number(o.total_amount), 0) /
+        customerLifetimeOrders.length
+      : 0;
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: '#1a4d2e' }}>Khách hàng</h1>
-        <p style={{ color: '#666' }}>Theo dõi tệp khách hàng VeganGlow và lịch sử mua hàng (CRM).</p>
+    <div className={styles.page}>
+      <header className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Khách hàng</h1>
+          <p className={styles.pageSubtitle}>
+            Theo dõi tệp khách hàng VeganGlow, lịch sử mua hàng và phân tích CRM.
+          </p>
+        </div>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-        <StatCard label="Tổng khách hàng" value={customers.length.toString()} />
-        <StatCard label="Khách đã đặt hàng" value={totals.activeBuyers.toString()} />
-        <StatCard label="Tổng đơn hàng" value={totals.totalOrders.toString()} />
-        <StatCard label="Tổng giá trị (VNĐ)" value={totals.totalSpent.toLocaleString('vi-VN')} />
+      <div className={styles.statsRow}>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Tổng khách hàng</div>
+          <div className={styles.statValue}>{customers.length}</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Khách đã đặt hàng</div>
+          <div className={styles.statValue}>{totals.activeBuyers}</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>Khách VIP (≥ 5tr)</div>
+          <div className={styles.statValue}>{totals.vip}</div>
+        </div>
+        <div className={styles.statCard}>
+          <div className={styles.statLabel}>AOV trung bình</div>
+          <div className={styles.statValue}>{Math.round(aov).toLocaleString('vi-VN')}đ</div>
+        </div>
       </div>
 
-      <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-        <div style={{ padding: '1.25rem', borderBottom: '1px solid #eee' }}>
-          <div style={{ position: 'relative', maxWidth: 400 }}>
-            <Search size={18} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+      <div className={styles.card}>
+        <div className={styles.filterBar}>
+          <div className={styles.searchWrapper}>
+            <Search size={16} className={styles.searchIcon} />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm tên, SĐT, tỉnh/thành..."
-              style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: 8, border: '1px solid #eee', outline: 'none' }}
+              className={styles.searchInput}
             />
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className={styles.tableScroll}>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4rem', gap: '1rem', color: '#666' }}>
-              <Loader2 className="animate-spin" /> Đang tải khách hàng...
+            <div className={styles.loadingState}>
+              <Loader2 className="animate-spin" size={22} />
+              Đang tải khách hàng...
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <table className={styles.table}>
               <thead>
-                <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #eee' }}>
-                  <th style={th}>KHÁCH HÀNG</th>
-                  <th style={th}>LIÊN HỆ</th>
-                  <th style={th}>ĐỊA CHỈ</th>
-                  <th style={th}>SỐ ĐƠN</th>
-                  <th style={th}>TỔNG CHI TIÊU</th>
-                  <th style={th}>NGÀY ĐĂNG KÝ</th>
+                <tr>
+                  <th>Khách hàng</th>
+                  <th>Phân hạng</th>
+                  <th>Liên hệ</th>
+                  <th>Địa chỉ</th>
+                  <th>Số đơn</th>
+                  <th>Tổng chi tiêu</th>
+                  <th>Ngày đăng ký</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '3rem', textAlign: 'center', color: '#999' }}>
-                      Chưa có khách hàng nào.
+                    <td colSpan={8}>
+                      <div className={styles.emptyState}>
+                        Không tìm thấy khách hàng nào khớp với tìm kiếm.
+                      </div>
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((c) => (
-                    <tr key={c.id} style={{ borderBottom: '1px solid #eee' }}>
-                      <td style={td}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#e8f5e9', color: '#1a4d2e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <UserIcon size={18} />
+                  filtered.map((c) => {
+                    const tier = getCustomerTier(c.total_spent);
+                    return (
+                      <tr key={c.id}>
+                        <td>
+                          <div className={styles.productCell}>
+                            <div className={styles.avatarCircle}>
+                              <UserIcon size={16} />
+                            </div>
+                            <span style={{ fontWeight: 600 }}>
+                              {c.full_name || '(Chưa cập nhật)'}
+                            </span>
                           </div>
-                          <span style={{ fontWeight: 600 }}>{c.full_name || '(Chưa cập nhật)'}</span>
-                        </div>
-                      </td>
-                      <td style={td}>
-                        {c.phone ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#444' }}>
-                            <Phone size={13} /> {c.phone}
+                        </td>
+                        <td>
+                          {tier ? (
+                            <span
+                              className={`${styles.badge} ${styles[tier.cls]}`}
+                              style={{ display: 'inline-flex', gap: 4 }}
+                            >
+                              {tier.label === 'VIP' && <Crown size={12} />}
+                              {tier.label}
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>
+                              Chưa mua
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {c.phone ? (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                fontSize: 13,
+                                color: 'var(--color-text-secondary)',
+                              }}
+                            >
+                              <Phone size={13} /> {c.phone}
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>—</span>
+                          )}
+                        </td>
+                        <td style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                          {c.address || c.ward || c.province ? (
+                            <span
+                              style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 4 }}
+                            >
+                              <MapPin
+                                size={13}
+                                style={{ marginTop: 2, flexShrink: 0 }}
+                              />
+                              {[c.address, c.ward, c.province].filter(Boolean).join(', ')}
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`${styles.badge} ${styles.badgeNeutral}`}>
+                            <ShoppingBag size={12} /> {c.order_count}
                           </span>
-                        ) : (
-                          <span style={{ color: '#999', fontSize: 13 }}>—</span>
-                        )}
-                      </td>
-                      <td style={{ ...td, fontSize: 13, color: '#444' }}>
-                        {c.address || c.ward || c.province ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'flex-start', gap: 4 }}>
-                            <MapPin size={13} style={{ marginTop: 2 }} />
-                            {[c.address, c.ward, c.province].filter(Boolean).join(', ')}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#999' }}>—</span>
-                        )}
-                      </td>
-                      <td style={td}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 12, backgroundColor: '#f3f4f6', fontSize: 12, fontWeight: 600 }}>
-                          <ShoppingBag size={12} /> {c.order_count}
-                        </span>
-                      </td>
-                      <td style={{ ...td, fontWeight: 600 }}>{c.total_spent.toLocaleString('vi-VN')}đ</td>
-                      <td style={{ ...td, fontSize: 13, color: '#666' }}>
-                        {new Date(c.created_at).toLocaleDateString('vi-VN')}
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td style={{ fontWeight: 600 }}>
+                          {c.total_spent.toLocaleString('vi-VN')}đ
+                        </td>
+                        <td style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
+                          {new Date(c.created_at).toLocaleDateString('vi-VN')}
+                        </td>
+                        <td>
+                          <button
+                            className={styles.btnOutline}
+                            onClick={() => openDetail(c)}
+                            title="Xem chi tiết"
+                          >
+                            <Eye size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
           )}
         </div>
       </div>
-    </div>
-  );
-}
 
-const th: React.CSSProperties = { padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#666' };
-const td: React.CSSProperties = { padding: '1rem 1.5rem' };
+      {/* Customer Detail Modal */}
+      {selected && (
+        <div
+          className={styles.modalOverlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelected(null);
+          }}
+        >
+          <div className={`${styles.modal} ${styles.modalWide}`}>
+            <button className={styles.modalCloseBtn} onClick={() => setSelected(null)}>
+              <X size={20} />
+            </button>
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div style={{ backgroundColor: 'white', padding: '1.25rem 1.5rem', borderRadius: 12, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
-      <div style={{ fontSize: 12, color: '#666', textTransform: 'uppercase', fontWeight: 600 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: '#1a4d2e', marginTop: 4 }}>{value}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+              <div
+                className={styles.avatarCircle}
+                style={{ width: 64, height: 64, fontSize: 22 }}
+              >
+                {selected.full_name?.charAt(0)?.toUpperCase() || <UserIcon size={26} />}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h2 className={styles.modalTitle} style={{ marginBottom: 4 }}>
+                  {selected.full_name || '(Chưa cập nhật tên)'}
+                </h2>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 12,
+                    fontSize: 13,
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
+                  {selected.phone && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <Phone size={13} /> {selected.phone}
+                    </span>
+                  )}
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <Calendar size={13} /> Đăng ký từ{' '}
+                    {new Date(selected.created_at).toLocaleDateString('vi-VN')}
+                  </span>
+                </div>
+              </div>
+              {(() => {
+                const tier = getCustomerTier(selected.total_spent);
+                if (!tier) return null;
+                return (
+                  <span
+                    className={`${styles.badge} ${styles[tier.cls]}`}
+                    style={{ fontSize: 13, padding: '6px 14px' }}
+                  >
+                    {tier.label === 'VIP' && <Crown size={14} />}
+                    {tier.label}
+                  </span>
+                );
+              })()}
+            </div>
+
+            {/* CRM stats */}
+            <div className={styles.infoGrid} style={{ marginBottom: 16 }}>
+              <div className={styles.infoPanel}>
+                <div className={styles.infoPanelTitle}>Tổng chi tiêu (LTV)</div>
+                <div
+                  style={{
+                    fontSize: 'var(--text-2xl)',
+                    fontWeight: 800,
+                    color: 'var(--color-primary-dark)',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  {selected.total_spent.toLocaleString('vi-VN')}đ
+                </div>
+              </div>
+              <div className={styles.infoPanel}>
+                <div className={styles.infoPanelTitle}>Số đơn / AOV</div>
+                <div
+                  style={{
+                    fontSize: 'var(--text-2xl)',
+                    fontWeight: 800,
+                    color: 'var(--color-primary-dark)',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                >
+                  {selected.order_count}
+                  <span
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 500,
+                      color: 'var(--color-text-muted)',
+                      marginLeft: 8,
+                    }}
+                  >
+                    · {Math.round(customerAov).toLocaleString('vi-VN')}đ/đơn
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Address */}
+            {(selected.address || selected.ward || selected.province) && (
+              <div className={styles.infoPanel} style={{ marginBottom: 16 }}>
+                <div className={styles.infoPanelTitle}>
+                  <MapPin size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  Địa chỉ giao hàng
+                </div>
+                <div className={styles.infoLine}>
+                  {[selected.address, selected.ward, selected.province]
+                    .filter(Boolean)
+                    .join(', ')}
+                </div>
+              </div>
+            )}
+
+            {/* Order history */}
+            <div className={styles.sectionTitle}>
+              <ShoppingBag
+                size={16}
+                style={{ display: 'inline', marginRight: 6, verticalAlign: -2 }}
+              />
+              Lịch sử đơn hàng
+              {lastOrderDate && (
+                <span
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--color-text-muted)',
+                    fontWeight: 500,
+                    marginLeft: 8,
+                  }}
+                >
+                  Đơn gần nhất:{' '}
+                  {new Date(lastOrderDate).toLocaleDateString('vi-VN')}
+                </span>
+              )}
+            </div>
+
+            <div className={styles.subTable}>
+              {loadingOrders ? (
+                <div className={styles.loadingState}>
+                  <Loader2 className="animate-spin" size={20} />
+                  Đang tải đơn hàng...
+                </div>
+              ) : selectedOrders.length === 0 ? (
+                <div className={styles.emptyState}>
+                  Khách hàng chưa có đơn hàng nào.
+                </div>
+              ) : (
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Mã đơn</th>
+                      <th>Ngày</th>
+                      <th>Tổng tiền</th>
+                      <th>Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrders.map((o) => (
+                      <tr key={o.id}>
+                        <td>
+                          <span className={styles.codeText}>
+                            #{o.code || o.id.slice(0, 6)}
+                          </span>
+                        </td>
+                        <td style={{ color: 'var(--color-text-muted)', fontSize: 13 }}>
+                          {new Date(o.created_at).toLocaleDateString('vi-VN')}
+                        </td>
+                        <td style={{ fontWeight: 600 }}>
+                          {Number(o.total_amount).toLocaleString('vi-VN')}đ
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.badge} ${styles[STATUS_BADGE[o.status] || 'badgeNeutral']}`}
+                          >
+                            {STATUS_LABEL[o.status] || o.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Quick contact actions */}
+            <div className={styles.actionBtns} style={{ marginTop: 16 }}>
+              {selected.phone && (
+                <a
+                  href={`tel:${selected.phone}`}
+                  className={`${styles.btnAction} ${styles.btnActionGreen}`}
+                >
+                  <Phone size={14} /> Gọi điện
+                </a>
+              )}
+              {selected.phone && (
+                <a
+                  href={`sms:${selected.phone}`}
+                  className={`${styles.btnAction} ${styles.btnActionBlue}`}
+                >
+                  <Mail size={14} /> Gửi SMS
+                </a>
+              )}
+              <button
+                className={styles.btnOutline}
+                onClick={() => setSelected(null)}
+                style={{ marginLeft: 'auto' }}
+              >
+                <TrendingUp size={14} /> Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
