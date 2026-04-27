@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { Plus, Edit, Trash2, Search, Loader2, X, Tag } from 'lucide-react';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 type Product = {
   id: string;
@@ -222,7 +223,7 @@ export default function AdminProducts() {
                     <td style={{ padding: '1rem 1.5rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div style={{ width: '48px', height: '48px', background: '#f0fdf4', borderRadius: '8px', overflow: 'hidden' }}>
-                          <img src={product.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=B7E4C7&color=1B4332`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <SafeImage src={product.image} fallback={`https://ui-avatars.com/api/?name=${encodeURIComponent(product.name)}&background=B7E4C7&color=1B4332`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <span style={{ fontWeight: '600' }}>{product.name}</span>
                       </div>

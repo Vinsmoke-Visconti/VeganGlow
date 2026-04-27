@@ -2,6 +2,9 @@ import Link from 'next/link';
 import styles from './storefront-layout.module.css';
 import { CartProvider } from '@/context/CartContext';
 import StorefrontNavbar from '@/components/layout/StorefrontNavbar';
+import PageTransition from '@/components/ui/PageTransition';
+import { ScrollProgress } from '@/components/ui/ScrollProgress';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 
 export default function StorefrontLayout({
   children,
@@ -11,11 +14,12 @@ export default function StorefrontLayout({
   return (
     <CartProvider>
       <div className={styles.wrapper}>
+        <ScrollProgress />
         <StorefrontNavbar />
 
         {/* Main Content */}
         <main className={styles.main}>
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
 
         {/* Modern Footer */}
@@ -31,14 +35,25 @@ export default function StorefrontLayout({
                 <li><Link href="/products?category=serum">Serum</Link></li>
                 <li><Link href="/products?category=toner">Toner</Link></li>
                 <li><Link href="/products?category=mat-na">Mặt nạ</Link></li>
+                <li><Link href="/products?category=chong-nang">Chống nắng</Link></li>
               </ul>
             </div>
             <div className={styles.footerLinks}>
-              <h4>Về chúng tôi</h4>
+              <h4>Hỗ trợ</h4>
               <ul>
-                <li><Link href="/about">Câu chuyện</Link></li>
+                <li><Link href="/about">Về chúng tôi</Link></li>
+                <li><Link href="/blog">Blog</Link></li>
                 <li><Link href="/contact">Liên hệ</Link></li>
                 <li><Link href="/faq">Câu hỏi thường gặp</Link></li>
+              </ul>
+            </div>
+            <div className={styles.footerLinks}>
+              <h4>Tài khoản</h4>
+              <ul>
+                <li><Link href="/login">Đăng nhập</Link></li>
+                <li><Link href="/register">Đăng ký</Link></li>
+                <li><Link href="/orders">Đơn hàng của tôi</Link></li>
+                <li><Link href="/profile">Hồ sơ</Link></li>
               </ul>
             </div>
           </div>
@@ -46,6 +61,8 @@ export default function StorefrontLayout({
             <p>&copy; {new Date().getFullYear()} VeganGlow. All rights reserved.</p>
           </div>
         </footer>
+
+        <ScrollToTop />
       </div>
     </CartProvider>
   );
