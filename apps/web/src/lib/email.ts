@@ -16,7 +16,7 @@ export async function sendOrderConfirmation(email: string, orderId: string, tota
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'VeganGlow <orders@veganglow.vn>',
+      from: 'VeganGlow <onboarding@resend.dev>',
       to: [email],
       subject: `[VeganGlow] Xác nhận đơn hàng #${orderId}`,
       html: `
