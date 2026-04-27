@@ -5,10 +5,23 @@ import AddToCartButton from '@/components/products/AddToCartButton';
 import { Database } from '@/types/database';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 import { ArrowRight, Leaf, Shield, Heart, Sparkles } from 'lucide-react';
+import { cacheGet, cacheSet } from '@/lib/redis';
 
 export default async function Home() {
   const supabase = await createClient();
-  const { data: products } = await supabase.from('products').select('*').limit(4);
+
+  // 1. Try to get featured products from Redis
+  const cacheKey = 'featured_products';
+  let products = await cacheGet<any[]>(cacheKey);
+
+  if (!products) {
+    // 2. If not in cache, fetch from Supabase
+    const { data: dbProducts } = await supabase.from('products').select('*').limit(4);
+    products = dbProducts || [];
+    
+    // 3. Save to Redis Cache (expire in 30 minutes)
+    await cacheSet(cacheKey, products, 1800);
+  }
 
 
   return (

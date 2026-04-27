@@ -5,33 +5,53 @@ import Link from 'next/link';
 import styles from './product-detail.module.css';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 import { Leaf, Shield, Sparkles, Star, ShieldCheck } from 'lucide-react';
+import { cacheGet, cacheSet } from '@/lib/redis';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient();
   const { slug } = await params;
 
-  const { data: product } = await supabase
-    .from('products')
-    .select(`
-      *,
-      categories:category_id (id, name, slug)
-    `)
-    .eq('slug', slug)
-    .single();
+  // 1. Try to get product from Redis Cache
+  const cacheKey = `product:${slug}`;
+  let product = await cacheGet<any>(cacheKey);
 
   if (!product) {
-    notFound();
+    // 2. If not in cache, fetch from Supabase
+    const { data: dbProduct } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories:category_id (id, name, slug)
+      `)
+      .eq('slug', slug)
+      .single();
+
+    if (!dbProduct) {
+      notFound();
+    }
+    
+    product = dbProduct;
+    // 3. Save to Redis Cache (expire in 1 hour)
+    await cacheSet(cacheKey, product, 3600);
   }
 
   const typedProduct = product as any;
 
-  // Fetch related products
-  const { data: relatedProducts } = await supabase
-    .from('products')
-    .select('*')
-    .eq('category_id', typedProduct.category_id)
-    .neq('id', typedProduct.id)
-    .limit(4);
+  // Fetch related products (with caching)
+  const relatedCacheKey = `related:${typedProduct.category_id}:${typedProduct.id}`;
+  let relatedProducts = await cacheGet<any[]>(relatedCacheKey);
+
+  if (!relatedProducts) {
+    const { data: dbRelated } = await supabase
+      .from('products')
+      .select('*')
+      .eq('category_id', typedProduct.category_id)
+      .neq('id', typedProduct.id)
+      .limit(4);
+    
+    relatedProducts = dbRelated || [];
+    await cacheSet(relatedCacheKey, relatedProducts, 3600);
+  }
 
   const typedRelated = (relatedProducts || []) as any[];
 
