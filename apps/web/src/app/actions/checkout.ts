@@ -12,7 +12,10 @@ type CheckoutInput = {
   phone: string;
   email: string;
   address: string;
-  city: string;
+  ward: string;
+  ward_code: string;
+  province: string;
+  province_code: string;
   payment_method: 'cod' | 'card';
   note?: string;
 };
@@ -34,8 +37,14 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   if (!PHONE_REGEX.test(input.phone || '')) {
     return { success: false, error: 'Số điện thoại không hợp lệ.' };
   }
-  if (!input.address?.trim() || !input.city?.trim()) {
+  if (!input.address?.trim()) {
     return { success: false, error: 'Địa chỉ không hợp lệ.' };
+  }
+  if (!input.province_code?.trim() || !input.province?.trim()) {
+    return { success: false, error: 'Vui lòng chọn Tỉnh / Thành phố.' };
+  }
+  if (!input.ward_code?.trim() || !input.ward?.trim()) {
+    return { success: false, error: 'Vui lòng chọn Phường / Xã.' };
   }
   if (!EMAIL_REGEX.test(input.email || '')) {
     return { success: false, error: 'Email không hợp lệ.' };
@@ -96,8 +105,14 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
       user_id: user?.id ?? null,
       customer_name: input.customer_name.trim(),
       phone: input.phone.trim(),
+      email: input.email.trim(),
       address: input.address.trim(),
-      city: input.city.trim(),
+      city: input.province.trim(), // legacy "city" mirrors province for back-compat
+      ward: input.ward.trim(),
+      ward_code: input.ward_code.trim(),
+      province: input.province.trim(),
+      province_code: input.province_code.trim(),
+      note: input.note?.trim() || null,
       payment_method: input.payment_method,
       total_amount: totalAmount,
     })
@@ -124,7 +139,7 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
       p_quantity: item.quantity,
     });
     if (ok === false) {
-      // Insufficient stock at write time — log but order already created
+      // Atomic decrement failed (race condition) — log; order already created.
       console.warn(`Stock decrement failed for ${item.id}; possible oversell`);
     }
   }
@@ -132,7 +147,6 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   revalidatePath('/orders');
   revalidatePath('/products');
 
-  // 4. Gửi email xác nhận (Key thật đã được cấu hình trong env)
   try {
     await sendOrderConfirmation(input.email, orderRow.code, totalAmount);
   } catch (error) {

@@ -74,5 +74,17 @@ apps/mobile/ios/DerivedData/
 *.log
 pass_word_supadase.txt
 
-.vercel
-.env*.local
+# Security & Secrets
+.env
+.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+*.token
+credentials.json
+.npmrc
+.yarnrc
+pass_word_supadase.txt

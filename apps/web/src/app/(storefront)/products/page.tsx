@@ -12,11 +12,13 @@ export const revalidate = 3600;
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const params = await searchParams;
   const supabase = await createClient();
   
-  const query = typeof searchParams?.q === 'string' ? searchParams.q : '';
+  const query = typeof params?.q === 'string' ? params.q : '';
+
 
   let dbQuery = supabase
     .from('products')

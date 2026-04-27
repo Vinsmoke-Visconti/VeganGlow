@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { UserPlus, Search, Loader2, Shield, Mail, Phone, MoreVertical, Edit, UserMinus } from 'lucide-react';
+import { createBrowserClient } from '@/lib/supabase/client';
+import { UserPlus, Search, Loader2, Shield, Mail, Phone, Edit, UserMinus } from 'lucide-react';
 
 type Role = {
   id: string;
@@ -22,23 +22,15 @@ type StaffMember = {
 };
 
 export default function AdminStaff() {
+  const supabase = createBrowserClient();
   const [staff, setStaff] = useState<StaffMember[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  
-  const [newStaff, setNewStaff] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    role_id: '',
-    is_active: true
-  });
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchData() {
@@ -61,12 +53,8 @@ export default function AdminStaff() {
       if (staffRes.error) throw staffRes.error;
       if (rolesRes.error) throw rolesRes.error;
 
-      setStaff(staffRes.data || []);
-      setRoles(rolesRes.data || []);
-      
-      if (rolesRes.data && rolesRes.data.length > 0) {
-        setNewStaff(prev => ({ ...prev, role_id: rolesRes.data[0].id }));
-      }
+      setStaff((staffRes.data as unknown as StaffMember[]) || []);
+      setRoles((rolesRes.data as unknown as Role[]) || []);
     } catch (err: any) {
       alert('Lỗi khi tải dữ liệu: ' + err.message);
     } finally {
@@ -76,11 +64,10 @@ export default function AdminStaff() {
 
   async function toggleStatus(staffId: string, currentStatus: boolean) {
     try {
-      const { error } = await supabase
-        .from('staff_profiles')
+      const { error } = await (supabase.from('staff_profiles') as any)
         .update({ is_active: !currentStatus })
         .eq('id', staffId);
-      
+
       if (error) throw error;
       setStaff(staff.map(s => s.id === staffId ? { ...s, is_active: !currentStatus } : s));
     } catch (err: any) {
@@ -100,9 +87,9 @@ export default function AdminStaff() {
           <h1 style={{ fontSize: '1.875rem', fontWeight: '800', color: '#1a4d2e' }}>Nhân sự & Phân quyền</h1>
           <p style={{ color: '#666' }}>Quản lý đội ngũ nhân viên và các cấp độ truy cập hệ thống.</p>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          style={{ 
+        <button
+          onClick={() => alert('Tính năng thêm nhân sự sẽ được phát hành ở phiên bản tiếp theo.')}
+          style={{
             display: 'flex', 
             gap: '0.5rem', 
             padding: '0.75rem 1.5rem',

@@ -78,8 +78,69 @@
   color: var(--color-primary);
 }
 
-.navLink:hover::after {
+.navLink:hover::after,
+.navLinkActive::after {
   width: 100%;
+}
+
+.navLinkActive {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.navMobileToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  color: var(--color-text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .navMobileToggle {
+    display: none;
+  }
+}
+
+.navDrawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.navDrawerPanel {
+  width: min(320px, 90vw);
+  height: 100%;
+  background: white;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.12);
+}
+
+.navDrawerLink {
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navDrawerLink:hover,
+.navDrawerLinkActive {
+  background: var(--color-primary-50);
+  color: var(--color-primary);
 }
 
 .actions {
@@ -151,8 +212,8 @@
 
 @media (min-width: 768px) {
   .footerContainer {
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: var(--space-16);
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--space-12);
   }
 }
 

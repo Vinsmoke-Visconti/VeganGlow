@@ -42,8 +42,8 @@ export default function AdminCategories() {
         .order('name', { ascending: true });
       
       if (error) throw error;
-      
-      const formattedData = data.map((cat: any) => ({
+
+      const formattedData = (data || []).map((cat: any) => ({
         ...cat,
         product_count: cat.products?.[0]?.count || 0
       }));

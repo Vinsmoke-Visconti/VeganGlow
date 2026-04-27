@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Loader2 } from 'lucide-react';
 import styles from './checkout.module.css';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createOrder } from '@/app/actions/checkout';
+import { VnAddressSelect, emptyVnAddress, type VnAddressValue } from '@/components/shared/VnAddressSelect';
+import { createBrowserClient } from '@/lib/supabase/client';
 
 export default function CheckoutPage() {
   const { cartItems, totalAmount, clearCart } = useCart();
@@ -14,6 +16,48 @@ export default function CheckoutPage() {
   const [orderCode, setOrderCode] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [address, setAddress] = useState<VnAddressValue>(emptyVnAddress);
+  const [prefill, setPrefill] = useState<{ full_name: string; phone: string; email: string; address: string } | null>(null);
+
+  // Prefill from saved profile, if logged in
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const supabase = createBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !alive) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, phone, address, ward, ward_code, province, province_code')
+        .eq('id', user.id)
+        .single();
+      if (!alive || !data) return;
+      const row = data as {
+        full_name: string | null;
+        phone: string | null;
+        address: string | null;
+        ward: string | null;
+        ward_code: string | null;
+        province: string | null;
+        province_code: string | null;
+      };
+      setPrefill({
+        full_name: row.full_name || '',
+        phone: row.phone || '',
+        email: user.email || '',
+        address: row.address || '',
+      });
+      if (row.province_code && row.ward_code) {
+        setAddress({
+          province_code: row.province_code,
+          province: row.province || '',
+          ward_code: row.ward_code,
+          ward: row.ward || '',
+        });
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   if (isSuccess) {
     return (
@@ -64,8 +108,13 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (submitting) return;
     setErrorMsg('');
-    setSubmitting(true);
 
+    if (!address.province_code || !address.ward_code) {
+      setErrorMsg('Vui lòng chọn Tỉnh/Thành phố và Phường/Xã.');
+      return;
+    }
+
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const paymentMethod = (formData.get('payment') as string) === 'card' ? 'card' : 'cod';
 
@@ -75,7 +124,10 @@ export default function CheckoutPage() {
       phone: (formData.get('phone') as string) || '',
       email: (formData.get('email') as string) || '',
       address: (formData.get('address') as string) || '',
-      city: (formData.get('city') as string) || 'TP. Hồ Chí Minh',
+      ward: address.ward,
+      ward_code: address.ward_code,
+      province: address.province,
+      province_code: address.province_code,
       payment_method: paymentMethod,
       note: (formData.get('note') as string) || '',
     });
@@ -119,24 +171,26 @@ export default function CheckoutPage() {
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label>Họ và tên</label>
-                  <input name="customer_name" type="text" required maxLength={120} placeholder="Nhập họ và tên..." />
+                  <input name="customer_name" type="text" required maxLength={120} placeholder="Nhập họ và tên..." defaultValue={prefill?.full_name} />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Số điện thoại</label>
-                  <input name="phone" type="tel" required pattern="(0|\+84)\d{9,10}" placeholder="VD: 0901234567" />
+                  <input name="phone" type="tel" required pattern="(0|\+84)\d{9,10}" placeholder="VD: 0901234567" defaultValue={prefill?.phone} />
                 </div>
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
                   <label>Email</label>
-                  <input name="email" type="email" required placeholder="Nhập địa chỉ email..." />
+                  <input name="email" type="email" required placeholder="Nhập địa chỉ email..." defaultValue={prefill?.email} />
                 </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <VnAddressSelect value={address} onChange={setAddress} required />
+                </div>
+
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
-                  <label>Địa chỉ giao hàng</label>
-                  <input name="address" type="text" required maxLength={250} placeholder="Số nhà, tên đường, phường/xã..." />
+                  <label>Số nhà, tên đường</label>
+                  <input name="address" type="text" required maxLength={250} placeholder="VD: 12 Nguyễn Văn Cừ" defaultValue={prefill?.address} />
                 </div>
-                <div className={styles.formGroup}>
-                  <label>Tỉnh / Thành phố</label>
-                  <input name="city" type="text" required defaultValue="TP. Hồ Chí Minh" maxLength={100} />
-                </div>
+
                 <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
                   <label>Ghi chú (Tùy chọn)</label>
                   <textarea name="note" rows={3} maxLength={500} placeholder="Ghi chú thêm về đơn hàng..."></textarea>

@@ -1,11 +1,21 @@
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import styles from './backoffice-layout.module.css';
+import PageTransition from '@/components/ui/PageTransition';
 
-export default function BackofficeLayout({
+export default async function BackofficeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // NOTE: Authentication and staff checks are handled by middleware.ts
+  // to avoid infinite redirect loops on the login page.
+
+
   return (
     <div className={styles.adminContainer}>
       {/* Sidebar */}
@@ -34,6 +44,9 @@ export default function BackofficeLayout({
             </Link>
             <Link href="/admin/categories" className={styles.navItem}>
               📂 Danh mục
+            </Link>
+            <Link href="/admin/customers" className={styles.navItem}>
+              🧑‍🤝‍🧑 Khách hàng
             </Link>
           </div>
 
@@ -74,7 +87,7 @@ export default function BackofficeLayout({
         </header>
 
         <main className={styles.mainContent}>
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
     </div>

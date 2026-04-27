@@ -3,18 +3,23 @@
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { Search, Loader2, Filter, Eye, CheckCircle, Truck, XCircle, Clock } from 'lucide-react';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 type Order = {
   id: string;
   code: string;
   customer_name: string;
   phone: string;
+  email: string | null;
   total_amount: number;
   status: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
   payment_method: 'cod' | 'card';
   created_at: string;
   address: string;
   city: string;
+  ward: string | null;
+  province: string | null;
+  note: string | null;
 };
 
 export default function AdminOrders() {
@@ -239,7 +244,15 @@ export default function AdminOrders() {
                 <h3 style={{ fontSize: '0.875rem', fontWeight: '700', color: '#666', marginBottom: '1rem', textTransform: 'uppercase' }}>Thông tin khách hàng</h3>
                 <p style={{ fontWeight: '600', marginBottom: '4px' }}>{selectedOrder.customer_name}</p>
                 <p style={{ fontSize: '0.875rem', color: '#444', marginBottom: '4px' }}>📞 {selectedOrder.phone}</p>
-                <p style={{ fontSize: '0.875rem', color: '#444' }}>📍 {selectedOrder.address}, {selectedOrder.city}</p>
+                {selectedOrder.email && (
+                  <p style={{ fontSize: '0.875rem', color: '#444', marginBottom: '4px' }}>✉️ {selectedOrder.email}</p>
+                )}
+                <p style={{ fontSize: '0.875rem', color: '#444' }}>
+                  📍 {[selectedOrder.address, selectedOrder.ward, selectedOrder.province || selectedOrder.city].filter(Boolean).join(', ')}
+                </p>
+                {selectedOrder.note && (
+                  <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem', fontStyle: 'italic' }}>📝 {selectedOrder.note}</p>
+                )}
               </div>
               <div style={{ padding: '1.25rem', backgroundColor: '#f9f9f9', borderRadius: '12px' }}>
                 <h3 style={{ fontSize: '0.875rem', fontWeight: '700', color: '#666', marginBottom: '1rem', textTransform: 'uppercase' }}>Thanh toán</h3>
@@ -268,7 +281,7 @@ export default function AdminOrders() {
                         <tr key={item.id} style={{ borderTop: '1px solid #eee' }}>
                           <td style={{ padding: '1rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <img src={item.product_image || 'https://via.placeholder.com/40'} alt={item.product_name} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
+                              <SafeImage src={item.product_image} fallback="https://via.placeholder.com/40" alt={item.product_name} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
                               <span style={{ fontWeight: '600', fontSize: '0.875rem' }}>{item.product_name}</span>
                             </div>
                           </td>

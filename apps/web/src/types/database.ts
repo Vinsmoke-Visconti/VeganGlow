@@ -20,6 +20,12 @@ export interface Database {
           full_name: string | null;
           avatar_url: string | null;
           role: 'customer' | 'admin';
+          phone: string | null;
+          address: string | null;
+          ward: string | null;
+          ward_code: string | null;
+          province: string | null;
+          province_code: string | null;
           created_at: string;
         };
         Insert: {
@@ -27,6 +33,12 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           role?: 'customer' | 'admin';
+          phone?: string | null;
+          address?: string | null;
+          ward?: string | null;
+          ward_code?: string | null;
+          province?: string | null;
+          province_code?: string | null;
           created_at?: string;
         };
         Update: {
@@ -34,6 +46,12 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           role?: 'customer' | 'admin';
+          phone?: string | null;
+          address?: string | null;
+          ward?: string | null;
+          ward_code?: string | null;
+          province?: string | null;
+          province_code?: string | null;
           created_at?: string;
         };
       };
@@ -143,8 +161,14 @@ export interface Database {
           user_id: string | null;
           customer_name: string;
           phone: string;
+          email: string | null;
           address: string;
           city: string;
+          ward: string | null;
+          ward_code: string | null;
+          province: string | null;
+          province_code: string | null;
+          note: string | null;
           payment_method: 'cod' | 'card';
           total_amount: number;
           status: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
@@ -156,8 +180,14 @@ export interface Database {
           user_id?: string | null;
           customer_name: string;
           phone: string;
+          email?: string | null;
           address: string;
           city: string;
+          ward?: string | null;
+          ward_code?: string | null;
+          province?: string | null;
+          province_code?: string | null;
+          note?: string | null;
           payment_method: 'cod' | 'card';
           total_amount: number;
           status?: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
@@ -169,8 +199,14 @@ export interface Database {
           user_id?: string | null;
           customer_name?: string;
           phone?: string;
+          email?: string | null;
           address?: string;
           city?: string;
+          ward?: string | null;
+          ward_code?: string | null;
+          province?: string | null;
+          province_code?: string | null;
+          note?: string | null;
           payment_method?: 'cod' | 'card';
           total_amount?: number;
           status?: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';

@@ -1,8 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-
-// createClient will still be called, but with placeholders if env vars are missing.
-// This prevents the build from crashing during static page generation.
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Legacy compatibility shim — re-exports the typed App Router supabase client
+// so that legacy-pages JS imports still resolve. All new code should import
+// directly from '@/lib/supabase/client' or '@/lib/supabase/server'.
+export { supabase, createBrowserClient, createServerClient } from './supabase/index';

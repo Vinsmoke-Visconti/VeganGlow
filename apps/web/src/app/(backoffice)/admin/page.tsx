@@ -41,10 +41,11 @@ export default function AdminDashboard() {
         .select('*', { count: 'exact', head: true })
         .lt('stock', 5);
 
-      // 3. Fetch Total Staff/Users
+      // 3. Fetch Total Customers (CRM)
       const { count: userCount } = await supabase
-        .from('staff_profiles')
-        .select('*', { count: 'exact', head: true });
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'customer');
 
       // 4. Fetch Recent Orders
       const { data: recent } = await supabase
@@ -125,7 +126,7 @@ export default function AdminDashboard() {
             <Users size={24} color="#8b5cf6" />
           </div>
           <div className={styles.statInfo}>
-            <span className={styles.statLabel}>Nhân sự hệ thống</span>
+            <span className={styles.statLabel}>Khách hàng đăng ký</span>
             <span className={styles.statValue}>{stats.users}</span>
           </div>
           <div className={styles.statTrend + ' ' + styles.trendUp}>+2%</div>
