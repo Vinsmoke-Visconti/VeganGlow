@@ -2,61 +2,147 @@ import styles from './page.module.css';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import AddToCartButton from '@/components/products/AddToCartButton';
-import { Database } from '@/types/database';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
-import { ArrowRight, Leaf, Shield, Heart, Sparkles } from 'lucide-react';
+import { ArrowRight, Leaf, Shield, Heart, Sparkles, Star, Users, Award, Recycle, Zap, Droplets, Quote } from 'lucide-react';
 import { cacheGet, cacheSet } from '@/lib/redis';
+
+const testimonials = [
+  {
+    name: 'Nguyễn Thị Lan',
+    role: 'Khách hàng thân thiết',
+    rating: 5,
+    text: 'Sau 3 tuần dùng VeganGlow Serum, da mình sáng hẳn lên! Không còn lo ngại về thành phần hóa học nữa.',
+    avatar: 'NL',
+  },
+  {
+    name: 'Trần Minh Châu',
+    role: 'Beauty Blogger',
+    rating: 5,
+    text: 'Đây là thương hiệu thuần chay Việt Nam mình tự hào giới thiệu. Chất lượng sánh ngang hàng quốc tế.',
+    avatar: 'MC',
+  },
+  {
+    name: 'Lê Thị Hoa',
+    role: 'Da nhạy cảm',
+    rating: 5,
+    text: 'Da mình cực kỳ nhạy cảm nhưng sản phẩm VeganGlow không gây kích ứng gì. Thực sự yên tâm khi dùng.',
+    avatar: 'LH',
+  },
+];
+
+const categories = [
+  { name: 'Serum', icon: <Zap size={24} />, slug: 'serum' },
+  { name: 'Toner', icon: <Droplets size={24} />, slug: 'toner' },
+  { name: 'Mặt Nạ', icon: <Sparkles size={24} />, slug: 'mat-na' },
+  { name: 'Sữa Rửa Mặt', icon: <Leaf size={24} />, slug: 'sua-rua-mat' },
+  { name: 'Kem Dưỡng', icon: <Heart size={24} />, slug: 'kem-duong' },
+];
 
 export default async function Home() {
   const supabase = await createClient();
 
-  // 1. Try to get featured products from Redis
   const cacheKey = 'featured_products';
   let products = await cacheGet<any[]>(cacheKey);
 
   if (!products) {
-    // 2. If not in cache, fetch from Supabase
     const { data: dbProducts } = await supabase.from('products').select('*').limit(4);
     products = dbProducts || [];
-    
-    // 3. Save to Redis Cache (expire in 30 minutes)
     await cacheSet(cacheKey, products, 1800);
   }
-
 
   return (
     <div className={styles.main}>
       {/* Hero Section */}
       <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <FadeIn direction="down" delay={0.1}>
-            <div className={styles.heroBadge}>
-              <Sparkles size={16} className="inline mr-2" />
-              Khám phá Vẻ Đẹp Thuần Chay
+        <div className={styles.heroLayout}>
+          <div className={styles.heroContent}>
+            <FadeIn direction="down" delay={0.1}>
+              <div className={styles.heroBadge}>
+                <Sparkles size={16} />
+                Khám phá Vẻ Đẹp Thuần Chay
+              </div>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.2}>
+              <h1 className={styles.heroTitle}>
+                Nuôi Dưỡng Làn Da <br />
+                Từ <span className={styles.heroAccent}>Thiên Nhiên</span>
+              </h1>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.3}>
+              <p className={styles.heroDescription}>
+                Sản phẩm mỹ phẩm 100% thuần chay, kết tinh từ những nguyên liệu tự nhiên tốt nhất
+                của Việt Nam, mang lại vẻ đẹp bền vững và an toàn tuyệt đối.
+              </p>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.4}>
+              <div className={styles.heroActions}>
+                <Link href="/products" className={styles.btnPrimary}>
+                  Mua sắm ngay <ArrowRight size={18} />
+                </Link>
+                <Link href="/about" className={styles.btnSecondary}>
+                  Tìm hiểu thêm
+                </Link>
+              </div>
+            </FadeIn>
+
+            <FadeIn direction="up" delay={0.5}>
+              <div className={styles.heroTrust}>
+                <span className={styles.heroStars}>★★★★★</span>
+                <span>
+                  Được tin dùng bởi <strong>10,000+</strong> khách hàng
+                </span>
+              </div>
+            </FadeIn>
+          </div>
+
+          <FadeIn delay={0.35}>
+            <div className={styles.heroImageWrap}>
+              <img
+                src="/images/hero.png"
+                alt="VeganGlow – Skincare thuần chay từ thiên nhiên Việt Nam"
+                className={styles.heroImage}
+              />
             </div>
           </FadeIn>
-          
-          <FadeIn direction="up" delay={0.2}>
-            <h1 className={styles.heroTitle}>
-              Nuôi Dưỡng Làn Da <br/>
-              Từ <span className={styles.heroAccent}>Thiên Nhiên</span>
-            </h1>
-          </FadeIn>
-          
-          <FadeIn direction="up" delay={0.3}>
-            <p className={styles.heroDescription}>
-              Sản phẩm mỹ phẩm 100% thuần chay, kết tinh từ những nguyên liệu tự nhiên tốt nhất của Việt Nam, mang lại vẻ đẹp bền vững và an toàn tuyệt đối.
-            </p>
-          </FadeIn>
-          
-          <FadeIn direction="up" delay={0.4}>
-            <div className={styles.heroActions}>
-              <Link href="/products" className={styles.btnPrimary}>
-                Mua sắm ngay <ArrowRight size={18} />
-              </Link>
-              <Link href="/about" className={styles.btnSecondary}>Tìm hiểu thêm</Link>
+        </div>
+      </section>
+
+      {/* Trust Stats Bar */}
+      <section className={styles.trustBar}>
+        <div className="container">
+          <div className={styles.trustGrid}>
+            <div className={styles.trustStat}>
+              <Star size={22} />
+              <div>
+                <strong>4.8/5</strong>
+                <span>Rating trung bình</span>
+              </div>
             </div>
-          </FadeIn>
+            <div className={styles.trustStat}>
+              <Users size={22} />
+              <div>
+                <strong>10,000+</strong>
+                <span>Khách hàng tin dùng</span>
+              </div>
+            </div>
+            <div className={styles.trustStat}>
+              <Leaf size={22} />
+              <div>
+                <strong>100%</strong>
+                <span>Thành phần thuần chay</span>
+              </div>
+            </div>
+            <div className={styles.trustStat}>
+              <Award size={22} />
+              <div>
+                <strong>Chứng nhận</strong>
+                <span>Bác sĩ da liễu xác nhận</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -67,10 +153,12 @@ export default async function Home() {
             <h2 className={styles.sectionTitle}>Danh Mục Sản Phẩm</h2>
             <p className={styles.sectionSubtitle}>Dành riêng cho từng nhu cầu của làn da</p>
             <StaggerContainer className={styles.categoriesGrid}>
-              {['Serum', 'Toner', 'Mặt Nạ', 'Sữa Rửa Mặt', 'Kem Dưỡng'].map((cat, i) => (
-                <StaggerItem key={i} className={styles.categoryCard}>
-                  <div className={styles.categoryIcon}><Leaf size={24} color="#10b981" /></div>
-                  <span className={styles.categoryName}>{cat}</span>
+              {categories.map((cat, i) => (
+                <StaggerItem key={i}>
+                  <Link href={`/products?category=${cat.slug}`} className={styles.categoryCard}>
+                    <div className={styles.categoryIcon}>{cat.icon}</div>
+                    <span className={styles.categoryName}>{cat.name}</span>
+                  </Link>
                 </StaggerItem>
               ))}
             </StaggerContainer>
@@ -88,10 +176,13 @@ export default async function Home() {
                   <StaggerItem key={p.id} className={styles.productCard}>
                     <Link href={`/products/${p.slug}`} className={styles.productImageWrap}>
                       <div className={styles.productBadge}>Best Seller</div>
-                      <img 
-                        src={p.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=B7E4C7&color=1B4332&size=400`} 
-                        alt={p.name} 
-                        className={styles.productImage} 
+                      <img
+                        src={
+                          p.image ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=B7E4C7&color=1B4332&size=400`
+                        }
+                        alt={p.name}
+                        className={styles.productImage}
                       />
                     </Link>
                     <div className={styles.productInfo}>
@@ -105,7 +196,10 @@ export default async function Home() {
                       </div>
                       <div className={styles.productFooter}>
                         <span className={styles.productPrice}>
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(p.price))}
+                          {new Intl.NumberFormat('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          }).format(Number(p.price))}
                         </span>
                         <AddToCartButton product={p} className={styles.miniCartBtn} />
                       </div>
@@ -117,36 +211,143 @@ export default async function Home() {
               )}
             </StaggerContainer>
             <div className={styles.viewAll}>
-              <Link href="/products" className={styles.btnSecondary}>Xem tất cả sản phẩm</Link>
+              <Link href="/products" className={styles.btnSecondary}>
+                Xem tất cả sản phẩm
+              </Link>
             </div>
           </section>
         </FadeIn>
       </div>
 
-
       {/* Why Choose Us */}
       <section className={styles.whySection}>
         <div className="container">
           <FadeIn direction="up">
+            <h2 className={styles.sectionTitle}>Tại Sao Chọn VeganGlow?</h2>
+            <p className={styles.sectionSubtitle}>Cam kết từ thiên nhiên, trao gửi đến bạn</p>
             <StaggerContainer className={styles.whyGrid}>
               <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}><Leaf size={32} color="#10b981" /></span>
+                <span className={styles.whyIcon}>
+                  <Leaf size={32} color="#10b981" />
+                </span>
                 <h3>100% Thuần Chay</h3>
-                <p>Cam kết không sử dụng thành phần từ động vật và không thử nghiệm trên động vật.</p>
+                <p>
+                  Cam kết không sử dụng thành phần từ động vật và không thử nghiệm trên động vật.
+                </p>
               </StaggerItem>
               <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}><Shield size={32} color="#10b981" /></span>
+                <span className={styles.whyIcon}>
+                  <Shield size={32} color="#10b981" />
+                </span>
                 <h3>Chuẩn Y Khoa</h3>
-                <p>Được nghiên cứu và kiểm nghiệm da liễu, an toàn cho cả làn da nhạy cảm nhất.</p>
+                <p>
+                  Được nghiên cứu và kiểm nghiệm da liễu, an toàn cho cả làn da nhạy cảm nhất.
+                </p>
               </StaggerItem>
               <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}><Heart size={32} color="#10b981" /></span>
+                <span className={styles.whyIcon}>
+                  <Heart size={32} color="#10b981" />
+                </span>
                 <h3>Nguyên Liệu Việt Nam</h3>
-                <p>Chắt lọc tinh túy từ rau má, diếp cá, hoa đậu biếc và các loại thảo mộc địa phương.</p>
+                <p>
+                  Chắt lọc tinh túy từ rau má, diếp cá, hoa đậu biếc và các loại thảo mộc địa
+                  phương.
+                </p>
+              </StaggerItem>
+              <StaggerItem className={styles.whyCard}>
+                <span className={styles.whyIcon}>
+                  <Recycle size={32} color="#10b981" />
+                </span>
+                <h3>Thân Thiện Môi Trường</h3>
+                <p>Bao bì tái chế 100%, không nhựa dùng một lần, cam kết trung hòa carbon.</p>
               </StaggerItem>
             </StaggerContainer>
           </FadeIn>
         </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className={styles.testimonialsSection}>
+        <div className="container">
+          <FadeIn direction="up">
+            <h2 className={styles.sectionTitle}>Khách Hàng Nói Gì?</h2>
+            <p className={styles.sectionSubtitle}>
+              Hàng nghìn khách hàng đã tin tưởng và yêu thích VeganGlow
+            </p>
+            <StaggerContainer className={styles.testimonialsGrid}>
+              {testimonials.map((t, i) => (
+                <StaggerItem key={i} className={styles.testimonialCard}>
+                  <Quote size={28} className={styles.testimonialQuote} />
+                  <p className={styles.testimonialText}>{t.text}</p>
+                  <div className={styles.testimonialStars}>
+                    {Array.from({ length: t.rating }).map((_, j) => (
+                      <Star key={j} size={14} fill="currentColor" />
+                    ))}
+                  </div>
+                  <div className={styles.testimonialAuthor}>
+                    <div className={styles.testimonialAvatar}>{t.avatar}</div>
+                    <div className={styles.testimonialMeta}>
+                      <strong>{t.name}</strong>
+                      <span>{t.role}</span>
+                    </div>
+                  </div>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* Brand Story Section */}
+      <section className={styles.storySection}>
+        <div className="container">
+          <FadeIn direction="up">
+            <div className={styles.storyLayout}>
+              <div className={styles.storyContent}>
+                <span className={styles.storyTag}>Câu chuyện của chúng tôi</span>
+                <h2 className={styles.storyTitle}>
+                  Từ Tình Yêu Thiên Nhiên <br />
+                  Đến <span className={styles.heroAccent}>VeganGlow</span>
+                </h2>
+                <p className={styles.storyText}>
+                  VeganGlow được thành lập với một sứ mệnh đơn giản: mang vẻ đẹp thuần khiết từ
+                  thiên nhiên Việt Nam đến mọi gia đình. Chúng tôi tin rằng bạn không cần phải hy
+                  sinh sức khỏe hay môi trường để có làn da đẹp.
+                </p>
+                <p className={styles.storyText}>
+                  Mỗi sản phẩm được nghiên cứu kỹ lưỡng, sử dụng những thảo mộc quý từ rừng núi
+                  Việt Nam — rau má, diếp cá, hoa đậu biếc — kết hợp với công nghệ hiện đại để tạo
+                  ra công thức hoàn hảo nhất.
+                </p>
+                <div className={styles.storyCta}>
+                  <Link href="/about" className={styles.btnPrimary}>
+                    Tìm hiểu thêm <ArrowRight size={18} />
+                  </Link>
+                </div>
+              </div>
+              <div className={styles.storyImageWrap}>
+                <img
+                  src="/images/hero.png"
+                  alt="VeganGlow – Câu chuyện thương hiệu"
+                  className={styles.storyImage}
+                />
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className={styles.finalCtaSection}>
+        <FadeIn direction="up">
+          <h2 className={styles.finalCtaTitle}>Bắt Đầu Hành Trình Làm Đẹp Của Bạn</h2>
+          <p className={styles.finalCtaText}>
+            Khám phá bộ sưu tập sản phẩm thuần chay, an toàn cho cả gia đình
+          </p>
+          <Link href="/products" className={styles.btnWhite}>
+            Mua Sắm Ngay <ArrowRight size={18} />
+          </Link>
+        </FadeIn>
       </section>
     </div>
   );

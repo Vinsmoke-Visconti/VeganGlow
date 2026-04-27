@@ -3,7 +3,7 @@
   flex-direction: column;
 }
 
-/* Hero Section */
+/* ─── Hero Section ─── */
 .hero {
   position: relative;
   min-height: 85dvh;
@@ -11,21 +11,27 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: var(--space-8) var(--space-4);
+  padding: var(--space-8) var(--space-8);
   background: var(--gradient-hero);
   background-attachment: fixed;
+}
+
+.heroLayout {
+  width: 100%;
+  max-width: var(--max-width);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16);
+  align-items: center;
 }
 
 .heroContent {
   position: relative;
   z-index: 10;
-  max-width: 800px;
-  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-6);
-  animation: fadeUp 1s var(--transition-spring) forwards;
 }
 
 .heroBadge {
@@ -48,7 +54,7 @@
 }
 
 .heroTitle {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 700;
   line-height: 1.1;
   color: var(--color-text);
@@ -62,23 +68,54 @@
 }
 
 .heroDescription {
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(1rem, 2vw, 1.2rem);
   color: var(--color-text-secondary);
-  max-width: 600px;
-  line-height: 1.6;
+  max-width: 540px;
+  line-height: 1.7;
 }
 
 .heroActions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-  justify-content: center;
-  margin-top: var(--space-4);
+  justify-content: flex-start;
 }
 
+.heroTrust {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.heroStars {
+  color: var(--color-secondary);
+  font-size: var(--text-base);
+  letter-spacing: 2px;
+}
+
+.heroImageWrap {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heroImage {
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  object-fit: cover;
+}
+
+/* ─── Buttons ─── */
 .btnPrimary {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   justify-content: center;
   padding: var(--space-4) var(--space-8);
   background: var(--gradient-primary);
@@ -99,6 +136,7 @@
 .btnSecondary {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   justify-content: center;
   padding: var(--space-4) var(--space-8);
   background: var(--glass-bg);
@@ -117,7 +155,65 @@
   background: var(--color-bg-card);
 }
 
-/* Sections */
+.btnWhite {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: center;
+  padding: var(--space-4) var(--space-10);
+  background: white;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  font-size: var(--text-base);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-spring);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btnWhite:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+  color: var(--color-primary-dark);
+}
+
+/* ─── Trust Stats Bar ─── */
+.trustBar {
+  background: var(--color-primary-dark);
+  padding: var(--space-6) var(--space-4);
+}
+
+.trustGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-10);
+}
+
+.trustStat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: white;
+}
+
+.trustStat > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.trustStat strong {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.trustStat span {
+  font-size: var(--text-xs);
+  opacity: 0.75;
+}
+
+/* ─── Sections ─── */
 .section {
   padding: var(--space-20) 0;
 }
@@ -135,7 +231,7 @@
   font-size: var(--text-lg);
 }
 
-/* Categories Grid */
+/* ─── Categories Grid ─── */
 .categoriesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -156,6 +252,7 @@
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-spring);
   cursor: pointer;
+  text-decoration: none;
 }
 
 .categoryCard:hover {
@@ -166,6 +263,7 @@
 
 .categoryIcon {
   font-size: 2.5rem;
+  color: var(--color-primary);
   background: var(--color-bg-secondary);
   width: 80px;
   height: 80px;
@@ -187,7 +285,7 @@
   font-size: var(--text-base);
 }
 
-/* Products Grid */
+/* ─── Products Grid ─── */
 .productsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -322,14 +420,13 @@
   display: none;
 }
 
-
 .viewAll {
   display: flex;
   justify-content: center;
   margin-top: var(--space-12);
 }
 
-/* Why Section */
+/* ─── Why Section ─── */
 .whySection {
   padding: var(--space-24) 0;
   background-color: var(--color-bg-secondary);
@@ -338,7 +435,7 @@
 
 .whyGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-8);
   margin-top: var(--space-12);
 }
@@ -380,7 +477,184 @@
   font-size: var(--text-sm);
 }
 
-/* Animations */
+/* ─── Testimonials Section ─── */
+.testimonialsSection {
+  padding: var(--space-24) 0;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-8);
+  margin-top: var(--space-12);
+}
+
+.testimonialCard {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: transform var(--transition-spring);
+}
+
+.testimonialCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.testimonialQuote {
+  color: var(--color-primary);
+  opacity: 0.35;
+}
+
+.testimonialText {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  flex: 1;
+}
+
+.testimonialStars {
+  display: flex;
+  gap: 2px;
+  color: var(--color-secondary);
+}
+
+.testimonialAuthor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.testimonialAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.testimonialMeta {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonialMeta strong {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.testimonialMeta span {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ─── Brand Story Section ─── */
+.storySection {
+  padding: var(--space-24) 0;
+  background: var(--gradient-luxury);
+  border-top: 1px solid var(--color-border);
+}
+
+.storyLayout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: var(--space-16);
+  align-items: center;
+}
+
+.storyContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.storyTag {
+  display: inline-block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--color-primary-50);
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-full);
+  width: fit-content;
+}
+
+.storyTitle {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.storyText {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.8;
+}
+
+.storyCta {
+  margin-top: var(--space-4);
+}
+
+.storyImageWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.storyImage {
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  object-fit: cover;
+}
+
+/* ─── Final CTA Section ─── */
+.finalCtaSection {
+  padding: var(--space-24) var(--space-8);
+  background: var(--gradient-primary);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.finalCtaTitle {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  max-width: 700px;
+  font-family: var(--font-heading);
+}
+
+.finalCtaText {
+  font-size: var(--text-lg);
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 500px;
+}
+
+/* ─── Animations ─── */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -389,5 +663,71 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .heroLayout {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .heroContent {
+    align-items: center;
+    text-align: center;
+  }
+
+  .heroDescription {
+    text-align: center;
+  }
+
+  .heroActions {
+    justify-content: center;
+  }
+
+  .heroTrust {
+    justify-content: center;
+  }
+
+  .heroImageWrap {
+    display: none;
+  }
+
+  .storyLayout {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .storyImageWrap {
+    order: -1;
+  }
+
+  .storyContent {
+    align-items: center;
+    text-align: center;
+  }
+
+  .storyTag {
+    align-self: center;
+  }
+
+  .storyTitle {
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .trustGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    text-align: center;
+  }
+
+  .trustStat {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
   }
 }
