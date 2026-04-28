@@ -57,10 +57,15 @@
 - `apps/web/src/app/(backoffice)/admin/settings/page.tsx` — Server Component
 - `apps/web/src/app/(backoffice)/admin/about-team/page.tsx` — Server Component
 
-**Possibly created (after schema audit in Task 0):**
-- `apps/backend/supabase/migrations/00011_flash_sales.sql` — if missing
-- `apps/backend/supabase/migrations/00012_team_members.sql` — if missing
-- `apps/backend/supabase/migrations/00013_admin_storage_buckets.sql` — if missing
+**Audit confirmed (created):**
+- `apps/backend/supabase/migrations/00011_flash_sales.sql` — flash_sales table
+- `apps/backend/supabase/migrations/00012_team_members.sql` — team_members table
+- `apps/backend/supabase/migrations/00013_system_settings.sql` — key-value settings
+- `apps/backend/supabase/migrations/00014_admin_storage_buckets.sql` — product-images + banner-images buckets
+
+**Audit confirmed (NO migration needed):**
+- `audit_log` exists in `00007_admin_features.sql`
+- DB types in `database.ts` cover all RBAC + marketing tables
 
 ---
 
