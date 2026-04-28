@@ -44,14 +44,14 @@ function LoginContent() {
 
         <form action={formAction} className={styles.form}>
           <div className={styles.inputGroup}>
-            <label htmlFor="email" className={styles.label}>Email</label>
+            <label htmlFor="email" className={styles.label}>Email hoặc Tên đăng nhập</label>
             <input
               id="email"
               name="email"
-              type="email"
+              type="text"
               required
               className={styles.input}
-              placeholder="you@example.com"
+              placeholder="you@example.com hoặc username"
             />
           </div>
 

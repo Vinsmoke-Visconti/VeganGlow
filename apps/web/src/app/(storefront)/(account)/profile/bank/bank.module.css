@@ -1,0 +1,152 @@
+.bankWrapper {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  padding: var(--space-10);
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.addBtn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.addBtn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: var(--color-text-muted);
+  gap: 1.5rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-light);
+}
+
+.emptyIcon {
+  color: var(--color-primary-100);
+}
+
+.mt3 {
+  margin-top: 4rem;
+}
+
+.bankGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+.bankCard {
+  background: white;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  transition: all var(--transition-base);
+}
+
+.bankCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.bankInfo {
+  flex: 1;
+}
+
+.bankHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.bankIcon {
+  color: var(--color-primary);
+}
+
+.bankName {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.defaultBadge {
+  background: var(--color-primary-50);
+  color: var(--color-primary);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+.bankDetails p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.accountHolder {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.accountNumber {
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem !important;
+}
+
+.deleteBtn {
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.deleteBtn:hover {
+  color: var(--color-error);
+  background: var(--color-error-50);
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { supabase } from '@/lib/supabase';
 import { Plus, Edit, Trash2, Search, Loader2, X } from 'lucide-react';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -145,7 +146,7 @@ export default function AdminProducts() {
                     <td style={{ padding: '1rem 1.5rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <div style={{ width: '48px', height: '48px', background: '#eee', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
-                          {product.image_url && <img src={product.image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                          <SafeImage src={product.image_url} fallback="" alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <span style={{ fontWeight: '600' }}>{product.name}</span>
                       </div>
