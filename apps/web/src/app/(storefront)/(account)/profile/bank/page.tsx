@@ -72,8 +72,7 @@ export default function BankPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase
-      .from('user_settings')
+    const { error } = await (supabase.from('user_settings') as any)
       .update({ [key]: newVal })
       .eq('user_id', user.id);
 
