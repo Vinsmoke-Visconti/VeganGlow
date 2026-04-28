@@ -1,3 +1,4 @@
+import '@/styles/admin-tokens.css';
 import { createClient } from '@/lib/supabase/server';
 import { Bell, Search } from 'lucide-react';
 import styles from './backoffice-layout.module.css';
