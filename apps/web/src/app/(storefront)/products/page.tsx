@@ -50,8 +50,8 @@ export default async function ProductsPage({
     supabase.from('products').select('category_id').eq('is_active', true)
   ]);
 
-  const rawCategories = categoriesRes.data || [];
-  const activeProductRows = allActiveProductsRes.data || [];
+  const rawCategories = (categoriesRes.data as any[]) || [];
+  const activeProductRows = (allActiveProductsRes.data as any[]) || [];
 
   const categories = rawCategories.map(cat => ({
     ...cat,
