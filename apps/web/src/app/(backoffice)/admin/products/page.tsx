@@ -78,10 +78,15 @@ export default function AdminProducts() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const payload = {
-        ...formData,
+      const payload: any = {
+        name: formData.name,
+        slug: formData.slug,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock.toString()),
+        ingredients: formData.ingredients,
+        description: formData.description,
+        image: formData.image,
+        category_id: formData.category_id,
       };
 
       if (editingId) {

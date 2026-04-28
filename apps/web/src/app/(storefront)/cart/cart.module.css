@@ -4,53 +4,53 @@
   padding: 4rem 1.5rem;
 }
 
+.header {
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 1.5rem;
+}
+
 .title {
   font-family: var(--font-heading);
   font-size: 2rem;
   font-weight: 800;
-  margin-bottom: 3rem;
   color: var(--color-primary-dark);
 }
 
 .content {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 380px;
   gap: 3rem;
+  align-items: start;
 }
 
-@media (min-width: 1024px) {
-  .content {
-    grid-template-columns: 1fr 380px;
-  }
-}
-
+/* ============================================
+   Cart Items
+   ============================================ */
 .itemsSection {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
 }
 
 .cartItem {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--color-border);
+  display: flex;
   align-items: center;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+  gap: 1.5rem;
 }
 
-@media (min-width: 640px) {
-  .cartItem {
-    grid-template-columns: 100px 1fr 150px 120px;
-  }
+.cartItem:first-child {
+  padding-top: 0;
 }
 
 .itemImage {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 12px;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  background-color: var(--color-bg-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
 }
 
 .itemImage img {
@@ -59,14 +59,18 @@
   object-fit: cover;
 }
 
+.itemInfo {
+  flex: 1;
+}
+
 .itemName {
-  font-weight: 600;
-  color: var(--color-text);
   font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
   text-decoration: none;
-  transition: color 0.2s;
-  display: block;
   margin-bottom: 0.5rem;
+  display: block;
+  transition: color 0.2s;
 }
 
 .itemName:hover {
@@ -74,127 +78,137 @@
 }
 
 .itemPrice {
-  color: var(--color-text-secondary);
-  font-weight: 500;
+  color: var(--color-text-muted);
+  font-weight: 600;
 }
 
 .itemActions {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .quantityControls {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background-color: var(--color-bg-secondary);
-  padding: 0.5rem;
-  border-radius: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+  padding: 0.25rem;
+  border: 1px solid var(--color-border-light);
 }
 
 .qtyBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-primary-dark);
   cursor: pointer;
-  color: var(--color-text);
   transition: all 0.2s;
 }
 
 .qtyBtn:hover {
-  background-color: var(--color-primary-50);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: white;
+  box-shadow: var(--shadow-sm);
 }
 
 .quantity {
-  font-weight: 600;
-  min-width: 20px;
+  width: 40px;
   text-align: center;
+  font-weight: 700;
+  font-size: 0.9375rem;
 }
 
 .removeBtn {
-  background: none;
+  color: var(--color-text-muted);
+  background: transparent;
   border: none;
-  color: #ef4444;
   cursor: pointer;
-  transition: transform 0.2s;
   padding: 0.5rem;
+  transition: color 0.2s;
 }
 
 .removeBtn:hover {
-  transform: scale(1.1);
+  color: var(--color-error);
 }
 
 .itemTotal {
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  text-align: right;
   font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  min-width: 120px;
+  text-align: right;
 }
 
 .backLink {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-text-secondary);
-  text-decoration: none;
+  margin-top: 2rem;
+  color: var(--color-text-muted);
   font-weight: 600;
-  margin-top: 1rem;
-  transition: color 0.2s;
+  text-decoration: none;
 }
 
 .backLink:hover {
   color: var(--color-primary);
 }
 
-/* Summary Section */
+/* ============================================
+   Summary Section
+   ============================================ */
 .summaryCard {
-  background-color: white;
+  background: white;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--color-border-light);
   padding: 2rem;
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-xl);
   position: sticky;
-  top: 100px;
+  top: calc(var(--header-height) + 2rem);
 }
 
 .summaryCard h2 {
   font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 2rem;
 }
 
 .summaryRow {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9375rem;
   color: var(--color-text-secondary);
 }
 
 .summaryDivider {
   height: 1px;
-  background-color: var(--color-border);
+  background: var(--color-border-light);
   margin: 1.5rem 0;
 }
 
 .totalRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 0.5rem;
+}
+
+.totalRow span:first-child {
   font-weight: 800;
+  color: var(--color-primary-dark);
+  font-size: 1.125rem;
 }
 
 .totalPrice {
-  font-size: 1.5rem;
-  color: var(--color-primary-dark);
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: var(--color-primary);
 }
 
 .taxNote {
@@ -206,58 +220,85 @@
 .checkoutBtn {
   display: block;
   width: 100%;
-  padding: 1rem;
+  padding: 1.125rem;
   background: var(--gradient-primary);
   color: white;
   text-align: center;
-  border-radius: 9999px;
-  font-weight: 700;
   text-decoration: none;
-  transition: all 0.3s;
-  box-shadow: 0 10px 20px hsla(var(--primary-h), var(--primary-s), 30%, 0.2);
+  border-radius: var(--radius-lg);
+  font-weight: 800;
+  font-size: 1.125rem;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-md);
 }
 
 .checkoutBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 25px hsla(var(--primary-h), var(--primary-s), 30%, 0.3);
+  box-shadow: var(--shadow-lg);
+  filter: brightness(1.1);
 }
 
-/* Empty State */
+/* ============================================
+   Empty State
+   ============================================ */
 .emptyContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8rem 1.5rem;
   text-align: center;
+  padding: 8rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .emptyIcon {
-  color: var(--color-primary-100);
-  margin-bottom: 2rem;
+  width: 120px;
+  height: 120px;
+  background: var(--color-primary-50);
+  color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2.5rem;
 }
 
 .emptyContainer h1 {
   font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
   margin-bottom: 1rem;
 }
 
 .emptyContainer p {
-  color: var(--color-text-secondary);
-  margin-bottom: 2.5rem;
+  color: var(--color-text-muted);
+  margin-bottom: 3rem;
+  font-size: 1.125rem;
 }
 
 .continueBtn {
-  padding: 1rem 2.5rem;
-  background-color: var(--color-primary);
+  display: inline-block;
+  padding: 1rem 3rem;
+  background: var(--color-primary-dark);
   color: white;
-  border-radius: 9999px;
-  font-weight: 700;
   text-decoration: none;
-  transition: all 0.3s;
+  border-radius: var(--radius-lg);
+  font-weight: 800;
+  transition: all var(--transition-base);
 }
 
 .continueBtn:hover {
-  background-color: var(--color-primary-dark);
+  background: var(--color-primary);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 1000px) {
+  .content { grid-template-columns: 1fr; }
+  .summarySection { order: -1; }
+  .summaryCard { position: static; margin-bottom: 2rem; }
+}
+
+@media (max-width: 640px) {
+  .cartItem { flex-direction: column; align-items: stretch; text-align: center; }
+  .itemImage { margin: 0 auto; }
+  .itemActions { justify-content: center; }
+  .itemTotal { text-align: center; }
 }

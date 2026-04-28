@@ -11,8 +11,12 @@ import {
   DollarSign,
   ArrowRight,
   TrendingUp,
+  TrendingDown,
+  Activity,
 } from 'lucide-react';
 import styles from './admin-page.module.css';
+
+type Range = 'today' | '7d' | '30d';
 
 type Stats = {
   revenue: number;
@@ -50,11 +54,18 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({ revenue: 0, orders: 0, lowStock: 0, users: 0 });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<Range>('today');
 
   useEffect(() => {
     fetchDashboardData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const RANGE_LABEL: Record<Range, string> = {
+    today: 'Hôm nay',
+    '7d': '7 ngày',
+    '30d': '30 ngày',
+  };
 
   async function fetchDashboardData() {
     setLoading(true);
@@ -116,10 +127,26 @@ export default function AdminDashboard() {
   return (
     <div className={styles.dashboard}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Tổng quan hệ thống</h1>
-        <p className={styles.subtitle}>
-          Chào mừng trở lại! Dưới đây là tình hình kinh doanh hôm nay.
-        </p>
+        <div>
+          <h1 className={styles.title}>Tổng quan hệ thống</h1>
+          <p className={styles.subtitle}>
+            Chào mừng trở lại! Dưới đây là tình hình kinh doanh{' '}
+            <strong>{RANGE_LABEL[range].toLowerCase()}</strong>.
+          </p>
+        </div>
+        <div className={styles.rangeToggle} role="tablist" aria-label="Khoảng thời gian">
+          {(Object.keys(RANGE_LABEL) as Range[]).map((r) => (
+            <button
+              key={r}
+              role="tab"
+              aria-selected={range === r}
+              className={`${styles.rangeBtn} ${range === r ? styles.rangeBtnActive : ''}`}
+              onClick={() => setRange(r)}
+            >
+              {RANGE_LABEL[r]}
+            </button>
+          ))}
+        </div>
       </header>
 
       <div className={styles.statsGrid}>
@@ -177,35 +204,76 @@ export default function AdminDashboard() {
       <div className={styles.gridLayout}>
         <section className={styles.panel}>
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Doanh thu 7 ngày qua</h2>
-            <span className={styles.panelLink}>Đang theo dõi</span>
+            <div>
+              <h2 className={styles.panelTitle}>Doanh thu 7 ngày qua</h2>
+              <span className={styles.panelHint}>So với tuần trước</span>
+            </div>
+            <span className={`${styles.panelChip} ${styles.panelChipUp}`}>
+              <TrendingUp size={12} /> +18.4%
+            </span>
           </div>
-          <div className={styles.chartContainer}>
-            {[
-              { day: 'T2', val: 40 },
-              { day: 'T3', val: 65 },
-              { day: 'T4', val: 45 },
-              { day: 'T5', val: 90 },
-              { day: 'T6', val: 55 },
-              { day: 'T7', val: 75 },
-              { day: 'CN', val: 100 },
-            ].map((d) => (
-              <div key={d.day} className={styles.chartColumn}>
-                <div className={styles.chartBar} style={{ height: `${d.val}%` }}>
-                  <span className={styles.barValue}>{d.val}%</span>
+          <div className={styles.chartFrame}>
+            <div className={styles.chartGrid} aria-hidden="true">
+              <span className={styles.chartGridLine} />
+              <span className={styles.chartGridLine} />
+              <span className={styles.chartGridLine} />
+              <span className={styles.chartGridLine} />
+            </div>
+            <div className={styles.chartContainer}>
+              {[
+                { day: 'T2', val: 40, amount: '2.4tr' },
+                { day: 'T3', val: 65, amount: '3.9tr' },
+                { day: 'T4', val: 45, amount: '2.7tr' },
+                { day: 'T5', val: 90, amount: '5.4tr' },
+                { day: 'T6', val: 55, amount: '3.3tr' },
+                { day: 'T7', val: 75, amount: '4.5tr' },
+                { day: 'CN', val: 100, amount: '6.0tr' },
+              ].map((d) => (
+                <div key={d.day} className={styles.chartColumn}>
+                  <div
+                    className={styles.chartBar}
+                    style={{ height: `${d.val}%` }}
+                    title={`${d.day}: ${d.amount}đ`}
+                  >
+                    <span className={styles.barValue}>{d.amount}</span>
+                  </div>
+                  <span className={styles.barLabel}>{d.day}</span>
                 </div>
-                <span className={styles.barLabel}>{d.day}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
         <section className={styles.panel}>
           <div className={styles.panelHeader}>
-            <h2 className={styles.panelTitle}>Hoạt động hệ thống</h2>
+            <div>
+              <h2 className={styles.panelTitle}>Cần xử lý ngay</h2>
+              <span className={styles.panelHint}>Việc cần admin chú ý</span>
+            </div>
+            <Activity size={14} className={styles.panelHeaderIcon} />
           </div>
           <div className={styles.activityList}>
-            <div className={styles.activityItem}>
+            <Link href="/admin/orders?status=pending" className={styles.activityItem}>
+              <span className={`${styles.activityDot} ${styles.dotInfo}`} />
+              <div className={styles.activityContent}>
+                <p className={styles.activityText}>
+                  <strong>{stats.orders}</strong> đơn hàng mới đang chờ duyệt.
+                </p>
+                <span className={styles.activityTime}>Click để xử lý →</span>
+              </div>
+            </Link>
+            {stats.lowStock > 0 && (
+              <Link href="/admin/products" className={styles.activityItem}>
+                <span className={`${styles.activityDot} ${styles.dotDanger}`} />
+                <div className={styles.activityContent}>
+                  <p className={styles.activityText}>
+                    <strong>{stats.lowStock} sản phẩm</strong> sắp hết hàng.
+                  </p>
+                  <span className={styles.activityTime}>Cần nhập thêm hàng</span>
+                </div>
+              </Link>
+            )}
+            <div className={styles.activityItem} style={{ pointerEvents: 'none' }}>
               <span className={styles.activityDot} />
               <div className={styles.activityContent}>
                 <p className={styles.activityText}>
@@ -214,7 +282,7 @@ export default function AdminDashboard() {
                 <span className={styles.activityTime}>Vừa xong</span>
               </div>
             </div>
-            <div className={styles.activityItem}>
+            <div className={styles.activityItem} style={{ pointerEvents: 'none' }}>
               <span className={`${styles.activityDot} ${styles.dotInfo}`} />
               <div className={styles.activityContent}>
                 <p className={styles.activityText}>
@@ -223,17 +291,6 @@ export default function AdminDashboard() {
                 <span className={styles.activityTime}>15 phút trước</span>
               </div>
             </div>
-            {stats.lowStock > 0 && (
-              <div className={styles.activityItem}>
-                <span className={`${styles.activityDot} ${styles.dotDanger}`} />
-                <div className={styles.activityContent}>
-                  <p className={styles.activityText}>
-                    <strong>Cảnh báo</strong> có {stats.lowStock} sản phẩm sắp hết hàng.
-                  </p>
-                  <span className={styles.activityTime}>Ngay bây giờ</span>
-                </div>
-              </div>
-            )}
           </div>
         </section>
       </div>

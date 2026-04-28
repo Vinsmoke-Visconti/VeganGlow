@@ -194,6 +194,28 @@ export default function AdminRoles() {
                 Read-only · Demo
               </span>
             </div>
+            <div className={styles.legend}>
+              <span className={styles.legendTitle}>Chú thích:</span>
+              <span className={styles.legendItem}>
+                <span className={`${styles.legendChip} ${styles.legendChipYes}`}>
+                  <Check size={12} />
+                </span>
+                Được phép
+              </span>
+              <span className={styles.legendItem}>
+                <span className={`${styles.legendChip} ${styles.legendChipNo}`}>
+                  <X size={12} />
+                </span>
+                Bị từ chối
+              </span>
+              <span className={styles.legendItem}>
+                <span className={styles.legendChipModule} />
+                Nhóm module
+              </span>
+              <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
+                Cuộn ngang để xem tất cả role · Header sẽ dính theo
+              </span>
+            </div>
             <div className={sharedStyles.tableScroll}>
               <table className={`${sharedStyles.table} ${styles.matrixTable}`}>
                 <thead>

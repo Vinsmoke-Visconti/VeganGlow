@@ -14,10 +14,16 @@ import {
   ArrowLeft,
   Leaf,
   Sparkles,
+  Megaphone,
+  CircleUserRound,
 } from 'lucide-react';
 import styles from './backoffice-layout.module.css';
+import type { LucideIcon } from 'lucide-react';
 
-const NAV_GROUPS = [
+type NavItem = { href: string; icon: LucideIcon; label: string; exact?: boolean };
+type NavGroup = { title: string; items: NavItem[] };
+
+const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Tổng quan',
     items: [
@@ -34,6 +40,12 @@ const NAV_GROUPS = [
     ],
   },
   {
+    title: 'Tiếp thị',
+    items: [
+      { href: '/admin/marketing', icon: Megaphone, label: 'Khuyến mãi & Banner' },
+    ],
+  },
+  {
     title: 'Hệ thống',
     items: [
       { href: '/admin/users', icon: UserCog, label: 'Nhân sự' },
@@ -44,7 +56,13 @@ const NAV_GROUPS = [
   },
 ];
 
-export function AdminSidebar() {
+type Props = {
+  userName: string;
+  userInitial: string;
+  userRoleLabel: string;
+};
+
+export function AdminSidebar({ userName, userInitial, userRoleLabel }: Props) {
   const pathname = usePathname();
 
   return (
@@ -85,6 +103,18 @@ export function AdminSidebar() {
       </nav>
 
       <div className={styles.sidebarFooter}>
+        <Link
+          href="/admin/profile"
+          className={`${styles.sidebarUserCard} ${pathname.startsWith('/admin/profile') ? styles.sidebarUserCardActive : ''}`}
+        >
+          <div className={styles.sidebarUserAvatar}>{userInitial}</div>
+          <div className={styles.sidebarUserInfo}>
+            <span className={styles.sidebarUserName}>{userName}</span>
+            <span className={styles.sidebarUserRole}>{userRoleLabel}</span>
+          </div>
+          <CircleUserRound size={14} className={styles.sidebarUserGo} aria-hidden="true" />
+        </Link>
+
         <Link href="/" className={styles.storefrontLink}>
           <ArrowLeft size={16} />
           Về trang cửa hàng
