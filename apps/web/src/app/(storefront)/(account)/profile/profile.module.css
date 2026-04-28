@@ -22,6 +22,11 @@
   margin-bottom: 0.25rem;
 }
 
+.headerStatus {
+  display: flex;
+  gap: 12px;
+}
+
 .subtitle {
   color: var(--color-text-muted);
   font-size: 1rem;
@@ -30,14 +35,37 @@
 .badge {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: var(--color-primary-50);
-  color: var(--color-primary-dark);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-full);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  border: 1px solid var(--color-primary-100);
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.badgeVerified {
+  background: #e8f5e9;
+  color: #2d5a27;
+  border-color: #c8e6c9;
+}
+
+.badgePending {
+  background: #fff3e0;
+  color: #e65100;
+  border-color: #ffe0b2;
+}
+
+.badgeUnverified {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fee2e2;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.badgeUnverified:hover {
+  background: #fee2e2;
+  transform: translateY(-2px);
 }
 
 .mainGrid {
@@ -396,21 +424,315 @@
 /* Feedback Toast */
 .feedbackToast {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  padding: 1rem 2rem;
-  border-radius: 1.25rem;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  font-weight: 800;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-  z-index: 1000;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: 100px;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 2000;
+  backdrop-filter: blur(10px);
+}
+
+.toastSuccess { background: rgba(45, 90, 39, 0.95); }
+.toastError { background: rgba(220, 38, 38, 0.95); }
+
+/* Email Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: 20px;
+}
+
+.emailModal {
+  background: white;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.modalHeader {
+  padding: 32px 32px 16px;
+  text-align: center;
+  position: relative;
+}
+
+.modalIconCircle {
+  width: 56px;
+  height: 56px;
+  background: var(--color-primary-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.modalHeader h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.closeModal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.closeModal:hover {
+  background: #f5f5f5;
+}
+
+.modalBody {
+  padding: 0 32px 32px;
+}
+
+.modalDesc {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.modalSubmitBtn {
+  width: 100%;
+  height: 52px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 8px;
+}
+
+.modalSubmitBtn:hover:not(:disabled) {
+  background: var(--color-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 90, 39, 0.2);
+}
+
+.modalSubmitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.otpGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.otpInput {
+  height: 56px;
+  width: 100%;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  transition: 0.2s;
+}
+
+.otpInput:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  background: var(--color-primary-light);
+}
+
+.resendBtn {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 16px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* KYC Modal */
+.kycModal {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.kycSteps {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.kycSteps::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 30%;
+  right: 30%;
+  height: 2px;
+  background: #eee;
+  z-index: 0;
+}
+
+.stepDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eee;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 1;
+  transition: 0.3s;
+}
+
+.stepActive {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 0 0 4px var(--color-primary-light);
+}
+
+.kycContent {
+  text-align: center;
+  padding: 0 20px;
+}
+
+.kycContent h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 16px 0 8px;
+}
+
+.kycContent p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.uploadGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.uploadBox {
+  height: 120px;
+  border: 2px dashed #eee;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #fafafa;
+}
+
+.uploadBox:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.uploadBox span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.nfcSimulation {
+  background: #f8f9fa;
+  border-radius: 20px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.nfcWave {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: nfcWave 1.5s infinite;
+}
+
+@keyframes nfcWave {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.kycActionBtn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.kycActionBtn:hover {
+  background: var(--color-primary);
   color: white;
 }
 
-.toastSuccess { background: #10b981; }
-.toastError { background: #ef4444; }
+.verifiedText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2d5a27;
+  background: #e8f5e9;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
 
 /* Loader */
 .loaderContainer {
