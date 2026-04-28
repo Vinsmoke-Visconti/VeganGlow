@@ -31,6 +31,16 @@ const STATUS_CONFIG: Record<string, { badgeClass: string; label: string; icon: R
   cancelled: { badgeClass: 'badgeDanger',   label: 'Đã hủy',      icon: <XCircle size={13} /> },
 };
 
+function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+  return (
+    <span className={`${styles.badge} ${styles[cfg.badgeClass as keyof typeof styles]}`}>
+      {cfg.icon}
+      {cfg.label}
+    </span>
+  );
+}
+
 export default function AdminOrders() {
   const supabase = createBrowserClient();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -101,16 +111,6 @@ export default function AdminOrders() {
       o.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.phone.includes(searchTerm),
   );
-
-  const StatusBadge = ({ status }: { status: string }) => {
-    const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
-    return (
-      <span className={`${styles.badge} ${styles[cfg.badgeClass as keyof typeof styles]}`}>
-        {cfg.icon}
-        {cfg.label}
-      </span>
-    );
-  };
 
   return (
     <div className={styles.page}>

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import AddToCartButton from '@/components/products/AddToCartButton';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 import { ArrowRight, Leaf, Shield, Heart, Sparkles, Star, Users, Award, Recycle, Zap, Droplets, Quote } from 'lucide-react';
+import ProductCard from '@/components/products/ProductCard';
 import { cacheGet, cacheSet } from '@/lib/redis';
 
 const testimonials = [
@@ -45,7 +46,7 @@ export default async function Home() {
   let products = await cacheGet<any[]>(cacheKey);
 
   if (!products) {
-    const { data: dbProducts } = await supabase.from('products').select('*').limit(4);
+    const { data: dbProducts } = await supabase.from('products').select('*, categories(name, slug)').limit(4);
     products = dbProducts || [];
     await cacheSet(cacheKey, products, 1800);
   }
@@ -173,37 +174,8 @@ export default async function Home() {
             <StaggerContainer className={styles.productsGrid}>
               {products && products.length > 0 ? (
                 products.map((p: any) => (
-                  <StaggerItem key={p.id} className={styles.productCard}>
-                    <Link href={`/products/${p.slug}`} className={styles.productImageWrap}>
-                      <div className={styles.productBadge}>Best Seller</div>
-                      <img
-                        src={
-                          p.image ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=B7E4C7&color=1B4332&size=400`
-                        }
-                        alt={p.name}
-                        className={styles.productImage}
-                      />
-                    </Link>
-                    <div className={styles.productInfo}>
-                      <span className={styles.productCategory}>Skincare</span>
-                      <Link href={`/products/${p.slug}`}>
-                        <h3 className={styles.productName}>{p.name}</h3>
-                      </Link>
-                      <div className={styles.productMeta}>
-                        <span className={styles.productRating}>★ {p.rating}</span>
-                        <span className={styles.productReviews}>({p.reviews_count} đánh giá)</span>
-                      </div>
-                      <div className={styles.productFooter}>
-                        <span className={styles.productPrice}>
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND',
-                          }).format(Number(p.price))}
-                        </span>
-                        <AddToCartButton product={p} className={styles.miniCartBtn} />
-                      </div>
-                    </div>
+                  <StaggerItem key={p.id}>
+                    <ProductCard product={p} />
                   </StaggerItem>
                 ))
               ) : (

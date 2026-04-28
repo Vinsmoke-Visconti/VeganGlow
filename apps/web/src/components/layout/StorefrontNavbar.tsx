@@ -5,15 +5,15 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import styles from '@/app/(storefront)/storefront-layout.module.css';
-import { ShoppingBag, User, Menu, X } from 'lucide-react';
+import { ShoppingBag, User as UserIcon, Menu, X, Search, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createBrowserClient } from '@/lib/supabase/client';
 
 const NAV_LINKS = [
   { href: '/products', label: 'Cửa hàng' },
-  { href: '/about', label: 'Về chúng tôi' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/about', label: 'Câu chuyện' },
+  { href: '/blog', label: 'Cẩm nang' },
+  { href: '/faq', label: 'Hỗ trợ' },
   { href: '/contact', label: 'Liên hệ' },
 ];
 
@@ -22,9 +22,11 @@ export default function StorefrontNavbar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -34,48 +36,45 @@ export default function StorefrontNavbar() {
     setDrawerOpen(false);
   }, [pathname]);
 
-  const [user, setUser] = useState<any>(null);
-
   useEffect(() => {
     const supabase = createBrowserClient();
+    
+    const fetchProfile = async (userId: string) => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('username, avatar_url')
+        .eq('id', userId)
+        .single();
+      setProfile(data);
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) fetchProfile(u.id);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) fetchProfile(u.id);
+      else setProfile(null);
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const handleLogout = async () => {
-    const supabase = createBrowserClient();
-    await supabase.auth.signOut();
-    window.location.reload();
-  };
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname?.startsWith(href);
 
   return (
     <>
-      <motion.header
-        className={styles.header}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={
-          scrolled
-            ? { boxShadow: '0 8px 24px rgba(16,185,129,0.08)' }
-            : undefined
-        }
-      >
+      <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ''}`}>
         <div className={`container ${styles.headerContainer}`}>
           <div className={styles.logo}>
             <Link href="/" className={styles.logoLink}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="VeganGlow Logo" className={styles.logoImg} />
+              <img src="/logo.png" alt="VeganGlow" className={styles.logoImg} />
+              <span className={styles.logoText}>VeganGlow</span>
             </Link>
           </div>
 
@@ -92,76 +91,53 @@ export default function StorefrontNavbar() {
           </nav>
 
           <div className={styles.actions}>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                href="/cart"
-                className={styles.iconBtn}
-                aria-label="Giỏ hàng"
-                style={{ position: 'relative' }}
-              >
-                <ShoppingBag size={24} />
-                <AnimatePresence>
-                  {totalCount > 0 && (
-                    <motion.span
-                      key={totalCount}
-                      initial={{ scale: 0, y: -4 }}
-                      animate={{ scale: 1, y: 0 }}
-                      exit={{ scale: 0 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 18 }}
-                      style={{
-                        position: 'absolute',
-                        top: '-5px',
-                        right: '-5px',
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        color: 'white',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        padding: '2px 6px',
-                        borderRadius: '10px',
-                        minWidth: '18px',
-                        textAlign: 'center',
-                        boxShadow: '0 4px 8px rgba(16,185,129,0.35)',
-                      }}
-                    >
-                      {totalCount}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
-            </motion.div>
+            <button className={styles.iconBtn} aria-label="Tìm kiếm">
+              <Search size={20} />
+            </button>
+            
+            <Link href="/wishlist" className={styles.iconBtn} aria-label="Yêu thích">
+              <Heart size={20} />
+            </Link>
+
+            <Link href="/cart" className={styles.iconBtn} aria-label="Giỏ hàng">
+              <ShoppingBag size={20} />
+              {totalCount > 0 && (
+                <span className={styles.cartBadge}>{totalCount}</span>
+              )}
+            </Link>
 
             {user ? (
-              <>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/profile" className={styles.iconBtn} aria-label="Tài khoản">
-                    <User size={22} />
-                  </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <button onClick={handleLogout} className={styles.loginBtn} style={{ background: 'var(--muted)', color: 'var(--foreground)' }}>
-                    Đăng xuất
-                  </button>
-                </motion.div>
-              </>
+              <Link href="/profile" className={styles.userBtn}>
+                <div className={styles.userAvatarMini}>
+                  {profile?.avatar_url ? (
+                    <img 
+                      src={profile.avatar_url} 
+                      alt={profile.username || 'User'} 
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    <UserIcon size={16} />
+                  )}
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary-dark)' }}>
+                  {profile?.username || 'Tài khoản'}
+                </span>
+              </Link>
             ) : (
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href="/login" className={styles.loginBtn}>
-                  Đăng nhập
-                </Link>
-              </motion.div>
+              <Link href="/login" className={styles.loginBtn}>
+                Tham gia ngay
+              </Link>
             )}
-
 
             <button
               className={styles.navMobileToggle}
-              aria-label="Mở menu"
               onClick={() => setDrawerOpen(true)}
             >
               <Menu size={24} />
             </button>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <AnimatePresence>
         {drawerOpen && (
@@ -170,7 +146,6 @@ export default function StorefrontNavbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
             onClick={() => setDrawerOpen(false)}
           >
             <motion.aside
@@ -178,39 +153,33 @@ export default function StorefrontNavbar() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, color: '#1a4d2e' }}>VeganGlow</span>
-                <button
-                  className={styles.iconBtn}
-                  aria-label="Đóng"
-                  onClick={() => setDrawerOpen(false)}
-                  style={{ background: 'transparent', border: 'none' }}
-                >
-                  <X size={22} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <span className={styles.logoText}>VeganGlow</span>
+                <button onClick={() => setDrawerOpen(false)} className={styles.iconBtn}>
+                  <X size={24} />
                 </button>
               </div>
-              {NAV_LINKS.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`${styles.navDrawerLink} ${isActive(l.href) ? styles.navDrawerLinkActive : ''}`}
-                >
-                  {l.label}
-                </Link>
-              ))}
-              <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingTop: '1rem' }}>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {NAV_LINKS.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className={`${styles.navDrawerLink} ${isActive(l.href) ? styles.navDrawerLinkActive : ''}`}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+
+              <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid var(--color-border-light)' }}>
                 {user ? (
-                  <button onClick={handleLogout} className={styles.navDrawerLink} style={{ textAlign: 'left', background: 'transparent', border: 'none' }}>
-                    Đăng xuất
-                  </button>
+                  <Link href="/profile" className={styles.navDrawerLink}>Hồ sơ cá nhân</Link>
                 ) : (
-                  <>
-                    <Link href="/login" className={styles.navDrawerLink}>Đăng nhập</Link>
-                    <Link href="/register" className={styles.navDrawerLink}>Đăng ký</Link>
-                  </>
+                  <Link href="/login" className={styles.loginBtn} style={{ width: '100%', textAlign: 'center' }}>Đăng nhập</Link>
                 )}
               </div>
             </motion.aside>

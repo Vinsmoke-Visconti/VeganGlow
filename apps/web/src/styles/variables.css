@@ -4,16 +4,17 @@
 
 :root {
   /* Brand Colors — HSL for alpha channel support */
-  --primary-h: 151;
-  --primary-s: 43%;
-  --primary-l: 36%;
+  --primary-h: 158;
+  --primary-s: 45%;
+  --primary-l: 32%;
   
   --color-primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-  --color-primary-light: hsl(var(--primary-h), 38%, 49%);
-  --color-primary-dark: hsl(var(--primary-h), 43%, 15%);
-  --color-primary-50: hsl(var(--primary-h), 43%, 95%);
-  --color-primary-100: hsl(var(--primary-h), 43%, 85%);
-  --color-primary-200: hsl(var(--primary-h), 43%, 75%);
+  --color-primary-light: hsl(var(--primary-h), 40%, 45%);
+  --color-primary-dark: hsl(var(--primary-h), 50%, 12%);
+  --color-primary-50: hsl(var(--primary-h), 35%, 96%);
+  --color-primary-100: hsl(var(--primary-h), 35%, 90%);
+  --color-primary-200: hsl(var(--primary-h), 35%, 82%);
+  --color-primary-300: hsl(var(--primary-h), 35%, 72%);
 
   --color-secondary: hsl(30, 67%, 44%);
   --color-secondary-light: hsl(32, 63%, 62%);
@@ -34,18 +35,19 @@
   --color-border-light: hsl(45, 42%, 89%);
 
   /* Premium Glassmorphism & Gradients */
-  --glass-bg: hsla(0, 0%, 100%, 0.7);
-  --glass-border: hsla(0, 0%, 100%, 0.3);
-  --glass-shadow: 0 8px 32px 0 hsla(var(--primary-h), var(--primary-s), 15%, 0.1);
-  --glass-blur: blur(12px);
+  --glass-bg: hsla(0, 0%, 100%, 0.65);
+  --glass-border: hsla(0, 0%, 100%, 0.4);
+  --glass-shadow: 0 8px 32px 0 hsla(var(--primary-h), 40%, 10%, 0.08);
+  --glass-blur: blur(20px);
+  --glass-inner-shadow: inset 0 0 0 1px hsla(0, 0%, 100%, 0.5);
 
   /* Same-tone Botanical Gradients */
   --gradient-primary: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
   --gradient-soft: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
   --gradient-luxury: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-  --gradient-botanical: linear-gradient(135deg, #e9f5db 0%, #cfe1b9 100%);
-  --gradient-sunset: linear-gradient(135deg, var(--color-secondary-light) 0%, var(--color-secondary) 100%);
-  --gradient-hero: linear-gradient(135deg, hsla(var(--primary-h), 43%, 95%, 0.9) 0%, hsla(51, 87%, 94%, 0.9) 100%);
+  --gradient-botanical: linear-gradient(135deg, #f0f7f4 0%, #d4e0d9 100%);
+  --gradient-lush: linear-gradient(135deg, #e9f5db 0%, #cfe1b9 100%);
+  --gradient-hero: radial-gradient(circle at 70% 30%, hsla(var(--primary-h), 35%, 96%, 1) 0%, hsla(51, 87%, 94%, 1) 100%);
   --gradient-card: linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%);
 
   /* Status */

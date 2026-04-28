@@ -3,6 +3,8 @@ import { Bell, Search } from 'lucide-react';
 import styles from './backoffice-layout.module.css';
 import PageTransition from '@/components/ui/PageTransition';
 import { AdminSidebar } from './AdminSidebar';
+import { AdminProfileMenu } from './AdminProfileMenu';
+import { AdminBreadcrumb } from './AdminBreadcrumb';
 
 export default async function BackofficeLayout({
   children,
@@ -19,13 +21,23 @@ export default async function BackofficeLayout({
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const initial = displayName.charAt(0).toUpperCase();
   const isSuperAdmin = user?.user_metadata?.role === 'admin';
+  const roleLabel = isSuperAdmin ? 'Super Admin' : 'Quản trị viên';
+  const email = user?.email || '';
 
   return (
     <div className={styles.adminContainer}>
-      <AdminSidebar />
+      <AdminSidebar
+        userName={displayName}
+        userInitial={initial}
+        userRoleLabel={roleLabel}
+      />
 
       <div className={styles.mainWrapper}>
         <header className={styles.topbar}>
+          <div className={styles.topbarLeft}>
+            <AdminBreadcrumb />
+          </div>
+
           <div className={styles.searchBar}>
             <Search size={16} className={styles.searchIcon} aria-hidden="true" />
             <input
@@ -42,15 +54,12 @@ export default async function BackofficeLayout({
               <span className={styles.iconBtnBadge} />
             </button>
 
-            <div className={styles.userProfile}>
-              <div className={styles.avatar}>{initial}</div>
-              <div className={styles.userInfo}>
-                <span className={styles.userName}>{displayName}</span>
-                <span className={styles.userRole}>
-                  {isSuperAdmin ? 'Super Admin' : 'Quản trị viên'}
-                </span>
-              </div>
-            </div>
+            <AdminProfileMenu
+              displayName={displayName}
+              initial={initial}
+              email={email}
+              roleLabel={roleLabel}
+            />
           </div>
         </header>
 

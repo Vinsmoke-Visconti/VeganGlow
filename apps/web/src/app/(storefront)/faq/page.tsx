@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { ChevronDown, HelpCircle, Search, MessageCircle } from 'lucide-react';
+import styles from './faq.module.css';
 
 type FaqItem = { q: string; a: string };
 type FaqGroup = { title: string; items: FaqItem[] };
@@ -50,20 +51,20 @@ export default function FaqPage() {
   })).filter((g) => g.items.length > 0);
 
   return (
-    <div style={{ maxWidth: 880, margin: '0 auto', padding: '4rem 1.5rem' }}>
+    <div className={styles.page}>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ textAlign: 'center', marginBottom: '2.5rem' }}
+        className={styles.header}
       >
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#d1fae5', color: '#065f46', padding: '6px 14px', borderRadius: 9999, fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem' }}>
+        <div className={styles.eyebrow}>
           <HelpCircle size={14} /> Trợ giúp
         </div>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(2.25rem, 4vw, 3rem)', fontWeight: 800, color: '#1a4d2e', marginBottom: '0.75rem' }}>
+        <h1 className={styles.title}>
           Câu hỏi thường gặp
         </h1>
-        <p style={{ color: '#6b7280', fontSize: '1.05rem' }}>
+        <p className={styles.subtitle}>
           Mọi điều bạn cần biết về VeganGlow — gói gọn ở một nơi.
         </p>
       </motion.div>
@@ -72,28 +73,20 @@ export default function FaqPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        style={{ position: 'relative', marginBottom: '2.5rem' }}
+        className={styles.searchContainer}
       >
-        <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+        <Search size={18} className={styles.searchIcon} />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Tìm câu hỏi..."
-          style={{
-            width: '100%',
-            padding: '0.9rem 1rem 0.9rem 2.75rem',
-            border: '1px solid #e5e7eb',
-            borderRadius: 12,
-            outline: 'none',
-            fontSize: '0.95rem',
-            background: 'white',
-          }}
+          className={styles.searchInput}
         />
       </motion.div>
 
       {filtered.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#9ca3af', padding: '3rem 0' }}>
+        <p className={styles.noResults}>
           Không tìm thấy câu hỏi nào khớp với &ldquo;{search}&rdquo;.
         </p>
       ) : (
@@ -104,49 +97,29 @@ export default function FaqPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-30px' }}
             transition={{ delay: gi * 0.08, duration: 0.4 }}
-            style={{ marginBottom: '2rem' }}
+            className={styles.section}
           >
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1a4d2e', marginBottom: '1rem' }}>
+            <h2 className={styles.sectionTitle}>
               {group.title}
             </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className={styles.accordionList}>
               {group.items.map((item, ii) => {
                 const key = `${gi}-${ii}`;
                 const open = openKey === key;
                 return (
                   <div
                     key={key}
-                    style={{
-                      background: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: 12,
-                      overflow: 'hidden',
-                      transition: 'border-color 0.25s ease',
-                      borderColor: open ? '#a7f3d0' : '#e5e7eb',
-                    }}
+                    className={`${styles.accordionItem} ${open ? styles.accordionItemActive : ''}`}
                   >
                     <button
                       onClick={() => setOpenKey(open ? null : key)}
-                      style={{
-                        width: '100%',
-                        padding: '1rem 1.25rem',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        textAlign: 'left',
-                        fontWeight: 600,
-                        color: '#1f2937',
-                        fontSize: '0.98rem',
-                      }}
+                      className={styles.accordionTrigger}
                     >
                       {item.q}
                       <motion.span
                         animate={{ rotate: open ? 180 : 0 }}
                         transition={{ duration: 0.25 }}
-                        style={{ display: 'inline-flex', color: '#10b981' }}
+                        className={styles.accordionIcon}
                       >
                         <ChevronDown size={20} />
                       </motion.span>
@@ -158,9 +131,9 @@ export default function FaqPage() {
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.25, ease: 'easeOut' }}
-                          style={{ overflow: 'hidden' }}
+                          className={styles.contentWrapper}
                         >
-                          <div style={{ padding: '0 1.25rem 1.1rem', color: '#4b5563', lineHeight: 1.7, fontSize: '0.92rem' }}>
+                          <div className={styles.content}>
                             {item.a}
                           </div>
                         </motion.div>
@@ -178,16 +151,18 @@ export default function FaqPage() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        style={{ marginTop: '3rem', textAlign: 'center', padding: '2rem', background: 'linear-gradient(135deg, #f0fdf4, #d1fae5)', borderRadius: 16 }}
+        className={styles.cta}
       >
-        <MessageCircle size={32} color="#065f46" style={{ margin: '0 auto 0.75rem' }} />
-        <h3 style={{ color: '#1a4d2e', fontWeight: 700, marginBottom: '0.5rem' }}>Vẫn còn thắc mắc?</h3>
-        <p style={{ color: '#4b5563', marginBottom: '1.25rem' }}>
+        <div className={styles.ctaIcon}>
+          <MessageCircle size={32} />
+        </div>
+        <h3 className={styles.ctaTitle}>Vẫn còn thắc mắc?</h3>
+        <p className={styles.ctaText}>
           Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng trả lời.
         </p>
         <Link
           href="/contact"
-          style={{ display: 'inline-block', padding: '0.75rem 1.5rem', background: '#10b981', color: 'white', borderRadius: 10, fontWeight: 700, textDecoration: 'none' }}
+          className={styles.contactBtn}
         >
           Liên hệ với chúng tôi
         </Link>

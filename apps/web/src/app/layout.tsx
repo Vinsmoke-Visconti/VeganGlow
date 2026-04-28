@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
-import EnvGuard from '@/components/EnvGuard';
+import EnvGuard from '../components/EnvGuard';
+import AppProviders from '../components/providers/AppProviders';
 import { Outfit, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 
@@ -28,33 +29,20 @@ export const metadata: Metadata = {
   description:
     'VeganGlow — Thương hiệu mỹ phẩm thuần chay Việt Nam, chiết xuất từ thiên nhiên cho làn da khỏe đẹp. Serum, toner, mặt nạ, chống nắng.',
   keywords: [
-    'mỹ phẩm thuần chay',
-    'vegan cosmetics',
-    'skincare',
     'VeganGlow',
-    'mỹ phẩm thiên nhiên',
-    'serum rau má',
-    'chống nắng trà xanh',
+    'mỹ phẩm thuần chay',
+    'skincare Việt Nam',
+    'thiên nhiên',
+    'serum',
+    'toner',
   ],
   authors: [{ name: 'VeganGlow Team' }],
-  openGraph: {
-    type: 'website',
-    locale: 'vi_VN',
-    url: 'https://veganglow.vn',
-    siteName: 'VeganGlow',
-    title: 'VeganGlow — Mỹ phẩm thuần chay Việt Nam',
-    description:
-      'Thương hiệu mỹ phẩm thuần chay chiết xuất thiên nhiên Việt Nam',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'VeganGlow — Mỹ phẩm thuần chay Việt Nam',
-    description:
-      'Thương hiệu mỹ phẩm thuần chay chiết xuất thiên nhiên Việt Nam',
-  },
-  robots: {
-    index: true,
-    follow: true,
+  creator: 'VeganGlow',
+  publisher: 'VeganGlow',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   },
   icons: {
     icon: '/icon.png',
@@ -68,11 +56,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" suppressHydrationWarning className={`${fontBody.variable} ${fontHeading.variable}`}>
+    <html lang="vi" suppressHydrationWarning className={`${fontBody.variable} ${fontHeading.variable}`} data-scroll-behavior="smooth">
       <body className="antialiased">
-        <EnvGuard>
-          {children}
-        </EnvGuard>
+        <AppProviders>
+          <EnvGuard>
+            {children}
+          </EnvGuard>
+        </AppProviders>
         <Toaster
           position="top-right"
           richColors
