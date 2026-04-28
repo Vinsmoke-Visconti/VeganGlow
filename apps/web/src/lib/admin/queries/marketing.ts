@@ -22,11 +22,12 @@ export type Banner = {
   image_url: string | null;
   cover_gradient: string | null;
   link_url: string | null;
-  placement: string;
-  status: string;
+  placement: string | null;
+  status: string | null;
   starts_at: string | null;
-  expires_at: string | null;
-  created_at: string;
+  ends_at: string | null;
+  display_order: number | null;
+  created_at: string | null;
 };
 
 export type FlashSale = {
