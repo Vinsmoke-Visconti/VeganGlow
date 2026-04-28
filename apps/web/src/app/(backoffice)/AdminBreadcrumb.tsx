@@ -25,11 +25,12 @@ export function AdminBreadcrumb() {
 
   if (segments.length <= 1) return null;
 
-  let acc = '';
-  const crumbs = segments.map((seg) => {
-    acc += `/${seg}`;
-    return { href: acc, label: SEGMENT_LABEL[seg] || decodeURIComponent(seg) };
-  });
+  const crumbs = segments.reduce<{ href: string; label: string }[]>((list, seg) => {
+    const prev = list.length > 0 ? list[list.length - 1].href : '';
+    const href = `${prev}/${seg}`;
+    list.push({ href, label: SEGMENT_LABEL[seg] || decodeURIComponent(seg) });
+    return list;
+  }, []);
 
   return (
     <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
