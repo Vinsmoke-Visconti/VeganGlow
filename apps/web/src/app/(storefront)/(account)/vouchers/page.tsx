@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Ticket, Clock, Tag } from 'lucide-react';
+import { 
+  Ticket, Clock, Tag, Search, 
+  Filter, ChevronRight, Gift, 
+  Info, CheckCircle2, Loader2,
+  Sparkles, Zap
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createBrowserClient } from '@/lib/supabase/client';
 import styles from './vouchers.module.css';
@@ -20,6 +25,7 @@ export default function VouchersPage() {
   const [filter, setFilter] = useState('all');
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
+  const [voucherCode, setVoucherCode] = useState('');
   const supabase = createBrowserClient();
 
   useEffect(() => {
@@ -31,7 +37,6 @@ export default function VouchersPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Join user_vouchers with vouchers
     const { data, error } = await supabase
       .from('user_vouchers')
       .select(`
@@ -63,73 +68,125 @@ export default function VouchersPage() {
     if (filter === 'all') return true;
     if (filter === 'shipping') return v.discount_type === 'shipping';
     if (filter === 'discount') return v.discount_type === 'percentage' || v.discount_type === 'fixed';
-    return true;
+    if (filter === 'used') return v.is_used;
+    return !v.is_used;
   });
 
+  if (loading) {
+    return (
+      <div className={styles.loaderContainer}>
+        <Loader2 className={styles.spin} size={40} />
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.wrapper}>
+    <motion.div 
+      className={styles.wrapper}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       <header className={styles.header}>
         <div className={styles.headerTop}>
-          <h1 className={styles.title}>Kho Voucher</h1>
-          <div className={styles.addVoucher}>
-            <input type="text" placeholder="Nhập mã voucher tại đây" className={styles.voucherInput} />
-            <button className={styles.applyBtn}>Lưu</button>
+          <div>
+            <h1 className={styles.title}>Kho Voucher</h1>
+            <p className={styles.subtitle}>Sưu tầm ưu đãi để tận hưởng mua sắm tiết kiệm</p>
+          </div>
+          <div className={styles.addVoucherBox}>
+            <div className={styles.inputWrapper}>
+              <Tag size={16} className={styles.inputIcon} />
+              <input 
+                type="text" 
+                placeholder="Nhập mã voucher tại đây" 
+                className={styles.voucherInput}
+                value={voucherCode}
+                onChange={e => setVoucherCode(e.target.value)}
+              />
+            </div>
+            <button className={styles.applyBtn}>Sưu tầm</button>
           </div>
         </div>
+
+        <section className={styles.welcomeOffer}>
+          <div className={styles.offerIcon}>
+            <Sparkles size={24} />
+          </div>
+          <div className={styles.offerInfo}>
+            <h4>Ưu đãi cho thành viên mới</h4>
+            <p>Nhận ngay Voucher giảm 50.000đ cho đơn hàng đầu tiên sau khi xác thực danh tính.</p>
+          </div>
+          <button className={styles.claimBtn}>Nhận ngay</button>
+        </section>
         
         <div className={styles.tabs}>
-          <button className={`${styles.tab} ${filter === 'all' ? styles.tabActive : ''}`} onClick={() => setFilter('all')}>Tất cả</button>
-          <button className={`${styles.tab} ${filter === 'shipping' ? styles.tabActive : ''}`} onClick={() => setFilter('shipping')}>Vận chuyển</button>
-          <button className={`${styles.tab} ${filter === 'discount' ? styles.tabActive : ''}`} onClick={() => setFilter('discount')}>Giảm giá</button>
+          {['all', 'shipping', 'discount', 'used'].map(t => (
+            <button 
+              key={t}
+              className={`${styles.tab} ${filter === t ? styles.tabActive : ''}`} 
+              onClick={() => setFilter(t)}
+            >
+              {t === 'all' ? 'Tất cả' : t === 'shipping' ? 'Vận chuyển' : t === 'discount' ? 'Giảm giá' : 'Đã dùng'}
+            </button>
+          ))}
         </div>
       </header>
 
       <div className={styles.voucherGrid}>
-        {loading ? (
-          <div className={styles.loading}>Đang tải voucher...</div>
-        ) : (
-          <AnimatePresence mode="popLayout">
-            {filteredVouchers.length > 0 ? filteredVouchers.map(v => (
-              <motion.div 
-                key={v.id} 
-                className={styles.voucherCard}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                layout
-              >
-                <div className={`${styles.cardLeft} ${v.discount_type === 'shipping' ? styles.typeShipping : styles.typeDiscount}`}>
-                  {v.discount_type === 'shipping' ? <Clock size={32} /> : <Tag size={32} />}
-                  <span className={styles.typeLabel}>{v.discount_type === 'shipping' ? 'Vận chuyển' : 'Giảm giá'}</span>
+        <AnimatePresence mode="popLayout">
+          {filteredVouchers.length > 0 ? filteredVouchers.map((v, idx) => (
+            <motion.div 
+              key={v.id} 
+              className={`${styles.voucherCard} ${v.is_used ? styles.cardUsed : ''}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              layout
+            >
+              <div className={`${styles.cardLeft} ${v.discount_type === 'shipping' ? styles.typeShipping : styles.typeDiscount}`}>
+                <div className={styles.typeIconBg}>
+                  {v.discount_type === 'shipping' ? <Zap size={24} /> : <Gift size={24} />}
                 </div>
-                <div className={styles.cardRight}>
-                  <div className={styles.cardInfo}>
+                <span className={styles.typeLabel}>{v.discount_type === 'shipping' ? 'FREESHIP' : 'DISCOUNT'}</span>
+              </div>
+              
+              <div className={styles.cardRight}>
+                <div className={styles.cardInfo}>
+                  <div className={styles.cardInfoTop}>
                     <h3 className={styles.voucherTitle}>{v.title}</h3>
-                    <p className={styles.voucherDesc}>{v.description}</p>
-                    <div className={styles.voucherFooter}>
-                      <span className={styles.expiry}>HSD: {new Date(v.end_date).toLocaleDateString('vi-VN')}</span>
-                      <button className={styles.useBtn} disabled={v.is_used}>
-                        {v.is_used ? 'Đã dùng' : 'Dùng ngay'}
-                      </button>
-                    </div>
+                    {!v.is_used && <span className={styles.tagLimited}>Số lượng có hạn</span>}
                   </div>
-                  <div className={styles.cardTag}>Số lượng có hạn</div>
+                  <p className={styles.voucherDesc}>{v.description}</p>
+                  
+                  <div className={styles.voucherFooter}>
+                    <div className={styles.expiryBox}>
+                      <Clock size={12} />
+                      <span>HSD: {new Date(v.end_date).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <button className={styles.useBtn} disabled={v.is_used}>
+                      {v.is_used ? 'Đã sử dụng' : 'Dùng ngay'}
+                    </button>
+                  </div>
                 </div>
-                <div className={styles.circles}>
-                  <div className={styles.circleTop}></div>
-                  <div className={styles.circleBottom}></div>
-                </div>
-              </motion.div>
-            )) : (
-              <div className={styles.emptyState}>Bạn chưa có voucher nào trong danh mục này.</div>
-            )}
-          </AnimatePresence>
-        )}
+              </div>
+
+              <div className={styles.decorCircles}>
+                <div className={styles.circleTop}></div>
+                <div className={styles.circleBottom}></div>
+              </div>
+            </motion.div>
+          )) : (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}><Ticket size={48} /></div>
+              <p>Bạn chưa có voucher nào trong danh mục này.</p>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
 
-      <div className={styles.historyLink}>
-        <button>Xem lịch sử voucher</button>
+      <div className={styles.footerInfo}>
+        <Info size={16} />
+        <span>Voucher chỉ có giá trị khi áp dụng tại trang thanh toán.</span>
       </div>
-    </div>
+    </motion.div>
   );
 }

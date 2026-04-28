@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { MapPin, Plus, Loader2, Home, Briefcase, Trash2 } from 'lucide-react';
+import { 
+  MapPin, Plus, Loader2, Home, Briefcase, 
+  Trash2, Edit3, CheckCircle2, ChevronRight,
+  AlertCircle, X, Search
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { VnAddressSelect, emptyVnAddress, type VnAddressValue } from '@/components/shared/VnAddressSelect';
 import styles from './address.module.css';
 
@@ -24,6 +29,7 @@ export default function AddressPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
   
   // Form state
   const [fullName, setFullName] = useState('');
@@ -57,7 +63,7 @@ export default function AddressPage() {
 
   async function handleSave() {
     if (!fullName || !phone || !streetAddress || !vnAddress.province) {
-      alert('Vui lòng điền đầy đủ thông tin');
+      setFeedback({ kind: 'error', message: 'Vui lòng điền đầy đủ thông tin' });
       return;
     }
 
@@ -77,10 +83,9 @@ export default function AddressPage() {
       full_name: fullName,
       phone,
       address: streetAddress,
-      city: vnAddress.province,
       province: vnAddress.province,
       ward: vnAddress.ward,
-      district: null as string | null,
+      district: vnAddress.province === vnAddress.ward ? '' : null, // Simplified for now
       is_default: isDefault,
     };
 
@@ -96,20 +101,25 @@ export default function AddressPage() {
     }
 
     if (error) {
-      alert('Lỗi: ' + error.message);
+      setFeedback({ kind: 'error', message: 'Lỗi: ' + error.message });
     } else {
+      setFeedback({ kind: 'success', message: editingId ? 'Đã cập nhật địa chỉ!' : 'Đã thêm địa chỉ mới!' });
       setShowModal(false);
       resetForm();
       fetchAddresses();
+      setTimeout(() => setFeedback(null), 3000);
     }
     setSaving(false);
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Xóa địa chỉ này?')) return;
     const { error } = await supabase.from('addresses').delete().eq('id', id);
-    if (error) alert(error.message);
-    else fetchAddresses();
+    if (error) setFeedback({ kind: 'error', message: error.message });
+    else {
+      setFeedback({ kind: 'success', message: 'Đã xóa địa chỉ' });
+      fetchAddresses();
+      setTimeout(() => setFeedback(null), 3000);
+    }
   }
 
   function resetForm() {
@@ -137,73 +147,154 @@ export default function AddressPage() {
   }
 
   if (loading) {
-    return <div className={styles.loader}><Loader2 className="animate-spin" /></div>;
+    return (
+      <div className={styles.loaderContainer}>
+        <Loader2 className={styles.spin} size={40} />
+      </div>
+    );
   }
 
   return (
-    <div className={styles.addressWrapper}>
+    <motion.div 
+      className={styles.addressWrapper}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
       <header className={styles.header}>
-        <h1 className={styles.title}>Địa chỉ của tôi</h1>
+        <div>
+          <h1 className={styles.title}>Địa chỉ của tôi</h1>
+          <p className={styles.subtitle}>Quản lý địa chỉ nhận hàng để mua sắm thuận tiện hơn</p>
+        </div>
         <button className={styles.addBtn} onClick={() => { resetForm(); setShowModal(true); }}>
           <Plus size={18} /> Thêm địa chỉ mới
         </button>
       </header>
 
       <div className={styles.addressList}>
-        <h3 className={styles.listTitle}>Địa chỉ</h3>
-        
-        {addresses.length > 0 ? addresses.map(addr => (
-          <div key={addr.id} className={styles.addressCard}>
-            <div className={styles.cardInfo}>
-              <div className={styles.userInfo}>
-                <span className={styles.userName}>{addr.full_name}</span>
-                <span className={styles.divider}>|</span>
-                <span className={styles.userPhone}>{addr.phone}</span>
-              </div>
-              <div className={styles.addressDetail}>
-                <p>{addr.address}</p>
-                <p>{addr.ward}, {addr.district}, {addr.province}</p>
-              </div>
-              {addr.is_default && <span className={styles.defaultTag}>Mặc định</span>}
-            </div>
-            <div className={styles.cardActions}>
-              <button className={styles.actionBtn} onClick={() => handleEdit(addr)}>Cập nhật</button>
-              {!addr.is_default && <button className={styles.actionBtn} onClick={() => handleDelete(addr.id)}>Xóa</button>}
-              {!addr.is_default && <button className={styles.setBtn}>Thiết lập mặc định</button>}
-            </div>
+        {addresses.length > 0 ? (
+          <div className={styles.grid}>
+            {addresses.map((addr, idx) => (
+              <motion.div 
+                key={addr.id} 
+                className={`${styles.addressCard} ${addr.is_default ? styles.defaultCard : ''}`}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <div className={styles.cardHeader}>
+                  <div className={styles.userBasic}>
+                    <span className={styles.userName}>{addr.full_name}</span>
+                    {addr.is_default && <span className={styles.defaultTag}>Mặc định</span>}
+                  </div>
+                  <div className={styles.cardActions}>
+                    <button onClick={() => handleEdit(addr)} className={styles.iconBtn} title="Sửa">
+                      <Edit3 size={16} />
+                    </button>
+                    {!addr.is_default && (
+                      <button onClick={() => handleDelete(addr.id)} className={styles.iconBtnDelete} title="Xóa">
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.cardBody}>
+                  <div className={styles.infoLine}>
+                    <Phone size={14} />
+                    <span>{addr.phone}</span>
+                  </div>
+                  <div className={styles.infoLine}>
+                    <MapPin size={14} />
+                    <p>{addr.address}</p>
+                  </div>
+                  <div className={styles.locationTag}>
+                    {addr.ward}, {addr.province}
+                  </div>
+                </div>
+
+                {!addr.is_default && (
+                  <button className={styles.setAsDefaultBtn}>
+                    Thiết lập mặc định
+                  </button>
+                )}
+              </motion.div>
+            ))}
           </div>
-        )) : (
-          <div className={styles.emptyState}>Bạn chưa có địa chỉ nào.</div>
+        ) : (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}><MapPin size={48} /></div>
+            <p>Bạn chưa có địa chỉ nào. Hãy thêm một địa chỉ để bắt đầu mua sắm!</p>
+          </div>
         )}
       </div>
 
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h2>{editingId ? 'Cập nhật địa chỉ' : 'Địa chỉ mới'}</h2>
-            <div className={styles.modalForm}>
-              <div className={styles.formRow}>
-                <input className={styles.input} placeholder="Họ và tên" value={fullName} onChange={e => setFullName(e.target.value)} />
-                <input className={styles.input} placeholder="Số điện thoại" value={phone} onChange={e => setPhone(e.target.value)} />
+      <AnimatePresence>
+        {showModal && (
+          <div className={styles.modalOverlay}>
+            <motion.div 
+              className={styles.modal}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className={styles.modalHeader}>
+                <h2>{editingId ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}</h2>
+                <button className={styles.closeBtn} onClick={() => setShowModal(false)}><X size={20} /></button>
               </div>
-              <VnAddressSelect value={vnAddress} onChange={setVnAddress} />
-              <textarea className={styles.textarea} placeholder="Địa chỉ cụ thể" value={streetAddress} onChange={e => setStreetAddress(e.target.value)} />
               
-              <label className={styles.checkboxLabel}>
-                <input type="checkbox" checked={isDefault} onChange={e => setIsDefault(e.target.checked)} />
-                <span>Đặt làm địa chỉ mặc định</span>
-              </label>
+              <div className={styles.modalForm}>
+                <div className={styles.formRow}>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.label}>Họ và tên</label>
+                    <input className={styles.input} placeholder="Nhập tên người nhận" value={fullName} onChange={e => setFullName(e.target.value)} />
+                  </div>
+                  <div className={styles.fieldGroup}>
+                    <label className={styles.label}>Số điện thoại</label>
+                    <input className={styles.input} placeholder="Nhập số điện thoại" value={phone} onChange={e => setPhone(e.target.value)} />
+                  </div>
+                </div>
 
-              <div className={styles.modalFooter}>
-                <button className={styles.cancelBtn} onClick={() => setShowModal(false)}>Trở Lại</button>
-                <button className={styles.submitBtn} disabled={saving} onClick={handleSave}>
-                  {saving ? <Loader2 className="animate-spin" size={18} /> : 'Hoàn thành'}
-                </button>
+                <div className={styles.fieldGroup}>
+                  <label className={styles.label}>Khu vực</label>
+                  <VnAddressSelect value={vnAddress} onChange={setVnAddress} />
+                </div>
+
+                <div className={styles.fieldGroup}>
+                  <label className={styles.label}>Địa chỉ cụ thể</label>
+                  <textarea className={styles.textarea} placeholder="Số nhà, tên đường..." value={streetAddress} onChange={e => setStreetAddress(e.target.value)} />
+                </div>
+                
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={isDefault} onChange={e => setIsDefault(e.target.checked)} />
+                  <div className={styles.checkboxCustom}></div>
+                  <span>Đặt làm địa chỉ mặc định</span>
+                </label>
+
+                <div className={styles.modalFooter}>
+                  <button className={styles.cancelBtn} onClick={() => setShowModal(false)}>Hủy bỏ</button>
+                  <button className={styles.submitBtn} disabled={saving} onClick={handleSave}>
+                    {saving ? <Loader2 className={styles.spin} size={18} /> : 'Hoàn thành'}
+                  </button>
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {feedback && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className={`${styles.toast} ${feedback.kind === 'success' ? styles.toastSuccess : styles.toastError}`}
+          >
+            {feedback.kind === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+            <span>{feedback.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
