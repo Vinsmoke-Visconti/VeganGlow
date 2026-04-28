@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { 
-  MapPin, Plus, Loader2, Home, Briefcase, 
+import {
+  MapPin, Plus, Loader2, Home, Briefcase,
   Trash2, Edit3, CheckCircle2, ChevronRight,
-  AlertCircle, X, Search
+  AlertCircle, X, Search, Phone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VnAddressSelect, emptyVnAddress, type VnAddressValue } from '@/components/shared/VnAddressSelect';
