@@ -4,7 +4,7 @@ import { adminGoogleLogin, adminLogin, signInWithGitHub } from '@/app/actions/au
 import { AlertCircle, ArrowLeft, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
+import { Suspense, useActionState, useEffect, useState } from 'react';
 import styles from './admin-auth.module.css';
 
 const URL_ERRORS: Record<string, string> = {
@@ -17,6 +17,14 @@ const URL_ERRORS: Record<string, string> = {
 };
 
 export default function AdminLoginPage() {
+  return (
+    <Suspense>
+      <AdminLoginContent />
+    </Suspense>
+  );
+}
+
+function AdminLoginContent() {
   const [state, formAction, isPending] = useActionState(adminLogin, null);
   const searchParams = useSearchParams();
   const urlError = searchParams.get('error');
