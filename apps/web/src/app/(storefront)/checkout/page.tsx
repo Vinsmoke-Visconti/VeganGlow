@@ -327,7 +327,7 @@ export default function CheckoutPage() {
             </button>
             
             <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-text-muted)', textAlign: 'center', justifyContent: 'center' }}>
-              <Info size={14} /> Nhấn "Hoàn tất đặt hàng" đồng nghĩa với việc bạn đồng ý với Điều khoản của VeganGlow.
+              <Info size={14} /> Nhấn &quot;Hoàn tất đặt hàng&quot; đồng nghĩa với việc bạn đồng ý với Điều khoản của VeganGlow.
             </div>
           </div>
         </motion.div>
