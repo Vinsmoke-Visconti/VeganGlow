@@ -41,7 +41,7 @@ jobs:
           context: .
           file: docker/Dockerfile.frontend
           push: true
-          tags: terrykote/veganglow:latest,terrykote/veganglow:${{ github.sha }}
+          tags: terrykozte/veganglow:latest,terrykozte/veganglow:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
