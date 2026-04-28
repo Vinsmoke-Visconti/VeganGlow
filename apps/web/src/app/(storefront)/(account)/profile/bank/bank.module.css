@@ -1,24 +1,37 @@
 .bankWrapper {
-  padding: 32px;
-  max-width: 1000px;
+  padding: 40px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 48px;
+}
+
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.titleIcon {
+  width: 56px;
+  height: 56px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .title {
   font-size: 2rem;
   font-weight: 800;
   color: #1a1a1a;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #1a1a1a 0%, var(--color-primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
@@ -26,7 +39,7 @@
   font-size: 0.95rem;
 }
 
-.headerActions {
+.actionGroup {
   display: flex;
   gap: 12px;
 }
@@ -34,35 +47,31 @@
 .addBtn, .addBtnPrimary {
   padding: 12px 20px;
   border-radius: 12px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .addBtn {
   background: white;
-  color: #444;
   border: 1.5px solid #eee;
+  color: #444;
 }
 
 .addBtnPrimary {
   background: var(--color-primary);
   color: white;
   border: none;
-  box-shadow: 0 4px 12px rgba(45, 90, 39, 0.2);
 }
 
-.addBtnPrimary:hover {
-  background: var(--color-secondary);
-  transform: translateY(-2px);
-}
-
-.section {
-  margin-bottom: 48px;
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 40px;
 }
 
 .sectionHeader {
@@ -70,219 +79,334 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
-  color: #1a1a1a;
 }
 
 .sectionHeader h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.countBadge {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
-.cardInfoBox {
-  background: #f8f9fa;
-  padding: 16px 24px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: #666;
-  font-size: 0.9rem;
-  border: 1px solid #eee;
-}
-
-.bankGrid {
+.cardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 24px;
 }
 
-.bankCard {
-  background: linear-gradient(135deg, #ffffff 0%, #f9fbf9 100%);
-  border: 1px solid rgba(45, 90, 39, 0.1);
+.luxuryCard {
+  height: 200px;
   border-radius: 24px;
-  padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+  padding: 28px;
+  color: white;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   position: relative;
-  overflow: hidden;
 }
 
-.bankCard::before {
-  content: '';
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle, var(--color-primary-light) 0%, transparent 70%);
-  opacity: 0.5;
-  pointer-events: none;
+.cardGold { background: linear-gradient(135deg, #2d5a27 0%, #1a3c17 100%); }
+.cardSilver { background: linear-gradient(135deg, #444 0%, #1a1a1a 100%); }
+
+.chip {
+  width: 44px;
+  height: 32px;
+  background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+  border-radius: 6px;
 }
 
-.defaultCard {
-  border-color: var(--color-primary);
-  box-shadow: 0 15px 40px rgba(45, 90, 39, 0.1);
+.bankLogo {
+  font-weight: 700;
+  font-size: 1rem;
 }
 
-.cardHeader {
+.cardTop {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
 }
 
-.bankMeta {
+.cardNumber {
   display: flex;
-  align-items: center;
   gap: 16px;
-}
-
-.bankIconBg {
-  width: 48px;
-  height: 48px;
-  background: white;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-primary);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.bankNameInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.bankName {
-  font-weight: 700;
-  color: #1a1a1a;
-  font-size: 1.1rem;
-}
-
-.defaultTag {
-  background: var(--color-primary);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  width: fit-content;
-}
-
-.moreBtn {
-  background: none;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
-}
-
-.cardBody {
-  margin-bottom: 32px;
-}
-
-.accountNumber {
-  display: flex;
-  gap: 12px;
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 8px;
+  font-weight: 700;
   letter-spacing: 2px;
 }
 
-.lastDigits {
-  color: #1a1a1a;
-  font-weight: 800;
+.cardBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
-.accountHolder {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #888;
+.holderInfo label {
+  font-size: 0.6rem;
+  opacity: 0.6;
   letter-spacing: 1px;
 }
 
-.cardFooter {
+.holderInfo p {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.defaultLabel {
+  background: rgba(255,255,255,0.2);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.cardActions {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.luxuryCard:hover .cardActions {
+  opacity: 1;
+}
+
+.deleteCardBtn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.deleteCardBtn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.addNewBox {
+  height: 200px;
+  border: 2px dashed #eee;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #fafafa;
+  color: #999;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.addNewBox:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.addNewBox span { font-weight: 700; font-size: 0.9rem; }
+
+/* Sidebar */
+.sideCard {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.sideHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+
+.sideHeader h4 { font-weight: 800; font-size: 0.95rem; }
+
+.settingItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.securityInfo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--color-primary);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.deleteLink {
-  background: none;
-  border: none;
-  color: #ef4444;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 60px 20px;
-  background: #fafafa;
-  border-radius: 24px;
-  border: 2px dashed #eee;
-}
-
-.emptyIcon {
-  color: #ddd;
   margin-bottom: 16px;
 }
 
-.footer {
-  margin-top: 60px;
+.settingInfo {
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
 }
 
-.securityBadge {
+.toggle {
+  width: 44px;
+  height: 24px;
+  background: #eee;
+  border-radius: 100px;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.toggle.active { background: var(--color-primary); }
+
+.knob {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: 0.3s;
+}
+
+.active .knob { transform: translateX(20px); }
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transItem {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #666;
-  font-size: 0.9rem;
-  background: #f8f9fa;
-  padding: 12px 24px;
-  border-radius: 100px;
 }
 
-.securityBadge svg {
-  color: var(--color-primary);
+.transIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.in { background: #e8f5e9; color: #2d5a27; }
+.out { background: #fef2f2; color: #ef4444; }
+
+.transMeta { flex: 1; }
+.transTitle { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+.transDate { font-size: 0.7rem; color: #999; }
+
+.transAmount { font-weight: 800; font-size: 0.9rem; color: #1a1a1a; }
+.textGreen { color: #2d5a27; }
+
+.emptyTrans {
+  padding: 20px 0;
+  text-align: center;
+  color: #bbb;
+  font-size: 0.8rem;
 }
 
 .loaderContainer {
   height: 400px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 16px;
+  color: #666;
 }
 
-.spin {
-  animation: spin 1s linear infinite;
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.confirmBox {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  text-align: center;
 }
 
-@media (max-width: 768px) {
-  .header { flex-direction: column; gap: 24px; }
-  .headerActions { width: 100%; flex-direction: column; }
-  .bankGrid { grid-template-columns: 1fr; }
+.confirmHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.confirmHeader h4 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.confirmMessage {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 12px;
+}
+
+.cancelBtn, .confirmBtn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancelBtn {
+  background: #f5f5f5;
+  border: none;
+  color: #666;
+}
+
+.confirmBtn {
+  background: #ef4444;
+  border: none;
+  color: white;
+}
+
+.confirmBtn:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@media (max-width: 1100px) {
+  .dashboardGrid { grid-template-columns: 1fr; }
 }

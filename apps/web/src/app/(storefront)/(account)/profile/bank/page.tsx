@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { 
   CreditCard, Plus, ShieldCheck, Landmark, 
   Trash2, Loader2, Landmark as BankIcon,
-  ChevronRight, AlertCircle, Info, MoreVertical
+  ChevronRight, AlertCircle, Info, MoreVertical,
+  Zap, ArrowUpRight, ArrowDownLeft, Wallet,
+  Fingerprint, Globe, History, Shield
 } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,148 +21,200 @@ interface BankAccount {
   type: 'bank' | 'card';
 }
 
+interface Transaction {
+  id: string;
+  title: string;
+  amount: number;
+  type: 'in' | 'out';
+  created_at: string;
+}
+
+interface WalletSettings {
+  biometric_auth: boolean;
+  quick_pay: boolean;
+}
+
 export default function BankPage() {
   const [banks, setBanks] = useState<BankAccount[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [settings, setSettings] = useState<WalletSettings>({ biometric_auth: false, quick_pay: false });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [updatingSettings, setUpdatingSettings] = useState(false);
+  
   const supabase = createBrowserClient();
 
   useEffect(() => {
-    fetchBanks();
+    fetchData();
   }, []);
 
-  async function fetchBanks() {
+  async function fetchData() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('user_banks')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('is_default', { ascending: false });
+    const [banksRes, transRes, settingsRes] = await Promise.all([
+      supabase.from('user_banks').select('*').eq('user_id', user.id).order('is_default', { ascending: false }),
+      supabase.from('user_transactions').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
+      supabase.from('user_settings').select('biometric_auth, quick_pay').eq('user_id', user.id).maybeSingle()
+    ]);
 
-    if (error) {
-      console.error('Error fetching banks:', error);
-    } else {
-      setBanks(data || []);
-    }
+    setBanks(banksRes.data || []);
+    setTransactions(transRes.data || []);
+    if (settingsRes.data) setSettings(settingsRes.data);
+    
     setLoading(false);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('Bạn có chắc chắn muốn xóa tài khoản ngân hàng này?')) return;
-    const { error } = await supabase.from('user_banks').delete().eq('id', id);
-    if (error) alert('Không thể xóa: ' + error.message);
-    else fetchBanks();
-  }
+  const toggleSetting = async (key: keyof WalletSettings) => {
+    setUpdatingSettings(true);
+    const newVal = !settings[key];
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-  if (loading) {
-    return (
-      <div className={styles.loaderContainer}>
-        <Loader2 className={styles.spin} size={40} />
-      </div>
-    );
-  }
+    const { error } = await supabase
+      .from('user_settings')
+      .update({ [key]: newVal })
+      .eq('user_id', user.id);
+
+    if (!error) {
+      setSettings({ ...settings, [key]: newVal });
+    }
+    setUpdatingSettings(false);
+  };
+
+  if (loading) return (
+    <div className={styles.loaderContainer}>
+      <Loader2 size={40} className={styles.spin} />
+      <p>Đang đồng bộ dữ liệu thật...</p>
+    </div>
+  );
 
   return (
-    <motion.div 
-      className={styles.bankWrapper}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
+    <motion.div className={styles.bankWrapper} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Ngân hàng & Thẻ</h1>
-          <p className={styles.subtitle}>Quản lý phương thức thanh toán an toàn của bạn</p>
+        <div className={styles.titleSection}>
+          <div className={styles.titleIcon}><Wallet size={24} /></div>
+          <div>
+            <h1 className={styles.title}>Ví & Thanh toán</h1>
+            <p className={styles.subtitle}>Kết nối trực tiếp với hệ thống ngân hàng bảo mật</p>
+          </div>
         </div>
-        <div className={styles.headerActions}>
-          <button className={styles.addBtn}>
-            <Plus size={18} /> Thêm thẻ mới
-          </button>
-          <button className={styles.addBtnPrimary}>
-            <BankIcon size={18} /> Thêm ngân hàng
-          </button>
+        <div className={styles.actionGroup}>
+          <button className={styles.addBtn}><Plus size={18} /> Thêm thẻ</button>
+          <button className={styles.addBtnPrimary}><BankIcon size={18} /> Liên kết ngân hàng</button>
         </div>
       </header>
 
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <CreditCard size={20} />
-          <h3>Thẻ Tín Dụng/Ghi Nợ</h3>
-        </div>
-        <div className={styles.cardInfoBox}>
-          <Info size={16} />
-          <p>Tính năng liên kết thẻ trực tiếp đang được nâng cấp bảo mật theo tiêu chuẩn PCI DSS.</p>
-        </div>
-      </section>
+      <div className={styles.dashboardGrid}>
+        <div className={styles.mainContent}>
+          <div className={styles.sectionHeader}>
+            <h3>Tài khoản đã liên kết</h3>
+            <span className={styles.countBadge}>{banks.length}</span>
+          </div>
 
-      <section className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <Landmark size={20} />
-          <h3>Tài Khoản Ngân Hàng</h3>
-        </div>
-
-        {banks.length > 0 ? (
-          <div className={styles.bankGrid}>
-            {banks.map((bank, idx) => (
-              <motion.div 
-                key={bank.id} 
-                className={`${styles.bankCard} ${bank.is_default ? styles.defaultCard : ''}`}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.1 }}
-              >
-                <div className={styles.cardHeader}>
-                  <div className={styles.bankMeta}>
-                    <div className={styles.bankIconBg}>
-                      <Landmark size={24} />
-                    </div>
-                    <div className={styles.bankNameInfo}>
-                      <span className={styles.bankName}>{bank.bank_name}</span>
-                      {bank.is_default && <span className={styles.defaultTag}>Mặc định</span>}
+          <div className={styles.cardGrid}>
+            <AnimatePresence>
+              {banks.map((bank, idx) => (
+                <motion.div 
+                  key={bank.id}
+                  className={`${styles.luxuryCard} ${bank.is_default ? styles.cardGold : styles.cardSilver}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className={styles.cardTop}>
+                    <div className={styles.chip}></div>
+                    <div className={styles.bankLogo}>
+                      <span>{bank.bank_name}</span>
                     </div>
                   </div>
-                  <button className={styles.moreBtn}><MoreVertical size={18} /></button>
-                </div>
-
-                <div className={styles.cardBody}>
-                  <p className={styles.accountNumber}>
-                    <span>****</span>
-                    <span>****</span>
-                    <span>****</span>
-                    <span className={styles.lastDigits}>{bank.account_number.slice(-4)}</span>
-                  </p>
-                  <p className={styles.accountHolder}>{bank.account_holder.toUpperCase()}</p>
-                </div>
-
-                <div className={styles.cardFooter}>
-                  <div className={styles.securityInfo}>
-                    <ShieldCheck size={14} />
-                    <span>Đã bảo mật</span>
+                  <div className={styles.cardNumber}>
+                    <span>****</span> <span>****</span> <span>****</span> <span>{bank.account_number.slice(-4)}</span>
                   </div>
-                  <button onClick={() => handleDelete(bank.id)} className={styles.deleteLink}>
-                    Xóa liên kết
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                  <div className={styles.cardBottom}>
+                    <div className={styles.holderInfo}>
+                      <label>CHỦ TÀI KHOẢN</label>
+                      <p>{bank.account_holder.toUpperCase()}</p>
+                    </div>
+                    {bank.is_default && <div className={styles.defaultLabel}>PRIMARY</div>}
+                  </div>
+                </motion.div>
+              ))}
+              
+              <button className={styles.addNewBox}>
+                <Plus size={24} />
+                <span>Thêm phương thức</span>
+              </button>
+            </AnimatePresence>
           </div>
-        ) : (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}><ShieldCheck size={48} /></div>
-            <p>Bạn chưa liên kết tài khoản ngân hàng nào.</p>
-            <button className={styles.addBtnInline}>Thêm ngay</button>
-          </div>
-        )}
-      </section>
-
-      <footer className={styles.footer}>
-        <div className={styles.securityBadge}>
-          <ShieldCheck size={20} />
-          <span>Mọi thông tin thanh toán đều được mã hóa đầu cuối</span>
         </div>
-      </footer>
+
+        <aside className={styles.sidebar}>
+          <div className={styles.sideCard}>
+            <div className={styles.sideHeader}>
+              <Shield size={18} />
+              <h4>Bảo mật ví</h4>
+            </div>
+            <div className={styles.settingList}>
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Fingerprint size={16} />
+                  <span>Xác thực vân tay/khuôn mặt</span>
+                </div>
+                <button 
+                  className={`${styles.toggle} ${settings.biometric_auth ? styles.active : ''}`}
+                  onClick={() => toggleSetting('biometric_auth')}
+                  disabled={updatingSettings}
+                >
+                  <div className={styles.knob}></div>
+                </button>
+              </div>
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <Zap size={16} />
+                  <span>Thanh toán 1-Click</span>
+                </div>
+                <button 
+                  className={`${styles.toggle} ${settings.quick_pay ? styles.active : ''}`}
+                  onClick={() => toggleSetting('quick_pay')}
+                  disabled={updatingSettings}
+                >
+                  <div className={styles.knob}></div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.sideCard}>
+            <div className={styles.sideHeader}>
+              <History size={18} />
+              <h4>Giao dịch gần đây</h4>
+            </div>
+            <div className={styles.historyList}>
+              {transactions.length > 0 ? (
+                transactions.map((t) => (
+                  <div key={t.id} className={styles.transItem}>
+                    <div className={`${styles.transIcon} ${t.type === 'in' ? styles.in : styles.out}`}>
+                      {t.type === 'in' ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
+                    </div>
+                    <div className={styles.transMeta}>
+                      <p className={styles.transTitle}>{t.title}</p>
+                      <span className={styles.transDate}>{new Date(t.created_at).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <span className={`${styles.transAmount} ${t.type === 'in' ? styles.textGreen : ''}`}>
+                      {t.type === 'in' ? '+' : '-'}{t.amount.toLocaleString('vi-VN')}đ
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className={styles.emptyTrans}>
+                  <p>Chưa có giao dịch nào phát sinh.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
     </motion.div>
   );
 }
