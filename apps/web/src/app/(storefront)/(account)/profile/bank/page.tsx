@@ -52,6 +52,7 @@ export default function BankPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // FETCH REAL DATA ONLY
     const [banksRes, transRes, settingsRes] = await Promise.all([
       supabase.from('user_banks').select('*').eq('user_id', user.id).order('is_default', { ascending: false }),
       supabase.from('user_transactions').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5),
@@ -100,7 +101,6 @@ export default function BankPage() {
           </div>
         </div>
         <div className={styles.actionGroup}>
-          <button className={styles.addBtn}><Plus size={18} /> Thêm thẻ</button>
           <button className={styles.addBtnPrimary}><BankIcon size={18} /> Liên kết ngân hàng</button>
         </div>
       </header>
@@ -114,82 +114,60 @@ export default function BankPage() {
 
           <div className={styles.cardGrid}>
             <AnimatePresence>
-              {banks.map((bank, idx) => (
-                <motion.div 
-                  key={bank.id}
-                  className={`${styles.luxuryCard} ${bank.is_default ? styles.cardGold : styles.cardSilver}`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className={styles.cardTop}>
-                    <div className={styles.chip}></div>
-                    <div className={styles.bankLogo}>
-                      <span>{bank.bank_name}</span>
+              {banks.length > 0 ? (
+                banks.map((bank) => (
+                  <motion.div 
+                    key={bank.id}
+                    className={`${styles.luxuryCard} ${bank.is_default ? styles.cardGold : styles.cardSilver}`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ y: -5 }}
+                  >
+                    <div className={styles.cardTop}>
+                      <div className={styles.chip}></div>
+                      <div className={styles.bankLogo}><span>{bank.bank_name}</span></div>
                     </div>
-                  </div>
-                  <div className={styles.cardNumber}>
-                    <span>****</span> <span>****</span> <span>****</span> <span>{bank.account_number.slice(-4)}</span>
-                  </div>
-                  <div className={styles.cardBottom}>
-                    <div className={styles.holderInfo}>
-                      <label>CHỦ TÀI KHOẢN</label>
-                      <p>{bank.account_holder.toUpperCase()}</p>
+                    <div className={styles.cardNumber}>
+                      <span>****</span> <span>****</span> <span>****</span> <span>{bank.account_number.slice(-4)}</span>
                     </div>
-                    {bank.is_default && <div className={styles.defaultLabel}>PRIMARY</div>}
-                  </div>
-                </motion.div>
-              ))}
-              
-              <button className={styles.addNewBox}>
-                <Plus size={24} />
-                <span>Thêm phương thức</span>
-              </button>
+                    <div className={styles.cardBottom}>
+                      <div className={styles.holderInfo}>
+                        <label>CHỦ TÀI KHOẢN</label>
+                        <p>{bank.account_holder.toUpperCase()}</p>
+                      </div>
+                      {bank.is_default && <div className={styles.defaultLabel}>PRIMARY</div>}
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className={styles.emptyCardState}>
+                  <div className={styles.emptyIcon}><CreditCard size={48} /></div>
+                  <h4>Chưa có tài khoản liên kết</h4>
+                  <p>Hãy liên kết ngân hàng để trải nghiệm thanh toán 1-Click bảo mật.</p>
+                  <button className={styles.addBtnPrimary} style={{marginTop: 20}}><Plus size={18} /> Thêm tài khoản ngay</button>
+                </div>
+              )}
             </AnimatePresence>
           </div>
         </div>
 
         <aside className={styles.sidebar}>
           <div className={styles.sideCard}>
-            <div className={styles.sideHeader}>
-              <Shield size={18} />
-              <h4>Bảo mật ví</h4>
-            </div>
+            <div className={styles.sideHeader}><Shield size={18} /><h4>Bảo mật ví</h4></div>
             <div className={styles.settingList}>
               <div className={styles.settingItem}>
-                <div className={styles.settingInfo}>
-                  <Fingerprint size={16} />
-                  <span>Xác thực vân tay/khuôn mặt</span>
-                </div>
-                <button 
-                  className={`${styles.toggle} ${settings.biometric_auth ? styles.active : ''}`}
-                  onClick={() => toggleSetting('biometric_auth')}
-                  disabled={updatingSettings}
-                >
-                  <div className={styles.knob}></div>
-                </button>
+                <div className={styles.settingInfo}><Fingerprint size={16} /><span>Xác thực vân tay/khuôn mặt</span></div>
+                <button className={`${styles.toggle} ${settings.biometric_auth ? styles.active : ''}`} onClick={() => toggleSetting('biometric_auth')} disabled={updatingSettings}><div className={styles.knob}></div></button>
               </div>
               <div className={styles.settingItem}>
-                <div className={styles.settingInfo}>
-                  <Zap size={16} />
-                  <span>Thanh toán 1-Click</span>
-                </div>
-                <button 
-                  className={`${styles.toggle} ${settings.quick_pay ? styles.active : ''}`}
-                  onClick={() => toggleSetting('quick_pay')}
-                  disabled={updatingSettings}
-                >
-                  <div className={styles.knob}></div>
-                </button>
+                <div className={styles.settingInfo}><Zap size={16} /><span>Thanh toán 1-Click</span></div>
+                <button className={`${styles.toggle} ${settings.quick_pay ? styles.active : ''}`} onClick={() => toggleSetting('quick_pay')} disabled={updatingSettings}><div className={styles.knob}></div></button>
               </div>
             </div>
           </div>
 
           <div className={styles.sideCard}>
-            <div className={styles.sideHeader}>
-              <History size={18} />
-              <h4>Giao dịch gần đây</h4>
-            </div>
+            <div className={styles.sideHeader}><History size={18} /><h4>Giao dịch gần đây</h4></div>
             <div className={styles.historyList}>
               {transactions.length > 0 ? (
                 transactions.map((t) => (
@@ -207,9 +185,7 @@ export default function BankPage() {
                   </div>
                 ))
               ) : (
-                <div className={styles.emptyTrans}>
-                  <p>Chưa có giao dịch nào phát sinh.</p>
-                </div>
+                <div className={styles.emptyTrans}><p>Chưa có giao dịch nào.</p></div>
               )}
             </div>
           </div>
