@@ -102,8 +102,7 @@ export default function ProfilePage() {
     setSaving(true);
 
     try {
-      const { error } = await supabase
-        .from('profiles')
+      const { error } = await (supabase.from('profiles') as any)
         .update({
           username: username.trim() || null,
           first_name: firstName.trim() || null,
@@ -152,8 +151,7 @@ export default function ProfilePage() {
         .from('avatars')
         .getPublicUrl(filePath);
 
-      const { error: updateError } = await supabase
-        .from('profiles')
+      const { error: updateError } = await (supabase.from('profiles') as any)
         .update({ avatar_url: publicUrl })
         .eq('id', profile.id);
 
