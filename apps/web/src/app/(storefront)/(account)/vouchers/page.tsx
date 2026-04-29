@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Ticket, Clock, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createBrowserClient } from '@/lib/supabase/client';
@@ -16,7 +16,7 @@ interface Voucher {
   is_used?: boolean;
 }
 
-export default function VouchersPage() {
+function VouchersContent() {
   const [filter, setFilter] = useState('all');
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,9 +25,11 @@ export default function VouchersPage() {
   const fetchVouchers = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
-    // Join user_vouchers with vouchers
     const { data, error } = await supabase
       .from('user_vouchers')
       .select(`
@@ -131,5 +133,13 @@ export default function VouchersPage() {
         <button>Xem lịch sử voucher</button>
       </div>
     </div>
+  );
+}
+
+export default function VouchersPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Đang chuẩn bị voucher...</div>}>
+      <VouchersContent />
+    </Suspense>
   );
 }

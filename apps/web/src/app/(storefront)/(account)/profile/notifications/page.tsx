@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Bell, ShieldCheck, Loader2 } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import styles from './notifications.module.css';
 
-export default function NotificationsPage() {
+function NotificationsContent() {
   const [settings, setSettings] = useState({
     order_updates: true,
     promo_emails: false,
@@ -17,41 +17,38 @@ export default function NotificationsPage() {
   const [saving, setSaving] = useState(false);
   const supabase = createBrowserClient();
 
-  const fetchSettings = async () => {
-    setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching settings:', error);
-    } else if (data) {
-      const row = data as {
-        order_updates: boolean | null;
-        promo_emails: boolean | null;
-        wallet_updates: boolean | null;
-        chat_notifications: boolean | null;
-        newsletters: boolean | null;
-      };
-      setSettings({
-        order_updates: !!row.order_updates,
-        promo_emails: !!row.promo_emails,
-        wallet_updates: !!row.wallet_updates,
-        chat_notifications: !!row.chat_notifications,
-        newsletters: !!row.newsletters,
-      });
-    }
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const fetchSettings = async () => {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching settings:', error);
+      } else if (data) {
+        const row = data as any;
+        setSettings({
+          order_updates: !!row.order_updates,
+          promo_emails: !!row.promo_emails,
+          wallet_updates: !!row.wallet_updates,
+          chat_notifications: !!row.chat_notifications,
+          newsletters: !!row.newsletters,
+        });
+      }
+      setLoading(false);
+    };
+
     fetchSettings();
-  }, []);
+  }, [supabase]);
 
   const toggle = (key: keyof typeof settings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
@@ -158,5 +155,13 @@ export default function NotificationsPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function NotificationsPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Khởi tạo cài đặt...</div>}>
+      <NotificationsContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { CreditCard, Plus, ShieldCheck, Landmark, Trash2 } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import styles from './bank.module.css';
@@ -13,7 +13,7 @@ interface BankAccount {
   is_default: boolean;
 }
 
-export default function BankPage() {
+function BankContent() {
   const [banks, setBanks] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createBrowserClient();
@@ -21,7 +21,10 @@ export default function BankPage() {
   const fetchBanks = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const { data, error } = await supabase
       .from('user_banks')
@@ -115,5 +118,13 @@ export default function BankPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BankPage() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Đang đồng bộ...</div>}>
+      <BankContent />
+    </Suspense>
   );
 }
