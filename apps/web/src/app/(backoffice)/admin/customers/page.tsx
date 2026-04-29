@@ -3,6 +3,7 @@ import { Users, Eye } from 'lucide-react';
 import { listCustomers } from '@/lib/admin/queries/customers';
 import { formatVND, formatDateShort } from '@/lib/admin/format';
 import shared from '../admin-shared.module.css';
+import { Suspense } from 'react';
 import { CustomersFilter } from './_components/CustomersFilter';
 
 type Props = { searchParams: Promise<{ q?: string }> };
@@ -20,7 +21,9 @@ export default async function AdminCustomers({ searchParams }: Props) {
         </div>
       </div>
 
-      <CustomersFilter defaultQ={q} />
+      <Suspense fallback={<div className={shared.loadingSkeleton} style={{ height: '48px', marginBottom: '1.5rem' }} />}>
+        <CustomersFilter defaultQ={q} />
+      </Suspense>
 
       {customers.length === 0 ? (
         <div className={shared.emptyState}>
