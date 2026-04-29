@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import ProductCard from '@/components/products/ProductCard';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
@@ -222,7 +223,9 @@ export default async function ProductsPage({
               />
             </form>
 
-            <SortSelect defaultValue={sortValue} />
+            <Suspense fallback={<div style={{ width: '160px', height: '40px', backgroundColor: 'var(--color-bg-alt)', borderRadius: '8px' }} />}>
+              <SortSelect defaultValue={sortValue} />
+            </Suspense>
           </div>
 
           <div className={styles.resultsBar}>

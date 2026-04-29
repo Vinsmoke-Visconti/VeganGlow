@@ -9,6 +9,7 @@ import {
   PAYMENT_LABEL,
 } from '@/lib/admin/format';
 import shared from '../admin-shared.module.css';
+import { Suspense } from 'react';
 import { OrdersFilters } from './_components/OrdersFilters';
 import { OrderRowActions } from './_components/OrderRowActions';
 
@@ -27,7 +28,9 @@ export default async function AdminOrders({ searchParams }: Props) {
         </div>
       </div>
 
-      <OrdersFilters defaults={filters} />
+      <Suspense fallback={<div className={shared.loadingSkeleton} style={{ height: '48px', marginBottom: '1.5rem' }} />}>
+        <OrdersFilters defaults={filters} />
+      </Suspense>
 
       {orders.length === 0 ? (
         <div className={shared.emptyState}>

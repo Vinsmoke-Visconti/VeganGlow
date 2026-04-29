@@ -4,6 +4,7 @@ import { listProducts, listAllCategories, type ProductListFilters } from '@/lib/
 import { formatVND } from '@/lib/admin/format';
 import { SafeImage } from '@/components/ui/SafeImage';
 import shared from '../admin-shared.module.css';
+import { Suspense } from 'react';
 import { ProductFilters } from './_components/ProductFilters';
 import grid from './_components/ProductGrid.module.css';
 
@@ -31,7 +32,9 @@ export default async function AdminProducts({ searchParams }: Props) {
         </Link>
       </div>
 
-      <ProductFilters defaults={filters} categories={categories} />
+      <Suspense fallback={<div className={shared.loadingSkeleton} style={{ height: '48px', marginBottom: '1.5rem' }} />}>
+        <ProductFilters defaults={filters} categories={categories} />
+      </Suspense>
 
       {products.length === 0 ? (
         <div className={shared.emptyState}>
