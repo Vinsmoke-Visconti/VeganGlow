@@ -1,0 +1,11 @@
+.moduleRow {
+  background: var(--vg-parchment-100);
+}
+
+.moduleRow td {
+  padding: var(--vg-space-2) var(--vg-space-4) !important;
+  font-size: var(--vg-text-xs) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--vg-ink-700) !important;
+}
