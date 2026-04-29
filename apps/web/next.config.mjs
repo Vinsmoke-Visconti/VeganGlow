@@ -24,6 +24,9 @@ const nextConfig = {
 
   // Redirect trailing slashes
   trailingSlash: false,
+
+  // Output configuration for Docker
+  output: 'standalone',
 };
 
 export default nextConfig;
