@@ -1,5 +1,6 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -16,11 +17,19 @@ import {
   Sparkles,
   Megaphone,
   CircleUserRound,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import styles from './backoffice-layout.module.css';
 import type { LucideIcon } from 'lucide-react';
 
-type NavItem = { href: string; icon: LucideIcon; label: string; exact?: boolean };
+type NavItem = {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  exact?: boolean;
+  permission?: string;
+};
 type NavGroup = { title: string; items: NavItem[] };
 
 const NAV_GROUPS: NavGroup[] = [
@@ -33,23 +42,23 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Cửa hàng',
     items: [
-      { href: '/admin/orders', icon: ShoppingBag, label: 'Đơn hàng' },
-      { href: '/admin/products', icon: Package, label: 'Sản phẩm' },
-      { href: '/admin/categories', icon: FolderOpen, label: 'Danh mục' },
-      { href: '/admin/customers', icon: Users, label: 'Khách hàng' },
+      { href: '/admin/orders', icon: ShoppingBag, label: 'Đơn hàng', permission: 'orders:read' },
+      { href: '/admin/products', icon: Package, label: 'Sản phẩm', permission: 'products:read' },
+      { href: '/admin/categories', icon: FolderOpen, label: 'Danh mục', permission: 'products:read' },
+      { href: '/admin/customers', icon: Users, label: 'Khách hàng', permission: 'customers:read' },
     ],
   },
   {
     title: 'Tiếp thị',
     items: [
-      { href: '/admin/marketing', icon: Megaphone, label: 'Khuyến mãi & Banner' },
+      { href: '/admin/marketing', icon: Megaphone, label: 'Khuyến mãi & Banner', permission: 'marketing:read' },
     ],
   },
   {
     title: 'Hệ thống',
     items: [
-      { href: '/admin/users', icon: UserCog, label: 'Nhân sự' },
-      { href: '/admin/roles', icon: Shield, label: 'Phân quyền' },
+      { href: '/admin/users', icon: UserCog, label: 'Nhân sự', permission: 'users:read' },
+      { href: '/admin/roles', icon: Shield, label: 'Phân quyền', permission: 'users:write' },
       { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
       { href: '/admin/about-team', icon: Sparkles, label: 'Tác giả & Nhóm' },
     ],
@@ -60,29 +69,73 @@ type Props = {
   userName: string;
   userInitial: string;
   userRoleLabel: string;
+  permissions?: string[];
 };
 
-export function AdminSidebar({ userName, userInitial, userRoleLabel }: Props) {
+const COLLAPSE_KEY = 'vg.admin.sidebar.collapsed';
+const COLLAPSE_EVENT = 'vg:admin-sidebar-collapse';
+
+function readCollapsed(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(COLLAPSE_KEY) === '1';
+}
+
+function subscribeCollapsed(cb: () => void): () => void {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener(COLLAPSE_EVENT, cb);
+  window.addEventListener('storage', cb);
+  return () => {
+    window.removeEventListener(COLLAPSE_EVENT, cb);
+    window.removeEventListener('storage', cb);
+  };
+}
+
+function setCollapsedPersistent(next: boolean): void {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
+  document.documentElement.dataset.adminSidebar = next ? 'collapsed' : 'expanded';
+  window.dispatchEvent(new Event(COLLAPSE_EVENT));
+}
+
+export function AdminSidebar({ userName, userInitial, userRoleLabel, permissions }: Props) {
   const pathname = usePathname();
+  const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
+
+  // Permission filter — when permissions list is provided, hide items the staff can't access.
+  // Items without a `permission` field are always visible (Dashboard, Settings, About-team).
+  const visibleGroups = NAV_GROUPS.map((g) => ({
+    ...g,
+    items: g.items.filter((it) => !it.permission || !permissions || permissions.includes(it.permission)),
+  })).filter((g) => g.items.length > 0);
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
       <div className={styles.sidebarHeader}>
         <Link href="/admin" className={styles.logo}>
           <span className={styles.logoIcon}>
             <Leaf size={18} />
           </span>
-          <span className={styles.logoText}>
-            <span className={styles.logoBrand}>VeganGlow</span>
-            <span className={styles.logoAccent}>Admin Console</span>
-          </span>
+          {!collapsed && (
+            <span className={styles.logoText}>
+              <span className={styles.logoBrand}>VeganGlow</span>
+              <span className={styles.logoAccent}>Admin Console</span>
+            </span>
+          )}
         </Link>
+        <button
+          type="button"
+          className={styles.collapseToggle}
+          onClick={() => setCollapsedPersistent(!collapsed)}
+          aria-label={collapsed ? 'Mở sidebar' : 'Thu gọn sidebar'}
+        >
+          {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+        </button>
       </div>
 
       <nav className={styles.sidebarNav}>
-        {NAV_GROUPS.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.title} className={styles.navGroup}>
-            <span className={styles.navGroupTitle}>{group.title}</span>
+            {!collapsed && <span className={styles.navGroupTitle}>{group.title}</span>}
             {group.items.map((item) => {
               const active = item.exact
                 ? pathname === item.href
@@ -92,9 +145,10 @@ export function AdminSidebar({ userName, userInitial, userRoleLabel }: Props) {
                   key={item.href}
                   href={item.href}
                   className={`${styles.navItem} ${active ? styles.navItemActive : ''}`}
+                  title={collapsed ? item.label : undefined}
                 >
                   <item.icon size={18} className={styles.navIcon} />
-                  {item.label}
+                  {!collapsed && item.label}
                 </Link>
               );
             })}
@@ -106,18 +160,23 @@ export function AdminSidebar({ userName, userInitial, userRoleLabel }: Props) {
         <Link
           href="/admin/profile"
           className={`${styles.sidebarUserCard} ${pathname.startsWith('/admin/profile') ? styles.sidebarUserCardActive : ''}`}
+          title={collapsed ? `${userName} · ${userRoleLabel}` : undefined}
         >
           <div className={styles.sidebarUserAvatar}>{userInitial}</div>
-          <div className={styles.sidebarUserInfo}>
-            <span className={styles.sidebarUserName}>{userName}</span>
-            <span className={styles.sidebarUserRole}>{userRoleLabel}</span>
-          </div>
-          <CircleUserRound size={14} className={styles.sidebarUserGo} aria-hidden="true" />
+          {!collapsed && (
+            <>
+              <div className={styles.sidebarUserInfo}>
+                <span className={styles.sidebarUserName}>{userName}</span>
+                <span className={styles.sidebarUserRole}>{userRoleLabel}</span>
+              </div>
+              <CircleUserRound size={14} className={styles.sidebarUserGo} aria-hidden="true" />
+            </>
+          )}
         </Link>
 
-        <Link href="/" className={styles.storefrontLink}>
+        <Link href="/" className={styles.storefrontLink} title={collapsed ? 'Về trang cửa hàng' : undefined}>
           <ArrowLeft size={16} />
-          Về trang cửa hàng
+          {!collapsed && 'Về trang cửa hàng'}
         </Link>
       </div>
     </aside>
