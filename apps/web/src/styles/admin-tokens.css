@@ -1,0 +1,88 @@
+/* VeganGlow Admin Design Tokens
+   Botanical + Glassmorphism + Premium aesthetic. */
+
+:root {
+  /* Palette — botanical */
+  --vg-ink-900: #0f1411;
+  --vg-ink-700: #2c3531;
+  --vg-ink-500: #5a655e;
+  --vg-ink-300: #a8b5ae;
+  --vg-parchment-50: #fbfaf6;
+  --vg-parchment-100: #f3f1ea;
+  --vg-parchment-200: #e7e3d6;
+  --vg-leaf-50: #eef7ef;
+  --vg-leaf-100: #d4ecd6;
+  --vg-leaf-300: #8fcf95;
+  --vg-leaf-500: #56a35e;
+  --vg-leaf-700: #2f7236;
+  --vg-leaf-900: #1c4520;
+  --vg-gold-300: #e6cf85;
+  --vg-gold-500: #c9a64e;
+  --vg-gold-700: #8a7029;
+
+  /* Status */
+  --vg-success-bg: #e9f6eb;
+  --vg-success-fg: #1f6b2a;
+  --vg-warn-bg: #fdf3da;
+  --vg-warn-fg: #8a6212;
+  --vg-danger-bg: #fbe6e6;
+  --vg-danger-fg: #9b1f1f;
+  --vg-info-bg: #e4eef9;
+  --vg-info-fg: #1f4a85;
+  --vg-pending-bg: #f0e9da;
+  --vg-pending-fg: #6b4f1a;
+
+  /* Spacing */
+  --vg-space-1: 4px;
+  --vg-space-2: 8px;
+  --vg-space-3: 12px;
+  --vg-space-4: 16px;
+  --vg-space-5: 24px;
+  --vg-space-6: 32px;
+  --vg-space-7: 48px;
+  --vg-space-8: 64px;
+
+  /* Radii */
+  --vg-radius-sm: 8px;
+  --vg-radius-md: 12px;
+  --vg-radius-lg: 16px;
+  --vg-radius-xl: 24px;
+  --vg-radius-pill: 999px;
+
+  /* Shadows — glass layers */
+  --vg-shadow-1: 0 1px 2px rgba(15, 20, 17, 0.04), 0 1px 3px rgba(15, 20, 17, 0.06);
+  --vg-shadow-2: 0 4px 12px rgba(15, 20, 17, 0.06), 0 2px 4px rgba(15, 20, 17, 0.04);
+  --vg-shadow-3: 0 12px 32px rgba(15, 20, 17, 0.10), 0 4px 8px rgba(15, 20, 17, 0.06);
+  --vg-glass-bg: rgba(255, 255, 255, 0.72);
+  --vg-glass-border: rgba(255, 255, 255, 0.6);
+  --vg-glass-blur: 12px;
+
+  /* Typography */
+  --vg-font-display: 'Playfair Display', 'Times New Roman', serif;
+  --vg-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --vg-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --vg-text-xs: 12px;
+  --vg-text-sm: 13px;
+  --vg-text-base: 14px;
+  --vg-text-md: 15px;
+  --vg-text-lg: 18px;
+  --vg-text-xl: 22px;
+  --vg-text-2xl: 28px;
+  --vg-text-3xl: 36px;
+  --vg-leading-tight: 1.25;
+  --vg-leading-normal: 1.5;
+
+  /* Motion */
+  --vg-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --vg-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --vg-duration-fast: 150ms;
+  --vg-duration-base: 250ms;
+  --vg-duration-slow: 400ms;
+
+  /* Layout */
+  --vg-sidebar-width: 240px;
+  --vg-sidebar-collapsed: 72px;
+  --vg-topbar-height: 64px;
+  --vg-content-max: 1280px;
+}

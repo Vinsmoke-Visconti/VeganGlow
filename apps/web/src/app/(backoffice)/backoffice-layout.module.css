@@ -16,16 +16,62 @@
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  transition: all var(--transition-base);
+  transition: width var(--transition-base);
   z-index: 40;
+}
+
+.sidebarCollapsed {
+  width: var(--vg-sidebar-collapsed, 72px);
+}
+.sidebarCollapsed .navGroup { padding-left: 0; padding-right: 0; }
+.sidebarCollapsed .navItem {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.sidebarCollapsed .sidebarUserCard {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.sidebarCollapsed .storefrontLink {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.sidebarCollapsed .sidebarHeader {
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: center;
 }
 
 .sidebarHeader {
   height: var(--header-height);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 var(--space-6);
   border-bottom: 1px solid var(--color-border-light);
+  gap: 8px;
+}
+
+.collapseToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--vg-radius-sm, 8px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted, #5a655e);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+.collapseToggle:hover {
+  background: var(--color-bg-secondary, #f3f1ea);
+  color: var(--color-text-primary, #0f1411);
 }
 
 .logo {

@@ -1,0 +1,123 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--vg-space-4);
+}
+
+.card {
+  background: var(--vg-glass-bg);
+  border: 1px solid var(--vg-glass-border);
+  border-radius: var(--vg-radius-lg);
+  padding: var(--vg-space-5);
+  box-shadow: var(--vg-shadow-1);
+  margin-bottom: var(--vg-space-4);
+  backdrop-filter: blur(var(--vg-glass-blur));
+}
+
+.cardTitle {
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-lg);
+  margin: 0 0 var(--vg-space-3);
+  color: var(--vg-ink-900);
+  font-weight: 600;
+}
+
+.profileRow {
+  display: flex;
+  gap: var(--vg-space-3);
+  align-items: center;
+  margin-bottom: var(--vg-space-4);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--vg-leaf-100);
+  color: var(--vg-leaf-700);
+  display: grid;
+  place-items: center;
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-xl);
+  font-weight: 600;
+}
+
+.profileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profileName {
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-lg);
+  color: var(--vg-ink-900);
+  margin: 0;
+}
+
+.profileSub {
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-sm);
+}
+
+.kpiCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vg-space-3);
+}
+
+.kpi {
+  background: var(--vg-parchment-50);
+  border-radius: var(--vg-radius-md);
+  padding: var(--vg-space-3);
+}
+
+.kpiLabel {
+  font-size: var(--vg-text-xs);
+  color: var(--vg-ink-500);
+}
+
+.kpiValue {
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-lg);
+  color: var(--vg-ink-900);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.addressItem {
+  background: var(--vg-parchment-50);
+  border-radius: var(--vg-radius-md);
+  padding: var(--vg-space-3);
+  margin-bottom: var(--vg-space-2);
+  font-size: var(--vg-text-sm);
+}
+
+.addressItem strong {
+  color: var(--vg-ink-900);
+}
+
+.voucherList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vg-space-2);
+}
+
+.voucherItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--vg-space-2) var(--vg-space-3);
+  background: var(--vg-parchment-50);
+  border-radius: var(--vg-radius-md);
+  font-size: var(--vg-text-sm);
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

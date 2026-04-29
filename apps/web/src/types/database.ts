@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      flash_sales: {
+        Row: {
+          id: string
+          product_id: string
+          discount_percent: number
+          starts_at: string
+          ends_at: string
+          status: string
+          created_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          discount_percent: number
+          starts_at: string
+          ends_at: string
+          status?: string
+          created_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          discount_percent?: number
+          starts_at?: string
+          ends_at?: string
+          status?: string
+          created_at?: string
+          created_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flash_sales_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      team_members: {
+        Row: {
+          id: string
+          full_name: string
+          role_label: string
+          bio: string
+          avatar_url: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          display_order: number
+          is_visible: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          full_name: string
+          role_label: string
+          bio?: string
+          avatar_url?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          display_order?: number
+          is_visible?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          role_label?: string
+          bio?: string
+          avatar_url?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          display_order?: number
+          is_visible?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          key: string
+          value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          key: string
+          value: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          key?: string
+          value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       addresses: {
         Row: {
           address: string

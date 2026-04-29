@@ -1,10 +1,22 @@
+import '@/styles/admin-tokens.css';
 import { createClient } from '@/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 import { Bell, Search } from 'lucide-react';
 import styles from './backoffice-layout.module.css';
 import PageTransition from '@/components/ui/PageTransition';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminProfileMenu } from './AdminProfileMenu';
 import { AdminBreadcrumb } from './AdminBreadcrumb';
+
+type StaffRoleRow = {
+  full_name: string | null;
+  role: { id: string; name: string; display_name: string } | null;
+};
+
+type RolePermissionRow = {
+  permission: { module: string; action: string } | null;
+};
 
 export default async function BackofficeLayout({
   children,
@@ -17,11 +29,43 @@ export default async function BackofficeLayout({
   // NOTE: Authentication and staff checks are handled by middleware.ts
   // to avoid infinite redirect loops on the login page.
 
-  const rawName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin';
+  let staffName: string | null = null;
+  let roleLabel = 'Quản trị viên';
+  let roleId: string | null = null;
+  let permissions: string[] = [];
+
+  if (user) {
+    const { data: staffRow } = await supabase
+      .from('staff_profiles')
+      .select('full_name, role:roles(id, name, display_name)')
+      .eq('id', user.id)
+      .maybeSingle<StaffRoleRow>();
+
+    if (staffRow) {
+      staffName = staffRow.full_name;
+      if (staffRow.role) {
+        roleLabel = staffRow.role.display_name;
+        roleId = staffRow.role.id;
+      }
+    }
+
+    if (roleId) {
+      const { data: rolePerms } = await supabase
+        .from('role_permissions')
+        .select('permission:permissions(module, action)')
+        .eq('role_id', roleId)
+        .returns<RolePermissionRow[]>();
+
+      permissions = (rolePerms ?? [])
+        .map((rp) => rp.permission)
+        .filter((p): p is { module: string; action: string } => Boolean(p))
+        .map((p) => `${p.module}:${p.action}`);
+    }
+  }
+
+  const rawName = staffName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin';
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const initial = displayName.charAt(0).toUpperCase();
-  const isSuperAdmin = user?.user_metadata?.role === 'admin';
-  const roleLabel = isSuperAdmin ? 'Super Admin' : 'Quản trị viên';
   const email = user?.email || '';
 
   return (
@@ -30,6 +74,7 @@ export default async function BackofficeLayout({
         userName={displayName}
         userInitial={initial}
         userRoleLabel={roleLabel}
+        permissions={permissions}
       />
 
       <div className={styles.mainWrapper}>
