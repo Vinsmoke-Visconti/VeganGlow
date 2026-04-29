@@ -1,5 +1,7 @@
 import '@/styles/admin-tokens.css';
 import { createClient } from '@/lib/supabase/server';
+
+export const dynamic = 'force-dynamic';
 import { Bell, Search } from 'lucide-react';
 import styles from './backoffice-layout.module.css';
 import PageTransition from '@/components/ui/PageTransition';
