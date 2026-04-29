@@ -13,6 +13,10 @@ on:
       - 'apps/web/supabase/functions/**'
       - '.github/workflows/deploy-functions.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy Edge Functions
