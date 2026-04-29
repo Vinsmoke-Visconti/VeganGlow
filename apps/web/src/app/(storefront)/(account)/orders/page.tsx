@@ -1,42 +1,44 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import { Package, ChevronRight, Clock, CheckCircle2, Truck, XCircle, ShoppingBag, Search } from 'lucide-react';
+import { Package, ChevronRight, Clock, CheckCircle2, Truck, XCircle, ShoppingBag } from 'lucide-react';
 import styles from './orders.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import UserAccountLayout from '@/components/layout/UserAccountLayout';
 
-export default function OrdersPage() {
+function OrdersContent() {
   const supabase = createBrowserClient();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  const fetchOrders = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, order_items(*)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setOrders(data || []);
-    } catch (err) {
-      console.error('Error fetching orders:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setOrders(data || []);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchOrders();
-  }, []);
+  }, [supabase]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -56,7 +58,7 @@ export default function OrdersPage() {
       case 'shipping': return 'Đang giao hàng';
       case 'completed': return 'Đã giao hàng';
       case 'cancelled': return 'Đã hủy';
-      default: return status;
+      default: return status || 'Chờ xử lý';
     }
   };
 
@@ -76,61 +78,65 @@ export default function OrdersPage() {
 
   return (
     <div className={styles.wrapper}>
-        <header className={styles.pageHeader}>
-          <div>
-            <h1 className={styles.pageTitle}>Đơn hàng của tôi</h1>
-            <p className={styles.pageSubtitle}>Theo dõi và quản lý các đơn hàng bạn đã đặt tại VeganGlow</p>
-          </div>
-        </header>
-
-        <div className={styles.tabsContainer}>
-          {['all', 'pending', 'confirmed', 'shipping', 'completed', 'cancelled'].map((tab) => (
-            <button
-              key={tab}
-              className={`${styles.tabBtn} ${filter === tab ? styles.tabBtnActive : ''}`}
-              onClick={() => setFilter(tab)}
-            >
-              {tab === 'all' ? 'Tất cả' : getStatusText(tab)}
-              {filter === tab && (
-                <motion.div layoutId="activeTab" className={styles.tabIndicator} />
-              )}
-            </button>
-          ))}
+      <header className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Đơn hàng của tôi</h1>
+          <p className={styles.pageSubtitle}>Theo dõi và quản lý các đơn hàng bạn đã đặt tại VeganGlow</p>
         </div>
+      </header>
 
-        <AnimatePresence mode="wait">
-          {filteredOrders.length === 0 ? (
-            <motion.div 
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className={styles.emptyState}
-            >
-              <div className={styles.emptyIcon}>
-                <ShoppingBag size={48} />
-              </div>
-              <h3>Không tìm thấy đơn hàng nào</h3>
-              <p>Có vẻ như bạn chưa có đơn hàng nào trong mục này.</p>
-              <Link href="/products" className={styles.shopNowBtn}>Khám phá ngay</Link>
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="list"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className={styles.orderGrid}
-            >
-              {filteredOrders.map((order) => (
+      <div className={styles.tabsContainer}>
+        {['all', 'pending', 'confirmed', 'shipping', 'completed', 'cancelled'].map((tab) => (
+          <button
+            key={tab}
+            className={`${styles.tabBtn} ${filter === tab ? styles.tabBtnActive : ''}`}
+            onClick={() => setFilter(tab)}
+          >
+            {tab === 'all' ? 'Tất cả' : getStatusText(tab)}
+            {filter === tab && (
+              <motion.div layoutId="activeTab" className={styles.tabIndicator} />
+            )}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {filteredOrders.length === 0 ? (
+          <motion.div 
+            key="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={styles.emptyState}
+          >
+            <div className={styles.emptyIcon}>
+              <ShoppingBag size={48} />
+            </div>
+            <h3>Không tìm thấy đơn hàng nào</h3>
+            <p>Có vẻ như bạn chưa có đơn hàng nào trong mục này.</p>
+            <Link href="/products" className={styles.shopNowBtn}>Khám phá ngay</Link>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="list"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.orderGrid}
+          >
+            {filteredOrders.map((order) => {
+              const status = order.status || 'pending';
+              const statusClass = 'status' + status.charAt(0).toUpperCase() + status.slice(1);
+              
+              return (
                 <div key={order.id} className={styles.orderCard}>
                   <div className={styles.cardHeader}>
                     <div className={styles.orderBasicInfo}>
                       <span className={styles.orderId}>#{order.code || order.id.slice(0, 8)}</span>
                       <span className={styles.orderDate}>{new Date(order.created_at).toLocaleDateString('vi-VN')}</span>
                     </div>
-                    <div className={`${styles.statusTag} ${styles['status' + order.status.charAt(0).toUpperCase() + order.status.slice(1)]}`}>
-                      {getStatusIcon(order.status)}
-                      <span>{getStatusText(order.status)}</span>
+                    <div className={`${styles.statusTag} ${styles[statusClass] || ''}`}>
+                      {getStatusIcon(status)}
+                      <span>{getStatusText(status)}</span>
                     </div>
                   </div>
 
@@ -166,10 +172,19 @@ export default function OrdersPage() {
                     </Link>
                   </div>
                 </div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={null}>
+      <OrdersContent />
+    </Suspense>
   );
 }
