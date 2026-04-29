@@ -1,0 +1,84 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--vg-space-4);
+}
+
+.card {
+  background: var(--vg-glass-bg);
+  border: 1px solid var(--vg-glass-border);
+  border-radius: var(--vg-radius-lg);
+  padding: var(--vg-space-4);
+  box-shadow: var(--vg-shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vg-space-3);
+}
+
+.hidden {
+  opacity: 0.55;
+}
+
+.avatarWrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--vg-radius-md);
+  overflow: hidden;
+  background: var(--vg-leaf-100);
+  display: grid;
+  place-items: center;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  font-family: var(--vg-font-display);
+  font-size: 56px;
+  color: var(--vg-leaf-700);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardName {
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-md);
+  margin: 0;
+  color: var(--vg-ink-900);
+  font-weight: 600;
+}
+
+.cardRole {
+  font-size: var(--vg-text-xs);
+  color: var(--vg-leaf-700);
+  margin: 0;
+}
+
+.cardBio {
+  font-size: var(--vg-text-sm);
+  color: var(--vg-ink-700);
+  margin: 4px 0 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--vg-space-2);
+  padding-top: var(--vg-space-2);
+  border-top: 1px solid var(--vg-parchment-100);
+  flex-wrap: wrap;
+  gap: 4px;
+}
