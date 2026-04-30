@@ -492,6 +492,10 @@ export type Database = {
           id: string
           notes: string | null
           payment_method: string
+          payment_due_at: string | null
+          payment_reference: string | null
+          payment_status: string
+          paid_at: string | null
           phone: string
           shipping_fee: number | null
           status: string
@@ -509,6 +513,10 @@ export type Database = {
           id?: string
           notes?: string | null
           payment_method: string
+          payment_due_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          paid_at?: string | null
           phone: string
           shipping_fee?: number | null
           status?: string
@@ -526,6 +534,10 @@ export type Database = {
           id?: string
           notes?: string | null
           payment_method?: string
+          payment_due_at?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          paid_at?: string | null
           phone?: string
           shipping_fee?: number | null
           status?: string

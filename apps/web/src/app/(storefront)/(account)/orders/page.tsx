@@ -1,15 +1,35 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
+import Image from 'next/image';
 import { createBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { Package, ChevronRight, Clock, CheckCircle2, Truck, XCircle, ShoppingBag } from 'lucide-react';
 import styles from './orders.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 
+type OrderItem = {
+  id: string;
+  product_name: string;
+  product_image: string | null;
+  unit_price: number;
+  quantity: number;
+};
+
+type Order = {
+  id: string;
+  code: string | null;
+  created_at: string;
+  status: string;
+  total_amount: number;
+  payment_method: string;
+  payment_status?: string | null;
+  order_items?: OrderItem[];
+};
+
 function OrdersContent() {
   const supabase = createBrowserClient();
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
@@ -29,7 +49,7 @@ function OrdersContent() {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setOrders(data || []);
+        setOrders((data ?? []) as unknown as Order[]);
       } catch (err) {
         console.error('Error fetching orders:', err);
       } finally {
@@ -59,6 +79,16 @@ function OrdersContent() {
       case 'completed': return 'Đã giao hàng';
       case 'cancelled': return 'Đã hủy';
       default: return status || 'Chờ xử lý';
+    }
+  };
+
+  const getPaymentStatusText = (status?: string | null) => {
+    switch (status) {
+      case 'paid': return 'Đã nhận tiền';
+      case 'pending': return 'Chờ tiền vào';
+      case 'failed': return 'Thanh toán lỗi';
+      case 'refunded': return 'Đã hoàn tiền';
+      default: return 'Chưa thanh toán';
     }
   };
 
@@ -138,16 +168,24 @@ function OrdersContent() {
                       {getStatusIcon(status)}
                       <span>{getStatusText(status)}</span>
                     </div>
+                    {(order.payment_method === 'bank_transfer' || order.payment_method === 'card') && (
+                      <div className={`${styles.statusTag} ${order.payment_status === 'paid' ? styles.statusCompleted : styles.statusPending}`}>
+                        <span>{getPaymentStatusText(order.payment_status)}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.cardBody}>
                     <div className={styles.itemsList}>
-                      {order.order_items?.slice(0, 2).map((item: any) => (
+                      {order.order_items?.slice(0, 2).map((item) => (
                         <div key={item.id} className={styles.orderItem}>
-                          <img 
-                            src={item.product_image || 'https://via.placeholder.com/60'} 
-                            alt={item.product_name} 
+                          <Image
+                            src={item.product_image || 'https://via.placeholder.com/60'}
+                            alt={item.product_name}
+                            width={60}
+                            height={60}
                             style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '4px' }}
+                            unoptimized
                           />
                           <div className={styles.itemMeta}>
                             <p className={styles.itemName}>{item.product_name}</p>
@@ -156,8 +194,8 @@ function OrdersContent() {
                           <span className={styles.itemPrice}>{Number(item.unit_price).toLocaleString('vi-VN')}đ</span>
                         </div>
                       ))}
-                      {order.order_items?.length > 2 && (
-                        <p className={styles.moreItems}>...và {order.order_items.length - 2} sản phẩm khác</p>
+                      {(order.order_items?.length ?? 0) > 2 && (
+                        <p className={styles.moreItems}>...và {(order.order_items?.length ?? 0) - 2} sản phẩm khác</p>
                       )}
                     </div>
                   </div>

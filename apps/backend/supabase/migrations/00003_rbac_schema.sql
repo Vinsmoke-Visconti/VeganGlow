@@ -24,19 +24,20 @@ create table if not exists public.permissions (
   id uuid primary key default gen_random_uuid(),
   module text not null,
   action text not null,
+  display_name text not null default '',
   description text not null default '',
   created_at timestamptz not null default now(),
   unique (module, action)
 );
 
-insert into public.permissions (module, action, description) values
-  ('products', 'read',   'Xem sản phẩm'),
-  ('products', 'write',  'Sửa sản phẩm'),
-  ('products', 'delete', 'Xóa sản phẩm'),
-  ('orders',   'read',   'Xem đơn hàng'),
-  ('orders',   'write',  'Cập nhật đơn hàng'),
-  ('users',    'read',   'Xem nhân sự'),
-  ('users',    'write',  'Thêm/sửa nhân sự')
+insert into public.permissions (module, action, display_name, description) values
+  ('products', 'read',   'Xem sản phẩm',      'Xem sản phẩm'),
+  ('products', 'write',  'Sửa sản phẩm',      'Sửa sản phẩm'),
+  ('products', 'delete', 'Xóa sản phẩm',      'Xóa sản phẩm'),
+  ('orders',   'read',   'Xem đơn hàng',      'Xem đơn hàng'),
+  ('orders',   'write',  'Cập nhật đơn hàng', 'Cập nhật đơn hàng'),
+  ('users',    'read',   'Xem nhân sự',       'Xem nhân sự'),
+  ('users',    'write',  'Thêm/sửa nhân sự',  'Thêm/sửa nhân sự')
 on conflict (module, action) do nothing;
 
 -- ============== ROLE_PERMISSIONS ==============

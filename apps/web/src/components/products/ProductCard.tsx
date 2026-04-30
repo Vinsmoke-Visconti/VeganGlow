@@ -1,13 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import { Star, ShoppingBag, Heart, Zap, Tag } from 'lucide-react';
+import Image from 'next/image';
+import { Star, ShoppingBag, Heart, Tag, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { setBuyNow } from '@/lib/buyNow';
+import { normalizeProductImage } from '@/lib/imageUrl';
 import styles from './Product.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createBrowserClient } from '@/lib/supabase/client';
 
-interface Product {
+export interface ProductCardProduct {
   id: string;
   name: string;
   slug: string;
@@ -21,13 +25,48 @@ interface Product {
   categories?: {
     name: string;
     slug: string;
-  };
+  } | null;
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product }: { product: ProductCardProduct }) {
   const { addToCart } = useCart();
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
+  const [favoritePending, setFavoritePending] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+  const supabase = createBrowserClient();
+  const productImage = normalizeProductImage(product.image);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadFavoriteState() {
+      // Jitter to prevent auth lock contention on page load with many cards
+      await new Promise(r => setTimeout(r, Math.random() * 300));
+      if (!alive) return;
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const user = session?.user;
+      if (!alive || !user) return;
+
+      const { data } = await supabase
+        .from('favorites')
+        .select('product_id')
+        .eq('user_id', user.id)
+        .eq('product_id', product.id)
+        .maybeSingle();
+
+      if (alive) setIsLiked(Boolean(data));
+    }
+
+    void loadFavoriteState();
+    return () => {
+      alive = false;
+    };
+  }, [product.id, supabase]);
 
   const formatVND = (n: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
@@ -36,21 +75,75 @@ export default function ProductCard({ product }: { product: Product }) {
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
 
+  const handleAddToCart = () => {
+    addToCart(product);
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 1500);
+  };
+
   const handleBuyNow = () => {
-    addToCart(product as any);
-    router.push('/checkout');
+    setBuyNow({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+    });
+    router.push('/checkout?buyNow=1');
+  };
+
+  const handleWishlistToggle = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (favoritePending) return;
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push(`/login?redirectTo=${encodeURIComponent(`/products/${product.slug}`)}`);
+      return;
+    }
+
+    setFavoritePending(true);
+    const nextLiked = !isLiked;
+    setIsLiked(nextLiked);
+
+    // Supabase generated types (PostgrestVersion 14.5) narrow Insert payloads
+    // to `never`; cast the table to bypass the type bug. Runtime behaviour is
+    // unaffected and the schema is enforced server-side via the favorites table.
+    const { error } = nextLiked
+      ? await (supabase.from('favorites') as unknown as {
+          upsert: (row: { user_id: string; product_id: string }) => Promise<{ error: { message: string } | null }>;
+        }).upsert({
+          user_id: user.id,
+          product_id: product.id,
+        })
+      : await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', product.id);
+
+    if (error) setIsLiked(!nextLiked);
+    setFavoritePending(false);
   };
 
   return (
     <div className={styles.premiumCard}>
       <div className={styles.imageWrap}>
         <Link href={`/products/${product.slug}`}>
-          {product.image ? (
-            <img 
-              src={product.image} 
-              alt={product.name} 
+          {productImage ? (
+            <Image
+              src={productImage}
+              alt={product.name}
+              width={400}
+              height={400}
               className={styles.image}
               loading="lazy"
+              unoptimized
             />
           ) : (
             <div className={styles.placeholder}>{product.name.charAt(0)}</div>
@@ -77,10 +170,9 @@ export default function ProductCard({ product }: { product: Product }) {
         {/* Wishlist Action */}
         <button 
           className={styles.wishlistBtn}
-          onClick={(e) => {
-            e.preventDefault();
-            setIsLiked(!isLiked);
-          }}
+          onClick={handleWishlistToggle}
+          disabled={favoritePending}
+          aria-label={isLiked ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
         >
           <Heart 
             size={18} 
@@ -123,19 +215,24 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className={styles.buttonGroup}>
-          <button 
-            className={styles.cartBtn}
-            onClick={() => addToCart(product as any)}
+          <button
+            className={`${styles.cartBtn} ${justAdded ? styles.cartBtnActive : ''}`}
+            onClick={handleAddToCart}
+            aria-label={justAdded ? 'Đã thêm vào giỏ' : 'Thêm vào giỏ hàng'}
           >
-            <ShoppingBag size={18} />
+            {justAdded ? <Check size={18} /> : <ShoppingBag size={18} />}
           </button>
-          <button 
+          <button
             className={styles.buyBtn}
             onClick={handleBuyNow}
           >
             Mua ngay
           </button>
         </div>
+
+        <Link href="/cart" className={styles.viewCartLink}>
+          <ShoppingBag size={14} /> Xem giỏ hàng
+        </Link>
       </div>
     </div>
   );

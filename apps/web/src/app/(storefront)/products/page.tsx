@@ -1,12 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
 import { Suspense } from 'react';
 import Link from 'next/link';
-import ProductCard from '@/components/products/ProductCard';
+import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 import { Filter, Search, X, Leaf, ShoppingBag } from 'lucide-react';
 import styles from './products.module.css';
 import SortSelect from '@/components/products/SortSelect';
 import { SORT_OPTIONS, PRICE_BRACKETS } from './constants';
+
+type CategoryRow = { id: string; name: string; slug: string };
+type CategoryWithCount = CategoryRow & { count: number };
 
 // For development and testing, we disable strict revalidation to ensure data is fresh.
 export const revalidate = 0;
@@ -29,6 +32,21 @@ function buildQueryString(params: Params, overrides: Params): string {
   return qs ? `?${qs}` : '';
 }
 
+function sanitizeSearchTerm(raw: string): string {
+  return raw
+    .replace(/[%\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+}
+
+function parsePriceFilter(value: string | string[] | undefined): number {
+  if (typeof value !== 'string' || value === '') return NaN;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return NaN;
+  return Math.min(parsed, 100_000_000);
+}
+
 export default async function ProductsPage({
   searchParams,
 }: {
@@ -37,10 +55,10 @@ export default async function ProductsPage({
   const params = await searchParams;
   const supabase = await createClient();
 
-  const query = typeof params.q === 'string' ? params.q : '';
+  const query = typeof params.q === 'string' ? sanitizeSearchTerm(params.q) : '';
   const categorySlug = typeof params.category === 'string' ? params.category : '';
-  const minPrice = typeof params.min === 'string' && params.min !== '' ? Number(params.min) : NaN;
-  const maxPrice = typeof params.max === 'string' && params.max !== '' ? Number(params.max) : NaN;
+  const minPrice = parsePriceFilter(params.min);
+  const maxPrice = parsePriceFilter(params.max);
   const sortValue = typeof params.sort === 'string' ? params.sort : 'newest';
   const sort = SORT_OPTIONS.find((s) => s.value === sortValue) || SORT_OPTIONS[0];
 
@@ -51,12 +69,13 @@ export default async function ProductsPage({
     supabase.from('products').select('category_id').eq('is_active', true)
   ]);
 
-  const rawCategories = (categoriesRes.data as any[]) || [];
-  const activeProductRows = (allActiveProductsRes.data as any[]) || [];
+  const rawCategories: CategoryRow[] = (categoriesRes.data as CategoryRow[] | null) ?? [];
+  const activeProductRows: { category_id: string | null }[] =
+    (allActiveProductsRes.data as { category_id: string | null }[] | null) ?? [];
 
-  const categories = rawCategories.map(cat => ({
+  const categories: CategoryWithCount[] = rawCategories.map((cat) => ({
     ...cat,
-    count: activeProductRows.filter(p => p.category_id === cat.id).length
+    count: activeProductRows.filter((p) => p.category_id === cat.id).length,
   }));
 
   const totalCount = activeProductRows.length;
@@ -92,7 +111,7 @@ export default async function ProductsPage({
     console.error('Products query error:', error);
   }
 
-  const list = (products as any[]) || [];
+  const list: ProductCardProduct[] = (products as ProductCardProduct[] | null) ?? [];
 
   return (
     <div className={styles.page}>

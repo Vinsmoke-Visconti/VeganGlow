@@ -4,19 +4,64 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { sendPasswordOtpEmail } from '@/lib/email';
 
-export async function login(prevState: any, formData: FormData) {
+export type AuthFormState = { error?: string } | null;
+
+type RpcUsernameToEmail = (
+  fn: 'get_email_from_username',
+  args: { p_username: string }
+) => Promise<{ data: string | null }>;
+
+function safeRedirectPath(value: FormDataEntryValue | string | null, fallback = '/') {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) {
+    return fallback;
+  }
+
+  try {
+    const parsed = new URL(value, 'https://veganglow.local');
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
+function getTrustedAppOrigin(originHeader: string | null) {
+  const configured = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) {
+    try {
+      return new URL(configured).origin;
+    } catch {
+      // Fall back to the request origin below.
+    }
+  }
+
+  if (originHeader) {
+    try {
+      const origin = new URL(originHeader);
+      if (origin.protocol === 'https:' || origin.protocol === 'http:') {
+        return origin.origin;
+      }
+    } catch {
+      // Fall through to local development default.
+    }
+  }
+
+  return 'http://localhost:3000';
+}
+
+export async function login(_prevState: AuthFormState, formData: FormData) {
   let identifier = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const redirectTo = formData.get('redirectTo') as string || '/';
+  const redirectTo = safeRedirectPath(formData.get('redirectTo'));
 
   const supabase = await createClient();
 
-  // If not an email, try resolving username to email
   if (!identifier.includes('@')) {
-    const { data: resolvedEmail } = await (supabase.rpc as any)('get_email_from_username', {
-      p_username: identifier,
-    });
+    const { data: resolvedEmail } = await (supabase.rpc as unknown as RpcUsernameToEmail)(
+      'get_email_from_username',
+      { p_username: identifier }
+    );
     if (resolvedEmail) {
       identifier = resolvedEmail;
     }
@@ -35,7 +80,7 @@ export async function login(prevState: any, formData: FormData) {
   redirect(redirectTo);
 }
 
-export async function signup(prevState: any, formData: FormData) {
+export async function signup(_prevState: AuthFormState, formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const fullName = formData.get('fullName') as string;
@@ -79,7 +124,7 @@ export async function adminLogout() {
 export async function adminGoogleLogin() {
   const supabase = await createClient();
   const headersList = await headers();
-  const origin = headersList.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL;
+  const origin = getTrustedAppOrigin(headersList.get('origin'));
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -95,17 +140,17 @@ export async function adminGoogleLogin() {
   redirect(data.url);
 }
 
-export async function adminLogin(prevState: any, formData: FormData) {
+export async function adminLogin(_prevState: AuthFormState, formData: FormData) {
   let identifier = formData.get('email') as string;
   const password = formData.get('password') as string;
 
   const supabase = await createClient();
 
-  // If not an email, try resolving username to email
   if (!identifier.includes('@')) {
-    const { data: resolvedEmail } = await (supabase.rpc as any)('get_email_from_username', {
-      p_username: identifier,
-    });
+    const { data: resolvedEmail } = await (supabase.rpc as unknown as RpcUsernameToEmail)(
+      'get_email_from_username',
+      { p_username: identifier }
+    );
     if (resolvedEmail) {
       identifier = resolvedEmail;
     }
@@ -134,10 +179,7 @@ export async function adminLogin(prevState: any, formData: FormData) {
 export async function signInWithGitHub() {
   const supabase = await createClient();
   const headersList = await headers();
-  const origin =
-    headersList.get('origin') ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    'http://localhost:3000';
+  const origin = getTrustedAppOrigin(headersList.get('origin'));
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
@@ -151,4 +193,85 @@ export async function signInWithGitHub() {
   }
 
   redirect(data.url);
+}
+
+/**
+ * Gửi mã OTP xác nhận
+ */
+export async function requestPasswordOtp(purpose: 'set_password' | 'change_password') {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user || !user.email) {
+    return { error: 'Bạn cần đăng nhập để thực hiện hành động này.' };
+  }
+
+  try {
+    // Gọi RPC để tạo OTP (đã có logic Rate Limit 60s trong DB)
+    const { data: code, error: rpcError } = await supabase.rpc('create_otp_verification', {
+      p_user_id: user.id,
+      p_email: user.email,
+      p_purpose: purpose
+    });
+
+    if (rpcError) {
+      return { error: rpcError.message };
+    }
+
+    // Gửi Email
+    await sendPasswordOtpEmail(user.email, code, purpose);
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || 'Lỗi hệ thống khi gửi OTP.' };
+  }
+}
+
+/**
+ * Xác thực và cập nhật mật khẩu
+ */
+export async function updatePasswordWithOtp(formData: FormData) {
+  const purpose = formData.get('purpose') as 'set_password' | 'change_password';
+  const currentPassword = formData.get('currentPassword') as string;
+  const newPassword = formData.get('newPassword') as string;
+  const otpCode = formData.get('otpCode') as string;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { error: 'Phiên đăng nhập hết hạn.' };
+
+  // 1. Xác thực OTP qua RPC
+  const { data: isOtpValid, error: otpError } = await supabase.rpc('verify_otp', {
+    p_user_id: user.id,
+    p_purpose: purpose,
+    p_code: otpCode
+  });
+
+  if (otpError || !isOtpValid) {
+    return { error: 'Mã OTP không chính xác hoặc đã hết hạn.' };
+  }
+
+  // 2. Nếu là đổi mật khẩu, cần xác thực mật khẩu cũ
+  if (purpose === 'change_password') {
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: user.email!,
+      password: currentPassword
+    });
+
+    if (loginError) {
+      return { error: 'Mật khẩu hiện tại không chính xác.' };
+    }
+  }
+
+  // 3. Cập nhật mật khẩu mới
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  return { success: true };
 }

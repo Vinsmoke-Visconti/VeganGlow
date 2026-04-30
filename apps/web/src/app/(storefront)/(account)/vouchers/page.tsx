@@ -10,9 +10,9 @@ interface Voucher {
   id: string;
   code: string;
   title: string;
-  description: string;
-  discount_type: 'shipping' | 'percentage' | 'fixed';
-  end_date: string;
+  description: string | null;
+  discount_type: string;
+  end_date: string | null;
   is_used?: boolean;
 }
 
@@ -48,10 +48,21 @@ function VouchersContent() {
     if (error) {
       console.error('Error fetching vouchers:', error);
     } else if (data) {
-      const flattened = data.map((item: any) => ({
-        ...item.vouchers,
-        is_used: item.is_used
-      }));
+      type UserVoucherJoin = {
+        is_used: boolean;
+        vouchers: {
+          id: string;
+          code: string;
+          title: string;
+          description: string | null;
+          discount_type: string;
+          end_date: string | null;
+        } | null;
+      };
+      const rows = data as unknown as UserVoucherJoin[];
+      const flattened = rows
+        .filter((r) => r.vouchers)
+        .map((r) => ({ ...(r.vouchers as NonNullable<UserVoucherJoin['vouchers']>), is_used: r.is_used }));
       setVouchers(flattened);
     }
     setLoading(false);
@@ -109,7 +120,7 @@ function VouchersContent() {
                     <h3 className={styles.voucherTitle}>{v.title}</h3>
                     <p className={styles.voucherDesc}>{v.description}</p>
                     <div className={styles.voucherFooter}>
-                      <span className={styles.expiry}>HSD: {new Date(v.end_date).toLocaleDateString('vi-VN')}</span>
+                      <span className={styles.expiry}>HSD: {v.end_date ? new Date(v.end_date).toLocaleDateString('vi-VN') : '—'}</span>
                       <button className={styles.useBtn} disabled={v.is_used}>
                         {v.is_used ? 'Đã dùng' : 'Dùng ngay'}
                       </button>

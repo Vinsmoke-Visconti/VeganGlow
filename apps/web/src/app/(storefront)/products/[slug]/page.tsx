@@ -1,19 +1,33 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import AddToCartButton from '@/components/products/AddToCartButton';
+import BuyNowButton from '@/components/products/BuyNowButton';
 import ProductCard from '@/components/products/ProductCard';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './product-detail.module.css';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
-import { Leaf, ShieldCheck, Sparkles, Star, ArrowRight, Truck, RefreshCw, Heart } from 'lucide-react';
+import { ShieldCheck, Sparkles, Star, Truck, RefreshCw } from 'lucide-react';
 import { cacheGet, cacheSet } from '@/lib/redis';
+import { normalizeProductImage } from '@/lib/imageUrl';
+import type { Database } from '@/types/database';
+
+type ProductRow = Database['public']['Tables']['products']['Row'];
+type ProductWithCategory = ProductRow & {
+  old_price?: number | null;
+  categories?: { id: string; name: string; slug: string } | null;
+};
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient();
   const { slug } = await params;
 
   const cacheKey = `product:${slug}`;
-  let product = await cacheGet<any>(cacheKey);
+  let product = await cacheGet<ProductWithCategory>(cacheKey);
+
+  if (product && !product.is_active) {
+    product = null;
+  }
 
   if (!product) {
     const { data: dbProduct } = await supabase
@@ -23,32 +37,33 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         categories:category_id (id, name, slug)
       `)
       .eq('slug', slug)
+      .eq('is_active', true)
       .single();
 
     if (!dbProduct) notFound();
-    product = dbProduct;
+    product = dbProduct as unknown as ProductWithCategory;
     await cacheSet(cacheKey, product, 3600);
   }
 
-  const typedProduct = product as any;
+  const typedProduct: ProductWithCategory = product;
 
-  // Fetch related products
   const relatedCacheKey = `related:${typedProduct.category_id}:${typedProduct.id}`;
-  let relatedProducts = await cacheGet<any[]>(relatedCacheKey);
+  let relatedProducts = await cacheGet<ProductWithCategory[]>(relatedCacheKey);
 
   if (!relatedProducts) {
     const { data: dbRelated } = await supabase
       .from('products')
       .select('*')
-      .eq('category_id', typedProduct.category_id)
+      .eq('category_id', typedProduct.category_id ?? '')
+      .eq('is_active', true)
       .neq('id', typedProduct.id)
       .limit(4);
-    
-    relatedProducts = dbRelated || [];
+
+    relatedProducts = (dbRelated ?? []) as unknown as ProductWithCategory[];
     await cacheSet(relatedCacheKey, relatedProducts, 3600);
   }
 
-  const typedRelated = (relatedProducts || []) as any[];
+  const typedRelated: ProductWithCategory[] = relatedProducts ?? [];
 
   return (
     <div className={styles.container}>
@@ -70,13 +85,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {/* Left: Image Gallery */}
         <FadeIn direction="right" delay={0.2} className={styles.imageGallery}>
           <div className={styles.mainImageWrap}>
-            <img 
-              src={typedProduct.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(typedProduct.name)}&background=B7E4C7&color=1B4332&size=800`} 
-              alt={typedProduct.name} 
+            <Image
+              src={normalizeProductImage(typedProduct.image) || `https://ui-avatars.com/api/?name=${encodeURIComponent(typedProduct.name)}&background=B7E4C7&color=1B4332&size=800`}
+              alt={typedProduct.name}
+              width={800}
+              height={800}
               className={styles.mainImage}
+              priority
+              unoptimized
             />
           </div>
-          {/* Placeholder for small thumbnails if needed later */}
         </FadeIn>
 
         {/* Right: Info Panel */}
@@ -126,7 +144,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           <div className={styles.actions}>
             <AddToCartButton product={typedProduct} className={styles.fullWidthBtn} />
-            <Link href="/checkout" className={styles.buyNowBtn}>Mua ngay</Link>
+            <BuyNowButton product={typedProduct} className={styles.buyNowBtn}>
+              Mua ngay
+            </BuyNowButton>
           </div>
 
           <div className={styles.features}>
@@ -188,7 +208,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   );
 }
 
-// Sub-components as defined before (ReviewsSection)
+type ReviewWithProfile = {
+  id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  profiles?: { full_name: string | null; avatar_url: string | null } | null;
+};
+
 async function ReviewsSection({ productId, productRating, reviewsCount }: { productId: string, productRating: number, reviewsCount: number }) {
   const supabase = await createClient();
   const { data: reviews } = await supabase
@@ -219,10 +246,16 @@ async function ReviewsSection({ productId, productRating, reviewsCount }: { prod
 
       <div className={styles.reviewsList}>
         {reviews && reviews.length > 0 ? (
-          reviews.map((review: any) => (
+          reviews.map((review: ReviewWithProfile) => (
             <div key={review.id} className={styles.reviewItem}>
               <div className={styles.reviewUser}>
-                <img src={review.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.profiles?.full_name || 'U')}`} alt="User" />
+                <Image
+                  src={review.profiles?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.profiles?.full_name || 'U')}`}
+                  alt={review.profiles?.full_name || 'User'}
+                  width={48}
+                  height={48}
+                  unoptimized
+                />
                 <div>
                   <div className={styles.userName}>{review.profiles?.full_name || 'Khách hàng ẩn danh'}</div>
                   <div className={styles.reviewDate}>{new Date(review.created_at).toLocaleDateString('vi-VN')}</div>

@@ -6,12 +6,10 @@
 
 .main {
   flex: 1;
-  /* Pages that use fixed header need this padding */
-  padding-top: 0; 
 }
 
 .header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
@@ -19,6 +17,7 @@
   display: flex;
   align-items: center;
   z-index: 1000;
+  background-color: var(--color-bg); /* Nền mặc định cho sticky header */
   transition: all 0.4s var(--transition-base);
   border-bottom: 1px solid transparent;
 }

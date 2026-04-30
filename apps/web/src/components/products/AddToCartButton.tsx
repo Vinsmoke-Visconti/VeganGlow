@@ -3,9 +3,10 @@
 import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
 import { ShoppingCart, Check, Plus } from 'lucide-react';
+import type { ProductCardProduct } from './ProductCard';
 
 interface AddToCartButtonProps {
-  product: any;
+  product: ProductCardProduct;
   className?: string;
   variant?: 'default' | 'icon';
 }

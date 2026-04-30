@@ -22,6 +22,27 @@ interface Address {
   is_default: boolean;
 }
 
+type AddressPayload = {
+  user_id: string;
+  full_name: string;
+  phone: string;
+  address: string;
+  province: string;
+  ward: string;
+  district: string | null;
+  is_default: boolean;
+};
+
+type AddressWriteClient = {
+  update: (row: Partial<AddressPayload>) => {
+    eq: (
+      column: 'user_id' | 'id',
+      value: string,
+    ) => Promise<{ error: { message: string } | null }>;
+  };
+  insert: (rows: AddressPayload[]) => Promise<{ error: { message: string } | null }>;
+};
+
 export default function AddressPage() {
   const supabase = createBrowserClient();
   const [loading, setLoading] = useState(true);
@@ -73,7 +94,7 @@ export default function AddressPage() {
 
     // If setting as default, unset other defaults
     if (isDefault) {
-      await (supabase.from('addresses') as any)
+      await (supabase.from('addresses') as unknown as AddressWriteClient)
         .update({ is_default: false })
         .eq('user_id', user.id);
     }
@@ -91,12 +112,14 @@ export default function AddressPage() {
 
     let error;
     if (editingId) {
-      const { error: err } = await (supabase.from('addresses') as any)
+      const { error: err } = await (supabase.from('addresses') as unknown as AddressWriteClient)
         .update(payload)
         .eq('id', editingId);
       error = err;
     } else {
-      const { error: err } = await (supabase.from('addresses') as any).insert([payload]);
+      const { error: err } = await (
+        supabase.from('addresses') as unknown as AddressWriteClient
+      ).insert([payload]);
       error = err;
     }
 

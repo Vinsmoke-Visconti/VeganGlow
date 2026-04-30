@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
@@ -8,6 +9,9 @@ import styles from '@/app/(storefront)/storefront-layout.module.css';
 import { ShoppingBag, User as UserIcon, Menu, X, Search, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createBrowserClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
+
+type NavbarProfile = { username: string | null; avatar_url: string | null };
 
 const NAV_LINKS = [
   { href: '/products', label: 'Cửa hàng' },
@@ -18,12 +22,18 @@ const NAV_LINKS = [
 ];
 
 export default function StorefrontNavbar() {
-  const { totalCount } = useCart();
+  const { totalCount, lastAdded } = useCart();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<NavbarProfile | null>(null);
+  const [bumpKey, setBumpKey] = useState(0);
+
+  useEffect(() => {
+    if (!lastAdded) return;
+    setBumpKey((k) => k + 1);
+  }, [lastAdded]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -73,7 +83,14 @@ export default function StorefrontNavbar() {
         <div className={`container ${styles.headerContainer}`}>
           <div className={styles.logo}>
             <Link href="/" className={styles.logoLink}>
-              <img src="/logo.png" alt="VeganGlow" className={styles.logoImg} />
+              <Image
+                src="/logo.jpg"
+                alt="VeganGlow"
+                width={40}
+                height={40}
+                className={styles.logoImg}
+                priority
+              />
               <span className={styles.logoText}>VeganGlow</span>
             </Link>
           </div>
@@ -91,18 +108,34 @@ export default function StorefrontNavbar() {
           </nav>
 
           <div className={styles.actions}>
-            <button className={styles.iconBtn} aria-label="Tìm kiếm">
+            <Link href="/search" className={styles.iconBtn} aria-label="Tìm kiếm">
               <Search size={20} />
-            </button>
+            </Link>
             
             <Link href="/wishlist" className={styles.iconBtn} aria-label="Yêu thích">
               <Heart size={20} />
             </Link>
 
             <Link href="/cart" className={styles.iconBtn} aria-label="Giỏ hàng">
-              <ShoppingBag size={20} />
+              <motion.span
+                key={`cart-icon-${bumpKey}`}
+                initial={{ scale: 1 }}
+                animate={bumpKey > 0 ? { scale: [1, 1.25, 0.95, 1.08, 1] } : { scale: 1 }}
+                transition={{ duration: 0.55, ease: 'easeOut' }}
+                style={{ display: 'inline-flex' }}
+              >
+                <ShoppingBag size={20} />
+              </motion.span>
               {totalCount > 0 && (
-                <span className={styles.cartBadge}>{totalCount}</span>
+                <motion.span
+                  key={`cart-badge-${bumpKey}-${totalCount}`}
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                  className={styles.cartBadge}
+                >
+                  {totalCount}
+                </motion.span>
               )}
             </Link>
 
@@ -110,10 +143,13 @@ export default function StorefrontNavbar() {
               <Link href="/profile" className={styles.userBtn}>
                 <div className={styles.userAvatarMini}>
                   {profile?.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt={profile.username || 'User'} 
-                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} 
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile.username || 'User'}
+                      width={32}
+                      height={32}
+                      style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                      unoptimized
                     />
                   ) : (
                     <UserIcon size={16} />

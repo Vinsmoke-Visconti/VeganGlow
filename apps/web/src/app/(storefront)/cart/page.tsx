@@ -2,16 +2,26 @@
 
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from 'lucide-react';
+import Image from 'next/image';
+import {
+  Trash2,
+  Plus,
+  Minus,
+  ArrowLeft,
+  ShoppingBag,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 import styles from './cart.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
+import { normalizeProductImage } from '@/lib/imageUrl';
 
 export default function CartPage() {
-  const { cartItems, updateQuantity, removeFromCart, totalAmount, totalCount } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, totalAmount, totalCount, clearCart } = useCart();
 
   if (cartItems.length === 0) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className={styles.emptyContainer}
@@ -28,83 +38,115 @@ export default function CartPage() {
     );
   }
 
+  const handleClearCart = () => {
+    if (window.confirm('Bạn có chắc muốn xóa toàn bộ giỏ hàng?')) {
+      clearCart();
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <motion.header 
+      <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className={styles.header}
       >
         <h1 className={styles.title}>Giỏ hàng của bạn ({totalCount} sản phẩm)</h1>
+        <button type="button" className={styles.clearBtn} onClick={handleClearCart}>
+          <Trash2 size={16} /> Xóa giỏ hàng
+        </button>
       </motion.header>
 
       <div className={styles.content}>
         {/* Cart Items List */}
         <div className={styles.itemsSection}>
           <AnimatePresence>
-            {cartItems.map((item, index) => (
-              <motion.div 
-                key={item.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                transition={{ delay: index * 0.1 }}
-                className={styles.cartItem}
-              >
-                <div className={styles.itemImage}>
-                  <img src={item.image} alt={item.name} />
-                </div>
-                <div className={styles.itemInfo}>
-                  <Link href={`/products/${item.id}`} className={styles.itemName}>
-                    {item.name}
-                  </Link>
-                  <div className={styles.itemPrice}>
-                    {item.price.toLocaleString('vi-VN')}đ
+            {cartItems.map((item, index) => {
+              const img = normalizeProductImage(item.image);
+              return (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                  transition={{ delay: index * 0.05 }}
+                  className={styles.cartItem}
+                >
+                  <div className={styles.itemImage}>
+                    {img ? (
+                      <Image
+                        src={img}
+                        alt={item.name}
+                        width={120}
+                        height={120}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        unoptimized
+                      />
+                    ) : (
+                      <div className={styles.itemImagePlaceholder}>
+                        {item.name.charAt(0)}
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className={styles.itemActions}>
-                  <div className={styles.quantityControls}>
-                    <button 
-                      onClick={() => {
-                        if (item.quantity === 1) {
-                          if (window.confirm(`Bạn có chắc chắn muốn xóa "${item.name}" khỏi giỏ hàng?`)) {
-                            removeFromCart(item.id);
+                  <div className={styles.itemInfo}>
+                    <Link href={`/products/${item.slug || item.id}`} className={styles.itemName}>
+                      {item.name}
+                    </Link>
+                    <div className={styles.itemPrice}>
+                      {item.price.toLocaleString('vi-VN')}đ
+                    </div>
+                  </div>
+                  <div className={styles.itemActions}>
+                    <div className={styles.quantityControls}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (item.quantity === 1) {
+                            if (window.confirm(`Bạn có chắc chắn muốn xóa "${item.name}" khỏi giỏ hàng?`)) {
+                              removeFromCart(item.id);
+                            }
+                          } else {
+                            updateQuantity(item.id, item.quantity - 1);
                           }
-                        } else {
-                          updateQuantity(item.id, item.quantity - 1);
+                        }}
+                        className={styles.qtyBtn}
+                        aria-label="Giảm số lượng"
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <span className={styles.quantity}>{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className={styles.qtyBtn}
+                        aria-label="Tăng số lượng"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`Xóa "${item.name}" khỏi giỏ hàng?`)) {
+                          removeFromCart(item.id);
                         }
                       }}
-                      className={styles.qtyBtn}
+                      className={styles.removeBtn}
+                      aria-label="Xóa sản phẩm"
                     >
-                      <Minus size={16} />
-                    </button>
-                    <span className={styles.quantity}>{item.quantity}</span>
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className={styles.qtyBtn}
-                    >
-                      <Plus size={16} />
+                      <Trash2 size={20} />
                     </button>
                   </div>
-                  <button 
-                    onClick={() => {
-                      if (window.confirm(`Xóa "${item.name}" khỏi giỏ hàng?`)) {
-                        removeFromCart(item.id);
-                      }
-                    }}
-                    className={styles.removeBtn}
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                </div>
-                <div className={styles.itemTotal}>
-                  {(item.price * item.quantity).toLocaleString('vi-VN')}đ
-                </div>
-              </motion.div>
-            ))}
+                  <div className={styles.itemTotal}>
+                    {(item.price * item.quantity).toLocaleString('vi-VN')}đ
+                  </div>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
-          
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
             <Link href="/products" className={styles.backLink}>
               <ArrowLeft size={18} /> Tiếp tục mua sắm
             </Link>
@@ -112,20 +154,22 @@ export default function CartPage() {
         </div>
 
         {/* Order Summary */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className={styles.summarySection}
         >
           <div className={styles.summaryCard}>
             <h2>Tóm tắt đơn hàng</h2>
             <div className={styles.summaryRow}>
-              <span>Tạm tính</span>
+              <span>Tạm tính ({totalCount} sản phẩm)</span>
               <span>{totalAmount.toLocaleString('vi-VN')}đ</span>
             </div>
             <div className={styles.summaryRow}>
-              <span>Phí vận chuyển</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Truck size={14} /> Phí vận chuyển
+              </span>
               <span>Miễn phí</span>
             </div>
             <div className={styles.summaryDivider}></div>
@@ -134,10 +178,15 @@ export default function CartPage() {
               <span className={styles.totalPrice}>{totalAmount.toLocaleString('vi-VN')}đ</span>
             </div>
             <p className={styles.taxNote}>(Đã bao gồm VAT nếu có)</p>
-            
+
             <Link href="/checkout" className={styles.checkoutBtn}>
               Thanh toán ngay
             </Link>
+
+            <div className={styles.assurance}>
+              <ShieldCheck size={16} />
+              <span>Mua sắm an toàn — đổi trả trong 7 ngày</span>
+            </div>
           </div>
         </motion.div>
       </div>

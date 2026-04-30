@@ -3,6 +3,28 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
+type StaffInvitationWriteClient = {
+  upsert: (
+    row: {
+      email: string;
+      role_id: string;
+      full_name: string;
+      status: 'pending';
+      invited_by: string | null;
+    },
+    options: { onConflict: string },
+  ) => Promise<{ error: { message: string } | null }>;
+  update: (row: { status: 'revoked' }) => {
+    eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
+  };
+};
+
+type StaffProfileWriteClient = {
+  update: (row: { is_active: boolean }) => {
+    eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
+  };
+};
+
 /**
  * Super Admin invites a staff member by email. The user does NOT need to exist
  * in auth.users yet — they'll be auto-promoted on first login (Google or
@@ -37,7 +59,9 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { error } = await (supabase.from('staff_invitations') as any).upsert(
+  const { error } = await (
+    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
+  ).upsert(
     {
       email,
       role_id: (role as { id: string }).id,
@@ -69,7 +93,9 @@ export async function revokeStaffInvitation(invitationId: string) {
     return { error: 'Chỉ Super Admin mới được phép thu hồi lời mời.' };
   }
 
-  const { error } = await (supabase.from('staff_invitations') as any)
+  const { error } = await (
+    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
+  )
     .update({ status: 'revoked' })
     .eq('id', invitationId);
 
@@ -87,7 +113,9 @@ export async function deactivateStaff(staffId: string) {
     return { error: 'Chỉ Super Admin mới được phép vô hiệu hóa nhân sự.' };
   }
 
-  const { error } = await (supabase.from('staff_profiles') as any)
+  const { error } = await (
+    supabase.from('staff_profiles') as unknown as StaffProfileWriteClient
+  )
     .update({ is_active: false })
     .eq('id', staffId);
 

@@ -31,13 +31,18 @@
     "docker:prod": "docker compose -f docker/docker-compose.prod.yml up --build -d"
   },
   "devDependencies": {
-    "prettier": "^3.4.0",
     "husky": "^9.1.0",
-    "lint-staged": "^15.2.0"
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.4.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,css,md}": ["prettier --write"]
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   },
   "overrides": {
     "postcss": "^8.5.12",
@@ -47,6 +52,8 @@
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@payos/node": "^2.0.5"
   }
 }
-
