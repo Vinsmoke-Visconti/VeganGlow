@@ -2,6 +2,16 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { audit } from '@/lib/security/auditLog';
+
+async function auditCtx() {
+  const h = await headers();
+  return {
+    ip: h.get('x-forwarded-for')?.split(',')[0] ?? null,
+    userAgent: h.get('user-agent'),
+  };
+}
 
 type StaffInvitationWriteClient = {
   upsert: (
@@ -82,6 +92,16 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
   await supabase.rpc('sweep_pending_invitations');
 
   revalidatePath('/admin/users');
+  await audit(
+    {
+      action: 'rbac.staff_invited',
+      severity: 'warn',
+      entity: 'staff',
+      entity_id: email,
+      details: { role: roleName, full_name: fullName },
+    },
+    await auditCtx()
+  );
   return { success: `Đã mời ${email} với vai trò ${roleName}.` };
 }
 
@@ -102,6 +122,10 @@ export async function revokeStaffInvitation(invitationId: string) {
   if (error) return { error: error.message };
 
   revalidatePath('/admin/users');
+  await audit(
+    { action: 'rbac.role_revoked', severity: 'warn', entity: 'staff', entity_id: invitationId, details: { kind: 'invitation' } },
+    await auditCtx()
+  );
   return { success: 'Đã thu hồi lời mời.' };
 }
 
@@ -122,5 +146,9 @@ export async function deactivateStaff(staffId: string) {
   if (error) return { error: error.message };
 
   revalidatePath('/admin/users');
+  await audit(
+    { action: 'rbac.staff_disabled', severity: 'warn', entity: 'staff', entity_id: staffId, details: {} },
+    await auditCtx()
+  );
   return { success: 'Đã vô hiệu hóa nhân sự.' };
 }
