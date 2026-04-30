@@ -1,5 +1,5 @@
 /* ============================================
-   Admin — About Team / Credits
+   VeganGlow Admin - About Team / Credits
    ============================================ */
 
 .eyebrow {
@@ -7,287 +7,330 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background-color: var(--color-primary-50);
-  color: var(--color-primary-dark);
-  border-radius: var(--radius-full);
-  font-size: 0.7rem;
-  font-weight: 700;
+  border: 1px solid rgba(50, 125, 91, 0.16);
+  border-radius: var(--vg-radius-pill);
+  background: rgba(50, 125, 91, 0.1);
+  color: var(--vg-leaf-900);
+  font-size: var(--vg-text-xs);
+  font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .sectionTitle {
-  font-family: var(--font-body);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  margin-bottom: var(--space-2);
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  letter-spacing: -0.01em;
+  gap: var(--vg-space-2);
+  margin-bottom: var(--vg-space-2);
+  color: var(--vg-ink-900);
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-lg);
+  font-weight: 700;
 }
 
 .sectionIcon {
-  color: var(--color-primary);
+  color: var(--vg-leaf-700);
 }
 
 .sectionDesc {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-5);
   max-width: 760px;
-  line-height: 1.6;
+  margin: 0 0 var(--vg-space-5);
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-sm);
+  line-height: var(--vg-leading-normal);
 }
 
-/* ── Team Grid ── */
 .teamGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.premiumBanner {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--vg-leaf-700), var(--vg-leaf-900));
+  border-radius: 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(47, 114, 54, 0.2);
+}
+
+.premiumBanner::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+}
+
+.bannerTitle {
+  font-family: var(--vg-font-display);
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.bannerText {
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 800px;
+  position: relative;
+  z-index: 1;
+}
+
+.memberCard,
+.techSection,
+.projectSection {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--vg-radius-lg);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(251, 250, 246, 0.76)),
+    var(--vg-glass-bg);
+  box-shadow: var(--vg-shadow-1);
+  backdrop-filter: blur(var(--vg-glass-blur));
 }
 
 .memberCard {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  padding: var(--vg-space-6);
+  transition:
+    transform var(--vg-duration-fast) var(--vg-ease-out),
+    box-shadow var(--vg-duration-fast) var(--vg-ease-out),
+    border-color var(--vg-duration-fast) var(--vg-ease-out);
 }
 
 .memberCard:hover {
-  border-color: var(--color-primary-100);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: rgba(50, 125, 91, 0.22);
+  box-shadow: var(--vg-shadow-2);
 }
 
 .memberHeader {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-5);
+  gap: var(--vg-space-3);
+  margin-bottom: var(--vg-space-5);
 }
 
 .memberAvatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary));
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.26), transparent 48%),
+    linear-gradient(135deg, var(--vg-leaf-500), var(--vg-leaf-800));
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: var(--text-xl);
+  font-size: var(--vg-text-xl);
+  font-weight: 850;
   flex-shrink: 0;
+  box-shadow: 0 12px 26px rgba(50, 125, 91, 0.22);
 }
 
 .memberHeaderText {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--vg-space-1);
   min-width: 0;
 }
 
 .memberRoleBadge {
+  width: fit-content;
   display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--vg-radius-pill);
+  background: rgba(50, 125, 91, 0.1);
+  color: var(--vg-leaf-900);
+  font-size: 11px;
+  font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-primary-dark);
-  background-color: var(--color-primary-50);
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  width: fit-content;
 }
 
 .memberPlaceholder {
-  font-weight: 600;
-  font-size: var(--text-sm);
-  color: var(--color-text);
+  color: var(--vg-ink-700);
+  font-size: var(--vg-text-sm);
   font-style: italic;
+  font-weight: 700;
 }
 
 .subSectionTitle {
-  font-size: 0.65rem;
-  font-weight: 700;
+  margin-bottom: var(--vg-space-2);
+  padding: 0 var(--vg-space-2);
+  color: var(--vg-ink-500);
+  font-size: 11px;
+  font-weight: 850;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-2);
-  padding: 0 var(--space-2);
 }
 
 .fieldGrid {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--vg-space-1);
 }
 
 .fieldRow {
   display: grid;
   grid-template-columns: 18px 100px 1fr;
-  gap: var(--space-2);
+  gap: var(--vg-space-2);
   align-items: center;
-  padding: 6px var(--space-2);
-  border-radius: var(--radius-sm);
-  transition: background var(--transition-fast);
+  padding: 6px var(--vg-space-2);
+  border-radius: var(--vg-radius-sm);
+  transition: background var(--vg-duration-fast) var(--vg-ease-out);
 }
 
 .fieldRow:hover {
-  background-color: var(--color-bg-secondary);
+  background: rgba(50, 125, 91, 0.07);
 }
 
 .fieldIcon {
-  color: var(--color-primary);
+  color: var(--vg-leaf-700);
   display: flex;
   align-items: center;
 }
 
 .fieldLabel {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  font-weight: 600;
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-xs);
+  font-weight: 700;
 }
 
 .fieldValue {
-  font-size: var(--text-sm);
-  color: var(--color-text);
-  font-weight: 500;
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-sm);
+  font-weight: 700;
   word-break: break-word;
 }
 
 .fieldEmpty {
-  font-size: var(--text-sm);
-  color: hsl(0, 0%, 80%);
+  color: var(--vg-ink-300);
+  font-size: var(--vg-text-sm);
   font-style: italic;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .divider {
   height: 1px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--color-border-light),
-    transparent
-  );
-  margin: var(--space-4) 0;
+  margin: var(--vg-space-4) 0;
+  background: linear-gradient(to right, transparent, var(--vg-parchment-200), transparent);
 }
 
-@media (max-width: 600px) {
-  .fieldRow {
-    grid-template-columns: 18px 1fr;
-    gap: var(--space-1);
-  }
-  .fieldLabel {
-    grid-column: 1 / -1;
-    padding-left: 26px;
-  }
-}
-
-/* ── Tech Section ── */
 .techSection {
-  background: linear-gradient(
-    135deg,
-    var(--color-bg-card) 0%,
-    var(--color-primary-50) 100%
-  );
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6);
+  padding: var(--vg-space-6);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(238, 247, 239, 0.8)),
+    var(--vg-glass-bg);
 }
 
 .techGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-3);
+  gap: var(--vg-space-3);
+  margin-top: var(--vg-space-3);
 }
 
 .techCard {
-  background: var(--color-bg-card);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  text-align: left;
-  border: 1px solid var(--color-border-light);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  gap: var(--vg-space-1);
+  padding: var(--vg-space-4);
+  border: 1px solid var(--vg-parchment-200);
+  border-radius: var(--vg-radius-md);
+  background: rgba(255, 255, 255, 0.72);
+  text-align: left;
+  transition:
+    transform var(--vg-duration-fast) var(--vg-ease-out),
+    box-shadow var(--vg-duration-fast) var(--vg-ease-out);
 }
 
 .techCard:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary-100);
+  transform: translateY(-2px);
+  box-shadow: var(--vg-shadow-2);
 }
 
 .techIcon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--vg-space-2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background-color: var(--color-primary-50);
-  color: var(--color-primary-dark);
-  margin-bottom: var(--space-2);
+  border-radius: var(--vg-radius-md);
+  background: rgba(50, 125, 91, 0.1);
+  color: var(--vg-leaf-800);
 }
 
 .techName {
-  font-weight: 700;
-  color: var(--color-text);
-  font-size: var(--text-sm);
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-sm);
+  font-weight: 850;
 }
 
 .techDesc {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-xs);
 }
 
-/* ── Project Info ── */
 .projectSection {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6);
+  padding: var(--vg-space-6);
 }
 
 .projectGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-4);
-  margin-top: var(--space-3);
+  gap: var(--vg-space-4);
+  margin-top: var(--vg-space-3);
 }
 
 .projectItem {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-light);
+  gap: var(--vg-space-1);
+  padding: var(--vg-space-3) var(--vg-space-4);
+  border: 1px solid var(--vg-parchment-200);
+  border-radius: var(--vg-radius-md);
+  background: rgba(251, 250, 246, 0.78);
 }
 
 .projectLabel {
-  font-size: 0.65rem;
-  font-weight: 700;
+  color: var(--vg-ink-500);
+  font-size: 11px;
+  font-weight: 850;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
 }
 
 .projectValue {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text);
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-sm);
+  font-weight: 800;
 }
 
 .projectValueMuted {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-sm);
   font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .fieldRow {
+    grid-template-columns: 18px 1fr;
+    gap: var(--vg-space-1);
+  }
+
+  .fieldLabel {
+    grid-column: 1 / -1;
+    padding-left: 26px;
+  }
 }

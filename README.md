@@ -107,3 +107,17 @@ npm run docker:prod
 - **Mobile:** Capacitor (iOS + Android), chia sẻ DB types với Web
 - **Backend:** Supabase (PostgreSQL, Auth, Edge Functions, RLS)
 - **Deploy:** Vercel (Web), Docker Hub (Container), GitHub Actions (CI/CD)
+
+## Đội ngũ phát triển (Development Team)
+
+Dự án được thực hiện bởi nhóm sinh viên MIS - Đại học Tôn Đức Thắng. Đây là sản phẩm demo cho giải pháp doanh nghiệp, nghiêm cấm các hành vi sao chép và sử dụng trái phép.
+
+| Thành viên | MSSV | Vai trò & Liên hệ | Công cụ |
+|---|---|---|---|
+| **Trần Thảo My** | 52300129 | pascallaem@gmail.com | Github/Supabase/Vercel/Docker/Snyk: `tranthaomy901`<br/>Redis: `22 .Trần Thảo` |
+| **Huỳnh Nguyễn Quốc Việt** | 52300267 | quocvietcndc@gmail.com | Github/Supabase/Sentry/Snyk: `Vinsmoke-Visconti`<br/>Vercel: `vinsmoke-visconti`<br/>Redis: `viet quoc`<br/>Docker: `viscontivinsmoke` |
+| **Phạm Hoài Thương** | 52300262 | binmin81@gmail.com | Github/Supabase/Vercel/Redis/Docker/Snyk: `Terrykozte` |
+| **(Đang cập nhật)** | - | - | - |
+
+---
+*© 2026 VeganGlow. All rights reserved.*

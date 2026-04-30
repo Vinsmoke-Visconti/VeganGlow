@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { cacheDelete } from '@/lib/redis';
+import { logAction } from '@/lib/admin/audit';
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -54,6 +55,16 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
     const before = await getProductCacheRow(id);
     const { error } = await supabase.from('products').update(rest as never).eq('id', id);
     if (error) return { ok: false, error: error.message };
+
+    await logAction({
+      resource_type: 'products',
+      resource_id: id,
+      action: 'Update Product',
+      entity: input.name,
+      entity_id: id,
+      summary: `Cập nhật thông tin sản phẩm: ${input.name}`
+    });
+
     await invalidateProductCache(id, before, rest);
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
@@ -68,7 +79,18 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
       .select('id')
       .single();
     if (error) return { ok: false, error: error.message };
-    await invalidateProductCache((data as { id: string }).id, null, rest);
+
+    const newId = (data as { id: string }).id;
+    await logAction({
+      resource_type: 'products',
+      resource_id: newId,
+      action: 'Create Product',
+      entity: input.name,
+      entity_id: newId,
+      summary: `Tạo sản phẩm mới: ${input.name}`
+    });
+
+    await invalidateProductCache(newId, null, rest);
     revalidatePath('/admin/products');
     return { ok: true, id: (data as { id: string }).id };
   }
@@ -77,8 +99,22 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
 export async function deleteProduct(id: string): Promise<Result> {
   const supabase = await createClient();
   const before = await getProductCacheRow(id);
+  
+  // Get name for log before delete
+  const { data: p } = await supabase.from('products').select('name').eq('id', id).maybeSingle() as any;
+
   const { error } = await supabase.from('products').delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
+
+  await logAction({
+    resource_type: 'products',
+    resource_id: id,
+    action: 'Delete Product',
+    entity: p?.name || 'Unknown',
+    entity_id: id,
+    summary: `Xóa sản phẩm: ${p?.name || id}`
+  });
+
   await invalidateProductCache(id, before, null);
   revalidatePath('/admin/products');
   return { ok: true };
@@ -87,11 +123,24 @@ export async function deleteProduct(id: string): Promise<Result> {
 export async function toggleProductActive(id: string, isActive: boolean): Promise<Result> {
   const supabase = await createClient();
   const before = await getProductCacheRow(id);
+  
+  const { data: p } = await supabase.from('products').select('name').eq('id', id).maybeSingle() as any;
+
   const { error } = await supabase
     .from('products')
     .update({ is_active: isActive } as never)
     .eq('id', id);
   if (error) return { ok: false, error: error.message };
+
+  await logAction({
+    resource_type: 'products',
+    resource_id: id,
+    action: isActive ? 'Activate Product' : 'Deactivate Product',
+    entity: p?.name || 'Unknown',
+    entity_id: id,
+    summary: `${isActive ? 'Kích hoạt' : 'Ẩn'} sản phẩm: ${p?.name || id}`
+  });
+
   await invalidateProductCache(id, before, before);
   revalidatePath('/admin/products');
   if (before?.slug) revalidatePath(`/products/${before.slug}`);

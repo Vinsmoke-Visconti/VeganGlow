@@ -5,6 +5,8 @@ import { Plus, Edit, Trash2, X, Loader2, Ticket, Copy } from 'lucide-react';
 import { upsertVoucher, deleteVoucher } from '@/app/actions/admin/marketing';
 import { formatVND, formatDateShort } from '@/lib/admin/format';
 import shared from '../../admin-shared.module.css';
+import styles from '../marketing.module.css';
+import { AdminViewSwitcher, ViewMode } from '../../_components/AdminViewSwitcher';
 
 type Voucher = {
   id: string;
@@ -52,6 +54,7 @@ export function VouchersTab({ vouchers }: { vouchers: Voucher[] }) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   const [form, setForm] = useState({
     code: '',
@@ -139,7 +142,7 @@ export function VouchersTab({ vouchers }: { vouchers: Voucher[] }) {
   return (
     <>
       <div className={shared.toolbar}>
-        <p style={{ color: 'var(--vg-ink-500)', margin: 0 }}>{vouchers.length} voucher</p>
+        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
         <button type="button" onClick={openCreate} className={`${shared.btn} ${shared.btnPrimary}`}>
           <Plus size={14} /> Tạo voucher
         </button>
@@ -152,7 +155,7 @@ export function VouchersTab({ vouchers }: { vouchers: Voucher[] }) {
           </div>
           <p className={shared.emptyTitle}>Chưa có voucher</p>
         </div>
-      ) : (
+      ) : viewMode === 'table' ? (
         <div className={shared.tableWrap}>
           <table className={shared.table}>
             <thead>
@@ -222,6 +225,59 @@ export function VouchersTab({ vouchers }: { vouchers: Voucher[] }) {
               ))}
             </tbody>
           </table>
+        </div>
+      ) : (
+        <div className={styles.voucherGrid}>
+          {vouchers.map((v) => {
+            const usagePercent = v.quota ? Math.min(100, (v.used_count / v.quota) * 100) : 0;
+            return (
+              <div key={v.id} className={styles.voucherCard}>
+                <div className={styles.voucherLeft}>
+                  <div className={styles.voucherIcon}>
+                    <Ticket size={20} />
+                  </div>
+                  <div className={styles.voucherDashed} />
+                </div>
+                <div className={styles.voucherBody}>
+                  <div className={styles.voucherTop}>
+                    <div className={styles.voucherCode}>{v.code}</div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => openEdit(v)} className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`} style={{ width: 28, height: 28 }}>
+                        <Edit size={12} />
+                      </button>
+                      <button onClick={() => remove(v)} className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`} style={{ width: 28, height: 28 }}>
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                  <h4 className={styles.voucherTitle}>{v.title}</h4>
+                  <div className={styles.voucherMeta}>
+                    <span style={{ fontWeight: 800, color: 'var(--vg-leaf-700)' }}>
+                      {v.discount_type === 'percent' ? `${v.discount_value}% OFF` : `GIẢM ${formatVND(v.discount_value)}`}
+                    </span>
+                    <span className={styles.voucherDot}>•</span>
+                    <span>Min {formatVND(v.min_order)}</span>
+                  </div>
+                  {v.quota > 0 && (
+                    <div className={styles.voucherProgress}>
+                      <div className={styles.voucherProgressBar}>
+                        <div className={styles.voucherProgressFill} style={{ width: `${usagePercent}%` }} />
+                      </div>
+                      <span className={styles.voucherProgressLabel}>{v.used_count}/{v.quota}</span>
+                    </div>
+                  )}
+                  <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                     <span className={`${shared.badge} ${shared[STATUS_BADGE[v.status]]}`} style={{ fontSize: 10 }}>
+                        {STATUS_LABEL[v.status]}
+                     </span>
+                     <span style={{ fontSize: 10, color: 'var(--vg-ink-400)' }}>
+                       {v.expires_at ? `Hết hạn: ${formatDateShort(v.expires_at)}` : 'Vô thời hạn'}
+                     </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

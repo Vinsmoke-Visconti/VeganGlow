@@ -14,13 +14,13 @@ export default async function EditProductPage({ params }: Props) {
 
   return (
     <div className={shared.page}>
-      <Link href="/admin/products" className={`${shared.btn} ${shared.btnGhost}`}>
-        <ChevronLeft size={14} /> Danh sách sản phẩm
+      <Link href="/admin/products" className={`${shared.btn} ${shared.btnGhost}`} style={{ width: 'fit-content' }}>
+        <ChevronLeft size={16} /> Quay lại danh sách
       </Link>
-      <div className={shared.pageHeader} style={{ marginTop: 12 }}>
+      <div className={shared.pageHeader} style={{ marginTop: 20, marginBottom: 0 }}>
         <div>
           <h1 className={shared.pageTitle}>{product.name}</h1>
-          <p className={shared.pageSubtitle}>Chỉnh sửa thông tin sản phẩm</p>
+          <p className={shared.pageSubtitle}>ID: {product.id.slice(0, 8).toUpperCase()} · Cập nhật lần cuối: {new Date(product.updated_at || product.created_at).toLocaleDateString('vi-VN')}</p>
         </div>
       </div>
       <ProductForm

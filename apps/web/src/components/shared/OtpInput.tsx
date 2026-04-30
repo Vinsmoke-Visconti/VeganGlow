@@ -43,7 +43,7 @@ export default function OtpInput({ value, onChange, disabled }: OtpInputProps) {
     const pastedData = e.clipboardData.getData('text').slice(0, 6);
     if (!/^\d+$/.test(pastedData)) return;
     onChange(pastedData);
-    
+
     // Focus last input or first empty
     const nextIndex = Math.min(pastedData.length, 5);
     inputs.current[nextIndex]?.focus();
@@ -54,7 +54,9 @@ export default function OtpInput({ value, onChange, disabled }: OtpInputProps) {
       {otpArray.map((digit, i) => (
         <input
           key={i}
-          ref={(el) => (inputs.current[i] = el)}
+          ref={(el) => {
+            inputs.current[i] = el;
+          }}
           type="text"
           inputMode="numeric"
           autoComplete="one-time-code"

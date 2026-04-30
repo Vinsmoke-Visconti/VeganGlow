@@ -5,6 +5,7 @@ import { Plus, Edit, Trash2, X, Loader2, Tag } from 'lucide-react';
 import { upsertCategory, deleteCategory } from '@/app/actions/admin/categories';
 import { slugify } from '@/lib/admin/format';
 import shared from '../../admin-shared.module.css';
+import { AdminViewSwitcher, ViewMode } from '../../_components/AdminViewSwitcher';
 
 type Category = {
   id: string;
@@ -21,6 +22,7 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
   const [slug, setSlug] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   function openCreate() {
     setEditing(null);
@@ -70,7 +72,7 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
   return (
     <>
       <div className={shared.toolbar}>
-        <div />
+        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
         <button type="button" className={`${shared.btn} ${shared.btnPrimary}`} onClick={openCreate}>
           <Plus size={14} /> Thêm danh mục
         </button>
@@ -83,7 +85,7 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
           </div>
           <p className={shared.emptyTitle}>Chưa có danh mục</p>
         </div>
-      ) : (
+      ) : viewMode === 'table' ? (
         <div className={shared.tableWrap}>
           <table className={shared.table}>
             <thead>
@@ -96,7 +98,11 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
             </thead>
             <tbody>
               {categories.map((c) => (
-                <tr key={c.id}>
+                <tr 
+                  key={c.id} 
+                  className={shared.clickableRow}
+                  onClick={() => openEdit(c)}
+                >
                   <td>
                     <strong>{c.name}</strong>
                   </td>
@@ -106,7 +112,7 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
                   <td>
                     <span className={`${shared.badge} ${shared.badgeMuted}`}>{c.product_count}</span>
                   </td>
-                  <td>
+                  <td onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       onClick={() => openEdit(c)}
@@ -129,6 +135,39 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
               ))}
             </tbody>
           </table>
+        </div>
+      ) : (
+        <div className={shared.cardGrid}>
+          {categories.map((c) => (
+            <div key={c.id} className={shared.adminCard} style={{ cursor: 'pointer' }} onClick={() => openEdit(c)}>
+              <div className={shared.adminCardHeader}>
+                <h3 className={shared.adminCardTitle}>{c.name}</h3>
+                <span className={`${shared.badge} ${shared.badgeMuted}`}>{c.product_count} SP</span>
+              </div>
+              <div className={shared.adminCardContent}>
+                <code style={{ fontSize: 11, color: 'var(--vg-ink-400)' }}>/{c.slug}</code>
+              </div>
+              <div className={shared.adminCardFooter}>
+                <div className={shared.pageActions}>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); openEdit(c); }}
+                    className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
+                  >
+                    <Edit size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); remove(c); }}
+                    disabled={pending}
+                    className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

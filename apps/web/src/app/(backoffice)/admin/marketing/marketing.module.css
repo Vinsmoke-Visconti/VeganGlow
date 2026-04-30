@@ -1,254 +1,240 @@
 /* ============================================
-   VeganGlow Admin — Marketing Page
+   VeganGlow Admin - Marketing
    ============================================ */
 
-/* ── Tabs ── */
 .tabs {
   display: flex;
-  gap: var(--space-2);
-  border-bottom: 1px solid var(--color-border-light);
-  padding: 0 var(--space-2);
+  gap: var(--vg-space-2);
+  padding: var(--vg-space-2);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--vg-radius-pill);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--vg-shadow-1);
+  overflow-x: auto;
 }
 
 .tab {
+  min-height: 38px;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  border: none;
+  justify-content: center;
+  gap: var(--vg-space-2);
+  padding: 0 var(--vg-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--vg-radius-pill);
   background: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all var(--transition-fast);
+  color: var(--vg-ink-500);
   font-family: inherit;
-  margin-bottom: -1px;
+  font-size: var(--vg-text-sm);
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--vg-duration-fast) var(--vg-ease-out);
 }
 
 .tab:hover {
-  color: var(--color-primary-dark);
+  background: var(--vg-leaf-50);
+  color: var(--vg-leaf-900);
 }
 
 .tabActive {
-  color: var(--color-primary-dark);
-  border-bottom-color: var(--color-primary);
-  font-weight: 600;
+  background: var(--vg-leaf-700);
+  border-color: var(--vg-leaf-700);
+  color: #fff;
 }
 
-/* ── Voucher Cards ── */
-.voucherGrid {
+.voucherGrid,
+.bannerGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: var(--space-4);
+  gap: var(--vg-space-4);
+}
+
+.voucherGrid {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+
+.bannerGrid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.voucherCard,
+.bannerCard {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(251, 250, 246, 0.76)),
+    var(--vg-glass-bg);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--vg-radius-lg);
+  box-shadow: var(--vg-shadow-1);
+  overflow: hidden;
+  transition:
+    transform var(--vg-duration-fast) var(--vg-ease-out),
+    box-shadow var(--vg-duration-fast) var(--vg-ease-out),
+    border-color var(--vg-duration-fast) var(--vg-ease-out);
 }
 
 .voucherCard {
   display: flex;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
 }
 
-.voucherCard:hover {
-  box-shadow: var(--shadow-md);
+.voucherCard:hover,
+.bannerCard:hover {
   transform: translateY(-2px);
-  border-color: var(--color-primary-100);
+  border-color: rgba(50, 125, 91, 0.22);
+  box-shadow: var(--vg-shadow-2);
 }
 
 .voucherLeft {
+  min-width: 86px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-5) var(--space-3);
-  background: linear-gradient(180deg, var(--color-primary-50), var(--color-primary-100));
+  padding: var(--vg-space-5) var(--vg-space-3);
+  background:
+    linear-gradient(180deg, rgba(238, 247, 239, 0.95), rgba(212, 236, 214, 0.76)),
+    var(--vg-leaf-50);
   position: relative;
   flex-shrink: 0;
 }
 
-[data-theme='dark'] .voucherLeft {
-  background: linear-gradient(180deg, var(--color-bg-secondary), var(--color-bg));
-}
-
 .voucherIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-card);
-  color: var(--color-primary-dark);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--vg-radius-md);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--vg-leaf-800);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--vg-shadow-1);
 }
 
 .voucherDashed {
   position: absolute;
   right: 0;
-  top: 8px;
-  bottom: 8px;
-  width: 1px;
-  border-right: 1.5px dashed var(--color-border);
+  top: var(--vg-space-3);
+  bottom: var(--vg-space-3);
+  border-right: 1.5px dashed rgba(50, 125, 91, 0.25);
+}
+
+.voucherBody,
+.bannerBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vg-space-2);
+  min-width: 0;
 }
 
 .voucherBody {
   flex: 1;
-  padding: var(--space-4) var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
+  padding: var(--vg-space-4) var(--vg-space-5);
 }
 
-.voucherTop {
+.voucherTop,
+.bannerTop {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--vg-space-3);
 }
 
 .voucherCode {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: var(--text-base);
-  font-weight: 800;
-  color: var(--color-primary-dark);
-  background: var(--color-primary-50);
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: var(--vg-radius-sm);
+  background: rgba(50, 125, 91, 0.1);
+  color: var(--vg-leaf-900);
+  font-family: var(--vg-font-mono);
+  font-size: var(--vg-text-sm);
+  font-weight: 900;
   letter-spacing: 0.04em;
 }
 
-[data-theme='dark'] .voucherCode {
-  background: var(--color-bg-secondary);
+.voucherTitle,
+.bannerTitle {
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-base);
+  font-weight: 800;
+  line-height: 1.35;
 }
 
-.voucherTitle {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.voucherMeta {
+.voucherMeta,
+.bannerMeta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  gap: var(--vg-space-2);
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-xs);
 }
 
 .voucherDot {
-  color: var(--color-border);
-  margin: 0 4px;
+  color: var(--vg-parchment-200);
 }
 
 .voucherProgress {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+  gap: var(--vg-space-2);
+  margin-top: var(--vg-space-2);
 }
 
 .voucherProgressBar {
   flex: 1;
-  height: 6px;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-full);
+  height: 7px;
+  border-radius: var(--vg-radius-pill);
+  background: var(--vg-parchment-100);
   overflow: hidden;
 }
 
 .voucherProgressFill {
   height: 100%;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-full);
-  transition: width var(--transition-base);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--vg-leaf-500), var(--vg-gold-500));
+  transition: width var(--vg-duration-base) var(--vg-ease-out);
 }
 
 .voucherProgressLabel {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  font-weight: 600;
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-xs);
+  font-weight: 800;
   white-space: nowrap;
 }
 
-/* ── Banner Cards ── */
-.bannerGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--space-5);
-}
-
-.bannerCard {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
-}
-
-.bannerCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
 .bannerCover {
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 150px;
+  display: grid;
+  place-items: center;
   position: relative;
+  background: var(--vg-leaf-100);
+}
+
+.bannerCover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(15, 20, 17, 0.16));
 }
 
 .bannerCoverIcon {
-  color: white;
-  opacity: 0.7;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  color: #fff;
+  opacity: 0.78;
+  filter: drop-shadow(0 8px 18px rgba(15, 20, 17, 0.22));
 }
 
 .bannerBody {
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.bannerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.bannerTitle {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-text);
-  font-family: var(--font-body);
-  flex: 1;
-  min-width: 0;
+  padding: var(--vg-space-5);
 }
 
 .bannerDesc {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
+  color: var(--vg-ink-600, var(--vg-ink-500));
+  font-size: var(--vg-text-sm);
+  line-height: var(--vg-leading-normal);
 }
 
 .bannerMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-top: var(--space-1);
-  padding-top: var(--space-3);
-  border-top: 1px dashed var(--color-border-light);
+  margin-top: var(--vg-space-1);
+  padding-top: var(--vg-space-3);
+  border-top: 1px dashed var(--vg-parchment-200);
 }
 
 .bannerMetaItem {
@@ -259,20 +245,39 @@
 
 .bannerActions {
   display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+  gap: var(--vg-space-2);
+  margin-top: var(--vg-space-2);
+  flex-wrap: wrap;
 }
 
-/* ── Note ── */
 .note {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  background: var(--color-bg-card);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  font-weight: 500;
+  gap: var(--vg-space-2);
+  padding: var(--vg-space-3) var(--vg-space-5);
+  border: 1px dashed rgba(50, 125, 91, 0.24);
+  border-radius: var(--vg-radius-lg);
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-xs);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .voucherGrid,
+  .bannerGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .voucherCard {
+    flex-direction: column;
+  }
+
+  .voucherLeft {
+    min-height: 74px;
+  }
+
+  .voucherDashed {
+    display: none;
+  }
 }

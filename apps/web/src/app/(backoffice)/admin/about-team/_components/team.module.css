@@ -1,22 +1,36 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: var(--vg-space-4);
 }
 
 .card {
-  background: var(--vg-glass-bg);
-  border: 1px solid var(--vg-glass-border);
-  border-radius: var(--vg-radius-lg);
-  padding: var(--vg-space-4);
-  box-shadow: var(--vg-shadow-1);
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--vg-space-3);
+  padding: var(--vg-space-4);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--vg-radius-lg);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(251, 250, 246, 0.76)),
+    var(--vg-glass-bg);
+  box-shadow: var(--vg-shadow-1);
+  transition:
+    transform var(--vg-duration-fast) var(--vg-ease-out),
+    box-shadow var(--vg-duration-fast) var(--vg-ease-out),
+    border-color var(--vg-duration-fast) var(--vg-ease-out);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(50, 125, 91, 0.22);
+  box-shadow: var(--vg-shadow-2);
 }
 
 .hidden {
-  opacity: 0.55;
+  opacity: 0.58;
 }
 
 .avatarWrap {
@@ -24,7 +38,8 @@
   aspect-ratio: 1 / 1;
   border-radius: var(--vg-radius-md);
   overflow: hidden;
-  background: var(--vg-leaf-100);
+  background:
+    linear-gradient(135deg, var(--vg-leaf-50), var(--vg-leaf-100));
   display: grid;
   place-items: center;
 }
@@ -36,36 +51,38 @@
 }
 
 .avatarFallback {
+  color: var(--vg-leaf-800);
   font-family: var(--vg-font-display);
   font-size: 56px;
-  color: var(--vg-leaf-700);
+  font-weight: 700;
 }
 
 .cardBody {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .cardName {
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-md);
   margin: 0;
   color: var(--vg-ink-900);
-  font-weight: 600;
+  font-family: var(--vg-font-display);
+  font-size: var(--vg-text-md);
+  font-weight: 700;
 }
 
 .cardRole {
-  font-size: var(--vg-text-xs);
-  color: var(--vg-leaf-700);
   margin: 0;
+  color: var(--vg-leaf-800);
+  font-size: var(--vg-text-xs);
+  font-weight: 850;
 }
 
 .cardBio {
-  font-size: var(--vg-text-sm);
-  color: var(--vg-ink-700);
   margin: 4px 0 0;
-  line-height: 1.4;
+  color: var(--vg-ink-700);
+  font-size: var(--vg-text-sm);
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -74,11 +91,11 @@
 
 .cardFooter {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--vg-space-1);
   margin-top: var(--vg-space-2);
   padding-top: var(--vg-space-2);
-  border-top: 1px solid var(--vg-parchment-100);
+  border-top: 1px solid var(--vg-parchment-200);
   flex-wrap: wrap;
-  gap: 4px;
 }

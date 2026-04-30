@@ -34,7 +34,63 @@ const EMPTY_FORM = {
 };
 
 export function TeamMembersClient({ members: initial }: { members: TeamMember[] }) {
-  const [members, setMembers] = useState<TeamMember[]>(initial);
+  // If DB is empty, use hardcoded authors for the demo
+  const HARDCODED_TEAM: TeamMember[] = [
+    {
+      id: 'author-1',
+      full_name: 'Trần Thảo My',
+      role_label: 'Hệ thống & Vận hành (MIS - 52300129)',
+      bio: 'Github/Supabase/Vercel/Docker/Snyk: tranthaomy901 | Redis: 22 .Trần Thảo',
+      avatar_url: null,
+      social_facebook: null,
+      social_instagram: null,
+      social_linkedin: null,
+      display_order: 1,
+      is_visible: true,
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 'author-2',
+      full_name: 'Huỳnh Nguyễn Quốc Việt',
+      role_label: 'Kiến trúc & Bảo mật (MIS - 52300267)',
+      bio: 'Github/Supabase/Sentry/Snyk: Vinsmoke-Visconti | Docker: viscontivinsmoke',
+      avatar_url: null,
+      social_facebook: null,
+      social_instagram: null,
+      social_linkedin: null,
+      display_order: 2,
+      is_visible: true,
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 'author-3',
+      full_name: 'Phạm Hoài Thương',
+      role_label: 'Phát triển Sản phẩm (MIS - 52300262)',
+      bio: 'Github/Supabase/Vercel/Redis/Docker/Snyk: Terrykozte',
+      avatar_url: null,
+      social_facebook: null,
+      social_instagram: null,
+      social_linkedin: null,
+      display_order: 3,
+      is_visible: true,
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 'author-4',
+      full_name: '(Đang cập nhật)',
+      role_label: 'Cố vấn chuyên môn',
+      bio: 'Thông tin đang được cập nhật cho phiên bản demo chính thức.',
+      avatar_url: null,
+      social_facebook: null,
+      social_instagram: null,
+      social_linkedin: null,
+      display_order: 4,
+      is_visible: true,
+      created_at: new Date().toISOString(),
+    }
+  ];
+
+  const [members, setMembers] = useState<TeamMember[]>(initial.length > 0 ? initial : HARDCODED_TEAM);
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -129,83 +185,102 @@ export function TeamMembersClient({ members: initial }: { members: TeamMember[] 
   return (
     <>
       <div className={shared.toolbar}>
-        <p style={{ color: 'var(--vg-ink-500)', margin: 0 }}>{members.length} thành viên</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className={shared.badge} style={{ background: 'var(--vg-leaf-100)', color: 'var(--vg-leaf-800)', border: '1px solid var(--vg-leaf-200)' }}>
+            <Sparkles size={12} /> BẢN QUYỀN DEMO SỞ HỮU TRÍ TUỆ
+          </div>
+          <p style={{ color: 'var(--vg-ink-500)', margin: 0, fontSize: 13 }}>{members.length} thành viên tham gia</p>
+        </div>
         <button type="button" onClick={openCreate} className={`${shared.btn} ${shared.btnPrimary}`}>
           <Plus size={14} /> Thêm thành viên
         </button>
       </div>
 
-      {members.length === 0 ? (
-        <div className={shared.emptyState}>
-          <div className={shared.emptyIcon}>
-            <Sparkles size={24} />
-          </div>
-          <p className={shared.emptyTitle}>Chưa có thành viên</p>
+      <div className={styles.premiumBanner}>
+        <div className={styles.bannerContent}>
+          <h2 className={styles.bannerTitle}>Hệ thống VeganGlow</h2>
+          <p className={styles.bannerText}>
+            Đây là sản phẩm demo dành cho doanh nghiệp, được phát triển và sở hữu bởi đội ngũ tác giả dưới đây. 
+            Mọi hành vi sao chép mã nguồn, giao diện hoặc ý tưởng kinh doanh mà không có sự đồng ý của tác giả đều bị coi là vi phạm bản quyền.
+          </p>
         </div>
-      ) : (
-        <div className={styles.grid}>
-          {members.map((m, i) => (
-            <div key={m.id} className={`${styles.card} ${!m.is_visible ? styles.hidden : ''}`}>
-              <div className={styles.avatarWrap}>
-                {m.avatar_url ? (
-                  <SafeImage src={m.avatar_url} alt={m.full_name} fallback="" className={styles.avatarImg} />
-                ) : (
-                  <div className={styles.avatarFallback}>{m.full_name.charAt(0)}</div>
-                )}
+      </div>
+      <div className={styles.teamGrid}>
+        {members.map((m, i) => (
+          <div key={m.id} className={`${styles.memberCard} ${!m.is_visible ? styles.hidden : ''}`}>
+            <div className={styles.memberCardBody}>
+              <div className={styles.memberHeader}>
+                <div className={styles.memberAvatar}>
+                  {m.avatar_url ? (
+                    <SafeImage src={m.avatar_url} alt={m.full_name} fallback="" className={styles.avatarImg} />
+                  ) : (
+                    <span>{m.full_name.charAt(0)}</span>
+                  )}
+                </div>
+                <div className={styles.memberHeaderText}>
+                  <h4 className={styles.memberTitle} style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{m.full_name}</h4>
+                  <span className={styles.memberRoleBadge}>{m.role_label}</span>
+                </div>
               </div>
-              <div className={styles.cardBody}>
-                <h4 className={styles.cardName}>{m.full_name}</h4>
-                <p className={styles.cardRole}>{m.role_label}</p>
-                {m.bio && <p className={styles.cardBio}>{m.bio}</p>}
-                <div className={styles.cardFooter}>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <button
-                      type="button"
-                      onClick={() => move(i, -1)}
-                      disabled={i === 0 || pending}
-                      className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
-                      aria-label="Lên"
-                    >
-                      <ArrowUp size={12} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => move(i, 1)}
-                      disabled={i === members.length - 1 || pending}
-                      className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
-                      aria-label="Xuống"
-                    >
-                      <ArrowDown size={12} />
-                    </button>
-                  </div>
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    <span
-                      className={`${shared.badge} ${m.is_visible ? shared.badgeSuccess : shared.badgeMuted}`}
-                    >
-                      {m.is_visible ? <Eye size={10} /> : <EyeOff size={10} />}
-                      {m.is_visible ? 'Hiển thị' : 'Ẩn'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => openEdit(m)}
-                      className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
-                    >
-                      <Edit size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => remove(m)}
-                      className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+
+              <div className={styles.fieldGrid}>
+                <div className={styles.fieldRow} style={{ display: 'block', padding: '8px 0' }}>
+                  <span className={styles.fieldLabel} style={{ display: 'block', marginBottom: 4 }}>Ghi chú / Tài khoản:</span>
+                  <p className={styles.fieldValue} style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>{m.bio}</p>
+                </div>
+              </div>
+
+              <div className={styles.divider} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0 || pending}
+                    className={`${shared.btn} ${shared.btnGhost}`}
+                    style={{ width: 28, height: 28, minWidth: 28, padding: 0 }}
+                  >
+                    <ArrowUp size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === members.length - 1 || pending}
+                    className={`${shared.btn} ${shared.btnGhost}`}
+                    style={{ width: 28, height: 28, minWidth: 28, padding: 0 }}
+                  >
+                    <ArrowDown size={12} />
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span
+                    className={`${shared.badge} ${m.is_visible ? shared.badgeSuccess : shared.badgeMuted}`}
+                  >
+                    {m.is_visible ? 'Hiển thị' : 'Ẩn'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => openEdit(m)}
+                    className={`${shared.btn} ${shared.btnGhost}`}
+                    style={{ width: 32, height: 32, padding: 0 }}
+                  >
+                    <Edit size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => remove(m)}
+                    className={`${shared.btn} ${shared.btnGhost}`}
+                    style={{ width: 32, height: 32, padding: 0 }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
 
       {open && (
         <div className={shared.modalBackdrop} onClick={() => setOpen(false)}>

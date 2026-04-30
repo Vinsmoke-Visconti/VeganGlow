@@ -1,40 +1,46 @@
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--vg-space-4);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  gap: var(--vg-space-5);
   margin-bottom: var(--vg-space-5);
 }
 
 .card {
-  background: var(--vg-glass-bg);
-  border: 1px solid var(--vg-glass-border);
-  border-radius: var(--vg-radius-lg);
-  padding: var(--vg-space-5);
-  box-shadow: var(--vg-shadow-1);
   margin-bottom: var(--vg-space-4);
+  padding: var(--vg-space-5);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--vg-radius-xl);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(251, 250, 246, 0.76)),
+    var(--vg-glass-bg);
+  box-shadow: var(--vg-shadow-1);
   backdrop-filter: blur(var(--vg-glass-blur));
 }
 
 .cardTitle {
+  margin: 0 0 var(--vg-space-4);
+  color: var(--vg-ink-900);
   font-family: var(--vg-font-display);
   font-size: var(--vg-text-lg);
-  margin: 0 0 var(--vg-space-3);
-  color: var(--vg-ink-900);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cardLine {
-  margin: 4px 0;
+  margin: 7px 0;
   color: var(--vg-ink-700);
   font-size: var(--vg-text-base);
+  line-height: var(--vg-leading-normal);
 }
 
 .cardLine strong {
   color: var(--vg-ink-900);
+  font-weight: 850;
 }
 
 .totalRow td {
-  background: var(--vg-parchment-50);
+  background: linear-gradient(90deg, rgba(238, 247, 239, 0.78), rgba(251, 250, 246, 0.86));
+  color: var(--vg-ink-900) !important;
+  font-weight: 850;
 }
 
 @media (max-width: 768px) {

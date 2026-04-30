@@ -12,6 +12,7 @@ export default function NewsletterForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
+
     setSubmitting(true);
     setStatus(null);
 
@@ -43,13 +44,7 @@ export default function NewsletterForm() {
         </button>
       </div>
       {status && (
-        <p
-          style={{
-            marginTop: '0.5rem',
-            fontSize: '0.85rem',
-            color: status.ok ? '#a7f3d0' : '#fecaca',
-          }}
-        >
+        <p className={status.ok ? styles.newsletterStatusSuccess : styles.newsletterStatusError}>
           {status.message}
         </p>
       )}
