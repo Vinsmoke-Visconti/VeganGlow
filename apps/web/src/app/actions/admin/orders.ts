@@ -10,6 +10,11 @@ type ManualConfirmResult =
 
 export type OrderStatus = 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
 
+type HasPermissionRpc = (
+  fn: 'has_permission',
+  args: { p_module: string; p_action: string },
+) => Promise<{ data: boolean | null; error: { message: string } | null }>;
+
 const NEXT_STATUSES: Record<OrderStatus, OrderStatus[]> = {
   pending: ['confirmed', 'cancelled'],
   confirmed: ['shipping', 'cancelled'],
@@ -18,19 +23,20 @@ const NEXT_STATUSES: Record<OrderStatus, OrderStatus[]> = {
   cancelled: [],
 };
 
-type HasPermissionRpc = (
-  fn: 'has_permission',
-  args: { p_module: string; p_action: string },
-) => Promise<{ data: boolean | null; error: { message: string } | null }>;
-
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<Result> {
   const supabase = await createClient();
-  const hasPermission = supabase.rpc as unknown as HasPermissionRpc;
+  const hasPermission = supabase.rpc.bind(supabase) as unknown as HasPermissionRpc;
 
-  const [{ data: canWrite }, { data: isSuperAdmin }] = await Promise.all([
+  const [permissionRes, superAdminRes] = await Promise.all([
     hasPermission('has_permission', { p_module: 'orders', p_action: 'write' }),
     supabase.rpc('is_super_admin'),
   ]);
+
+  if (permissionRes.error) return { ok: false, error: permissionRes.error.message };
+  if (superAdminRes.error) return { ok: false, error: superAdminRes.error.message };
+
+  const canWrite = Boolean(permissionRes.data);
+  const isSuperAdmin = Boolean(superAdminRes.data);
 
   if (!canWrite && !isSuperAdmin) {
     return { ok: false, error: 'Bạn không có quyền cập nhật đơn hàng.' };
@@ -71,6 +77,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
     .update({ status } as never)
     .eq('id', id);
   if (error) return { ok: false, error: error.message };
+
   revalidatePath('/admin/orders');
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath('/admin');
@@ -101,13 +108,16 @@ export async function adminConfirmBankTransferPayment(
   note?: string,
 ): Promise<ManualConfirmResult> {
   const supabase = await createClient();
-  const { data: isSuperAdmin } = await supabase.rpc('is_super_admin');
+  const { data: isSuperAdmin, error: superAdminError } = await supabase.rpc('is_super_admin');
+
+  if (superAdminError) return { ok: false, error: superAdminError.message };
   if (!isSuperAdmin) {
     return { ok: false, error: 'Chỉ super admin được xác nhận thanh toán thủ công.' };
   }
 
   const trimmedNote = (note ?? '').trim();
-  const { data, error } = await (supabase.rpc as unknown as AdminConfirmRpc)(
+  const confirmPayment = supabase.rpc.bind(supabase) as unknown as AdminConfirmRpc;
+  const { data, error } = await confirmPayment(
     'admin_confirm_bank_transfer_payment',
     { p_order_id: id, p_note: trimmedNote.length > 0 ? trimmedNote : null },
   );

@@ -142,7 +142,7 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
               width={400}
               height={400}
               className={styles.image}
-              loading="lazy"
+              priority={product.id === 'lcp-1' || product.id === 'lcp-2'} 
               unoptimized
             />
           ) : (

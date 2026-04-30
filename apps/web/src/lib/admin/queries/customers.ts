@@ -4,6 +4,8 @@ export type CustomerListFilters = { q?: string };
 
 export type CustomerListRow = {
   id: string;
+  customer_code: string | null;
+  username: string | null;
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;
@@ -14,6 +16,8 @@ export type CustomerListRow = {
 
 type ProfileRow = {
   id: string;
+  customer_code: string | null;
+  username: string | null;
   full_name: string | null;
   avatar_url: string | null;
   created_at: string;
@@ -36,14 +40,19 @@ function countsAsCustomerSpend(order: OrderAggRow): boolean {
 
 export async function listCustomers(filters: CustomerListFilters = {}): Promise<CustomerListRow[]> {
   const supabase = await createClient();
-  let q = supabase
+  let query = supabase
     .from('profiles')
-    .select('id, full_name, avatar_url, created_at')
+    .select('id, customer_code, username, full_name, avatar_url, created_at')
     .eq('role', 'customer')
     .order('created_at', { ascending: false })
     .limit(500);
-  if (filters.q) q = q.ilike('full_name', `%${filters.q}%`);
-  const { data: profiles } = await q;
+
+  if (filters.q) {
+    const searchTerm = `%${filters.q}%`;
+    query = query.or(`full_name.ilike.${searchTerm},username.ilike.${searchTerm},customer_code.ilike.${searchTerm}`);
+  }
+
+  const { data: profiles } = await query;
   const profileRows = (profiles ?? []) as ProfileRow[];
   const ids = profileRows.map((p) => p.id);
   if (ids.length === 0) return [];
@@ -70,6 +79,8 @@ export async function listCustomers(filters: CustomerListFilters = {}): Promise<
     const agg = aggregates.get(p.id);
     return {
       id: p.id,
+      customer_code: p.customer_code,
+      username: p.username,
       full_name: p.full_name,
       avatar_url: p.avatar_url,
       created_at: p.created_at,

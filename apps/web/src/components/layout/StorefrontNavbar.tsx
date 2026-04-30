@@ -1,15 +1,15 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { useCart } from '@/context/CartContext';
 import styles from '@/app/(storefront)/storefront-layout.module.css';
-import { ShoppingBag, User as UserIcon, Menu, X, Search, Heart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
 import { createBrowserClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Heart, Menu, Search, ShoppingBag, Sparkles, User as UserIcon, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type NavbarProfile = { username: string | null; avatar_url: string | null };
 
@@ -48,7 +48,7 @@ export default function StorefrontNavbar() {
 
   useEffect(() => {
     const supabase = createBrowserClient();
-    
+
     const fetchProfile = async (userId: string) => {
       const { data } = await supabase
         .from('profiles')
@@ -111,7 +111,7 @@ export default function StorefrontNavbar() {
             <Link href="/search" className={styles.iconBtn} aria-label="Tìm kiếm">
               <Search size={20} />
             </Link>
-            
+
             <Link href="/wishlist" className={styles.iconBtn} aria-label="Yêu thích">
               <Heart size={20} />
             </Link>
@@ -152,16 +152,22 @@ export default function StorefrontNavbar() {
                       unoptimized
                     />
                   ) : (
-                    <UserIcon size={16} />
+                    <UserIcon size={14} />
                   )}
                 </div>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary-dark)' }}>
+                <span>
                   {profile?.username || 'Tài khoản'}
                 </span>
               </Link>
             ) : (
               <Link href="/login" className={styles.loginBtn}>
-                Tham gia ngay
+                <motion.span
+                  initial={{ opacity: 0.8 }}
+                  whileHover={{ opacity: 1, x: 2 }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                >
+                  Tham gia ngay <Sparkles size={14} />
+                </motion.span>
               </Link>
             )}
 
@@ -198,7 +204,7 @@ export default function StorefrontNavbar() {
                   <X size={24} />
                 </button>
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {NAV_LINKS.map((l) => (
                   <Link

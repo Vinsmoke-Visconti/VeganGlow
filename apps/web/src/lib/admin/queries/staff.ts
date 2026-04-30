@@ -8,7 +8,7 @@ export type StaffRow = {
   position: string | null;
   is_active: boolean;
   created_at: string;
-  role: { id: string; name: string; display_name: string } | null;
+  role: { id: string; name: string; display_name: string; weight: number } | null;
 };
 
 export type InvitationRow = {
@@ -26,7 +26,7 @@ export async function listStaff(): Promise<StaffRow[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('staff_profiles')
-    .select('id, full_name, email, department, position, is_active, created_at, role:roles(id, name, display_name)')
+    .select('id, full_name, email, department, position, is_active, created_at, role:roles(id, name, display_name, weight)')
     .order('created_at', { ascending: false });
   return (data ?? []) as unknown as StaffRow[];
 }
@@ -52,7 +52,7 @@ export async function getMyStaffProfile() {
   if (!user) return null;
   const { data } = await supabase
     .from('staff_profiles')
-    .select('id, full_name, first_name, last_name, username, email, department, position, bio, avatar_url, role:roles(display_name)')
+    .select('id, full_name, first_name, last_name, username, email, department, position, bio, avatar_url, role:roles(id, name, display_name, weight)')
     .eq('id', user.id)
     .maybeSingle();
   return data;

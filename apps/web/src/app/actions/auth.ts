@@ -5,13 +5,26 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sendPasswordOtpEmail } from '@/lib/email';
+import { logAction } from '@/lib/admin/audit';
 
 export type AuthFormState = { error?: string } | null;
 
 type RpcUsernameToEmail = (
   fn: 'get_email_from_username',
   args: { p_username: string }
-) => Promise<{ data: string | null }>;
+) => Promise<{ data: string | null; error: { message: string } | null }>;
+
+type PasswordOtpPurpose = 'set_password' | 'change_password';
+
+type CreateOtpVerificationRpc = (
+  fn: 'create_otp_verification',
+  args: { p_user_id: string; p_email: string; p_purpose: PasswordOtpPurpose }
+) => Promise<{ data: string | null; error: { message: string } | null }>;
+
+type VerifyOtpRpc = (
+  fn: 'verify_otp',
+  args: { p_user_id: string; p_purpose: PasswordOtpPurpose; p_code: string }
+) => Promise<{ data: boolean | null; error: { message: string } | null }>;
 
 function safeRedirectPath(value: FormDataEntryValue | string | null, fallback = '/') {
   if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) {
@@ -58,7 +71,8 @@ export async function login(_prevState: AuthFormState, formData: FormData) {
   const supabase = await createClient();
 
   if (!identifier.includes('@')) {
-    const { data: resolvedEmail } = await (supabase.rpc as unknown as RpcUsernameToEmail)(
+    const getEmailFromUsername = supabase.rpc.bind(supabase) as unknown as RpcUsernameToEmail;
+    const { data: resolvedEmail } = await getEmailFromUsername(
       'get_email_from_username',
       { p_username: identifier }
     );
@@ -147,7 +161,8 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
   const supabase = await createClient();
 
   if (!identifier.includes('@')) {
-    const { data: resolvedEmail } = await (supabase.rpc as unknown as RpcUsernameToEmail)(
+    const getEmailFromUsername = supabase.rpc.bind(supabase) as any;
+    const { data: resolvedEmail } = await getEmailFromUsername(
       'get_email_from_username',
       { p_username: identifier }
     );
@@ -171,6 +186,12 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
     await supabase.auth.signOut();
     return { error: 'Tài khoản không có quyền truy cập hoặc mật khẩu không chính xác.' };
   }
+
+  await logAction({
+    resource_type: 'auth',
+    action: 'Admin Login',
+    summary: `Nhân sự đăng nhập hệ thống: ${identifier}`
+  });
 
   revalidatePath('/admin', 'layout');
   redirect('/admin');
@@ -198,7 +219,7 @@ export async function signInWithGitHub() {
 /**
  * Gửi mã OTP xác nhận
  */
-export async function requestPasswordOtp(purpose: 'set_password' | 'change_password') {
+export async function requestPasswordOtp(purpose: PasswordOtpPurpose) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -208,7 +229,8 @@ export async function requestPasswordOtp(purpose: 'set_password' | 'change_passw
 
   try {
     // Gọi RPC để tạo OTP (đã có logic Rate Limit 60s trong DB)
-    const { data: code, error: rpcError } = await supabase.rpc('create_otp_verification', {
+    const createOtpVerification = supabase.rpc.bind(supabase) as unknown as CreateOtpVerificationRpc;
+    const { data: code, error: rpcError } = await createOtpVerification('create_otp_verification', {
       p_user_id: user.id,
       p_email: user.email,
       p_purpose: purpose
@@ -217,13 +239,17 @@ export async function requestPasswordOtp(purpose: 'set_password' | 'change_passw
     if (rpcError) {
       return { error: rpcError.message };
     }
+    if (!code) {
+      return { error: 'Không tạo được mã OTP.' };
+    }
 
     // Gửi Email
     await sendPasswordOtpEmail(user.email, code, purpose);
 
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message || 'Lỗi hệ thống khi gửi OTP.' };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : null;
+    return { error: message || 'Lỗi hệ thống khi gửi OTP.' };
   }
 }
 
@@ -231,7 +257,7 @@ export async function requestPasswordOtp(purpose: 'set_password' | 'change_passw
  * Xác thực và cập nhật mật khẩu
  */
 export async function updatePasswordWithOtp(formData: FormData) {
-  const purpose = formData.get('purpose') as 'set_password' | 'change_password';
+  const purpose = formData.get('purpose') as PasswordOtpPurpose;
   const currentPassword = formData.get('currentPassword') as string;
   const newPassword = formData.get('newPassword') as string;
   const otpCode = formData.get('otpCode') as string;
@@ -242,7 +268,8 @@ export async function updatePasswordWithOtp(formData: FormData) {
   if (!user) return { error: 'Phiên đăng nhập hết hạn.' };
 
   // 1. Xác thực OTP qua RPC
-  const { data: isOtpValid, error: otpError } = await supabase.rpc('verify_otp', {
+  const verifyOtp = supabase.rpc.bind(supabase) as unknown as VerifyOtpRpc;
+  const { data: isOtpValid, error: otpError } = await verifyOtp('verify_otp', {
     p_user_id: user.id,
     p_purpose: purpose,
     p_code: otpCode

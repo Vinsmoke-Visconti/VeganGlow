@@ -2,7 +2,7 @@ import '@/styles/admin-tokens.css';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
-import { Bell, Search } from 'lucide-react';
+
 import styles from './backoffice-layout.module.css';
 import PageTransition from '@/components/ui/PageTransition';
 import { AdminSidebar } from './AdminSidebar';
@@ -26,9 +26,7 @@ export default async function BackofficeLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // NOTE: Authentication and staff checks are handled by middleware.ts
-  // to avoid infinite redirect loops on the login page.
-
+  // Authentication and staff checks are handled by middleware.ts.
   let staffName: string | null = null;
   let roleLabel = 'Quản trị viên';
   let roleId: string | null = null;
@@ -63,19 +61,14 @@ export default async function BackofficeLayout({
     }
   }
 
-  const rawName = staffName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin';
+  const rawName = staffName || user?.email?.split('@')[0] || 'Admin';
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const initial = displayName.charAt(0).toUpperCase();
   const email = user?.email || '';
 
   return (
     <div className={styles.adminContainer}>
-      <AdminSidebar
-        userName={displayName}
-        userInitial={initial}
-        userRoleLabel={roleLabel}
-        permissions={permissions}
-      />
+      <AdminSidebar permissions={permissions} />
 
       <div className={styles.mainWrapper}>
         <header className={styles.topbar}>
@@ -83,22 +76,7 @@ export default async function BackofficeLayout({
             <AdminBreadcrumb />
           </div>
 
-          <div className={styles.searchBar}>
-            <Search size={16} className={styles.searchIcon} aria-hidden="true" />
-            <input
-              type="text"
-              placeholder="Tìm sản phẩm, đơn hàng, khách hàng..."
-              className={styles.searchInput}
-            />
-            <kbd className={styles.searchKbd}>⌘K</kbd>
-          </div>
-
           <div className={styles.topbarRight}>
-            <button className={styles.iconBtn} aria-label="Thông báo">
-              <Bell size={18} />
-              <span className={styles.iconBtnBadge} />
-            </button>
-
             <AdminProfileMenu
               displayName={displayName}
               initial={initial}
@@ -111,6 +89,18 @@ export default async function BackofficeLayout({
         <main className={styles.mainContent}>
           <PageTransition>{children}</PageTransition>
         </main>
+
+        <footer className={styles.adminFooter} aria-label="Admin footer">
+          <div className={styles.adminFooterBrand}>
+            <span>&copy; {new Date().getFullYear()} VeganGlow</span>
+            <span className={styles.adminFooterDivider} aria-hidden="true" />
+            <span>Admin Console</span>
+          </div>
+          <div className={styles.adminFooterMeta}>
+            <span>Dữ liệu vận hành từ Supabase</span>
+            <span>Hiển thị theo phân quyền nhân sự</span>
+          </div>
+        </footer>
       </div>
     </div>
   );

@@ -4,8 +4,11 @@
 :root {
   /* Palette — botanical */
   --vg-ink-900: #0f1411;
+  --vg-ink-800: #1b2420;
   --vg-ink-700: #2c3531;
+  --vg-ink-600: #424e48;
   --vg-ink-500: #5a655e;
+  --vg-ink-400: #7b8981;
   --vg-ink-300: #a8b5ae;
   --vg-parchment-50: #fbfaf6;
   --vg-parchment-100: #f3f1ea;
@@ -15,6 +18,7 @@
   --vg-leaf-300: #8fcf95;
   --vg-leaf-500: #56a35e;
   --vg-leaf-700: #2f7236;
+  --vg-leaf-800: #285f2e;
   --vg-leaf-900: #1c4520;
   --vg-gold-300: #e6cf85;
   --vg-gold-500: #c9a64e;
@@ -27,6 +31,7 @@
   --vg-warn-fg: #8a6212;
   --vg-danger-bg: #fbe6e6;
   --vg-danger-fg: #9b1f1f;
+  --vg-danger-700: #9b1f1f;
   --vg-info-bg: #e4eef9;
   --vg-info-fg: #1f4a85;
   --vg-pending-bg: #f0e9da;
