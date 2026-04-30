@@ -3,31 +3,49 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, ArrowRight, Frown } from 'lucide-react';
+import { Search, Loader2, Frown } from 'lucide-react';
 import Link from 'next/link';
 import { createBrowserClient } from '@/lib/supabase/client';
 import styles from './search.module.css';
-import ProductCard from '@/components/products/ProductCard';
+import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
+
+// Strip PostgREST .or() control chars + LIKE wildcards so user input cannot
+// inject filter syntax. Anything left becomes a plain ilike substring.
+function sanitizeSearchTerm(raw: string): string {
+  return raw
+    .replace(/[,()*%\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+}
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get('q') || '';
   const [searchInput, setSearchInput] = useState(query);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<ProductCardProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const supabase = createBrowserClient();
 
   const handleSearch = async (q: string) => {
     setLoading(true);
+    const safe = sanitizeSearchTerm(q);
+    if (!safe) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+    const pattern = `%${safe}%`;
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .or(`name.ilike.%${q}%,description.ilike.%${q}%`)
-      .eq('is_active', true);
+      .or(`name.ilike.${pattern},description.ilike.${pattern}`)
+      .eq('is_active', true)
+      .limit(60);
 
     if (!error) {
-      setResults(data || []);
+      setResults((data ?? []) as unknown as ProductCardProduct[]);
     }
     setLoading(false);
   };

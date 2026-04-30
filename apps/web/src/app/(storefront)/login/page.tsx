@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useActionState } from 'react';
-import { login } from '@/app/actions/auth';
+import { login, type AuthFormState } from '@/app/actions/auth';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -13,17 +13,20 @@ function LoginContent() {
   const message = searchParams.get('message');
   const redirectTo = searchParams.get('redirectTo') || '/';
 
-  const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
-    formData.append('redirectTo', redirectTo);
-    return login(prevState, formData);
-  }, null);
+  const [state, formAction, isPending] = useActionState<AuthFormState, FormData>(
+    async (prevState, formData) => {
+      formData.append('redirectTo', redirectTo);
+      return login(prevState, formData);
+    },
+    null
+  );
 
   const handleGoogleLogin = async () => {
     const supabase = createBrowserClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
       },
     });
   };

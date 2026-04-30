@@ -2,35 +2,112 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
+import { Heart, ArrowRight, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from './wishlist.module.css';
-import ProductCard from '@/components/products/ProductCard';
+import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
+import { createBrowserClient } from '@/lib/supabase/client';
+
+type FavoriteRow = {
+  product_id: string;
+  products: ProductCardProduct | null;
+};
 
 export default function WishlistPage() {
-  const [wishlist, setWishlist] = useState<any[]>([]);
+  const router = useRouter();
+  const [wishlist, setWishlist] = useState<ProductCardProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Load from localStorage for now as it's a UI-focused task
-    const saved = localStorage.getItem('wishlist');
-    if (saved) {
-      try {
-        setWishlist(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to parse wishlist', e);
+    let alive = true;
+    const supabase = createBrowserClient();
+
+    (async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!alive) return;
+
+      if (!user) {
+        setAuthed(false);
+        setLoading(false);
+        return;
       }
-    }
-    setLoading(false);
+      setAuthed(true);
+
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('product_id, products(*)')
+        .eq('user_id', user.id);
+
+      if (!alive) return;
+
+      if (!error && data) {
+        const products = (data as unknown as FavoriteRow[])
+          .map((r) => r.products)
+          .filter((p): p is ProductCardProduct => Boolean(p));
+        setWishlist(products);
+      }
+      setLoading(false);
+    })();
+
+    return () => {
+      alive = false;
+    };
   }, []);
 
-  const removeFromWishlist = (productId: string) => {
-    const updated = wishlist.filter(item => item.id !== productId);
-    setWishlist(updated);
-    localStorage.setItem('wishlist', JSON.stringify(updated));
+  const removeFromWishlist = async (productId: string) => {
+    const supabase = createBrowserClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const prev = wishlist;
+    setWishlist((items) => items.filter((p) => p.id !== productId));
+
+    const { error } = await supabase
+      .from('favorites')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('product_id', productId);
+
+    if (error) setWishlist(prev);
   };
 
   if (loading) return null;
+
+  if (authed === false) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Danh sách yêu thích</h1>
+          <p className={styles.subtitle}>Đăng nhập để xem các sản phẩm bạn đã lưu</p>
+        </div>
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>
+            <Heart size={48} fill="currentColor" style={{ opacity: 0.2 }} />
+          </div>
+          <h3 className={styles.emptyTitle}>Bạn chưa đăng nhập</h3>
+          <p className={styles.emptyText}>
+            Đăng nhập để lưu danh sách yêu thích trên mọi thiết bị.
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              router.push(`/login?redirectTo=${encodeURIComponent('/wishlist')}`)
+            }
+            className={styles.shopBtn}
+          >
+            Đăng nhập <ArrowRight size={18} style={{ marginLeft: 8 }} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
@@ -74,7 +151,7 @@ export default function WishlistPage() {
             {wishlist.map((product) => (
               <div key={product.id} style={{ position: 'relative' }}>
                 <ProductCard product={product} />
-                <button 
+                <button
                   onClick={() => removeFromWishlist(product.id)}
                   style={{
                     position: 'absolute',
@@ -91,7 +168,7 @@ export default function WishlistPage() {
                     boxShadow: 'var(--shadow-md)',
                     zIndex: 10,
                     border: 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                   title="Xóa khỏi danh sách"
                 >

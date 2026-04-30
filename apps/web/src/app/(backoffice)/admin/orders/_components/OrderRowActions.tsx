@@ -6,9 +6,18 @@ import { Eye, CheckCircle, Truck, XCircle, Loader2 } from 'lucide-react';
 import { updateOrderStatus, type OrderStatus } from '@/app/actions/admin/orders';
 import shared from '../../admin-shared.module.css';
 
-export function OrderRowActions({ id, status }: { id: string; status: string }) {
+type Props = {
+  id: string;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+};
+
+export function OrderRowActions({ id, status, paymentMethod, paymentStatus }: Props) {
   const [pending, start] = useTransition();
   const router = useRouter();
+  const isBankTransfer = paymentMethod === 'bank_transfer' || paymentMethod === 'card';
+  const canConfirm = !isBankTransfer || paymentStatus === 'paid';
 
   function setStatus(next: OrderStatus) {
     start(async () => {
@@ -26,7 +35,7 @@ export function OrderRowActions({ id, status }: { id: string; status: string }) 
       >
         <Eye size={14} />
       </button>
-      {status === 'pending' && (
+      {status === 'pending' && canConfirm && (
         <button
           type="button"
           onClick={() => setStatus('confirmed')}

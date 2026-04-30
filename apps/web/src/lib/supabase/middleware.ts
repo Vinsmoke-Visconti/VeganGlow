@@ -79,9 +79,18 @@ export async function updateSession(request: NextRequest) {
   }
 
   // 3. PROTECTED STOREFRONT ROUTES (/profile, /orders)
-  else if (pathname.startsWith('/profile') || pathname === '/orders') {
+  else if (
+    pathname === '/profile' ||
+    pathname.startsWith('/profile/') ||
+    pathname === '/orders' ||
+    pathname.startsWith('/orders/') ||
+    pathname === '/vouchers' ||
+    pathname.startsWith('/vouchers/') ||
+    pathname === '/wishlist'
+  ) {
     if (!user) {
       url.pathname = '/login';
+      url.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`);
       return NextResponse.redirect(url);
     }
   }

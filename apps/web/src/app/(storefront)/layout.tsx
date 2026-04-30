@@ -1,9 +1,12 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './storefront-layout.module.css';
 import StorefrontNavbar from '@/components/layout/StorefrontNavbar';
+import NewsletterForm from '@/components/layout/NewsletterForm';
 import PageTransition from '@/components/ui/PageTransition';
 import { ScrollProgress } from '@/components/ui/ScrollProgress';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import AddToCartToast from '@/components/cart/AddToCartToast';
 
 export default function StorefrontLayout({
   children,
@@ -14,6 +17,7 @@ export default function StorefrontLayout({
     <div className={styles.wrapper}>
       <ScrollProgress />
       <StorefrontNavbar />
+      <AddToCartToast />
 
       {/* Main Content */}
       <main className={styles.main}>
@@ -25,7 +29,7 @@ export default function StorefrontLayout({
         <div className={`container ${styles.footerContainer}`}>
           <div className={styles.footerBrand}>
             <div className={styles.footerLogo}>
-              <img src="/logo.png" alt="VeganGlow" style={{ height: 40 }} />
+              <Image src="/logo.jpg" alt="VeganGlow" width={40} height={40} style={{ height: 40, width: 'auto' }} />
               <span className={styles.logoText} style={{ color: 'white' }}>VeganGlow</span>
             </div>
             <p className={styles.footerTagline}>
@@ -61,10 +65,7 @@ export default function StorefrontLayout({
           <div className={styles.footerNewsletter}>
             <h4>Bản tin VeganGlow</h4>
             <p>Đăng ký để nhận ưu đãi đặc biệt và bí quyết làm đẹp thuần chay.</p>
-            <div className={styles.newsletterForm}>
-              <input type="email" placeholder="Email của bạn..." className={styles.newsletterInput} />
-              <button className={styles.newsletterBtn}>Gửi</button>
-            </div>
+            <NewsletterForm />
           </div>
         </div>
         

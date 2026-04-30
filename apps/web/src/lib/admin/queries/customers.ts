@@ -24,7 +24,15 @@ type OrderAggRow = {
   total_amount: number | string;
   created_at: string;
   status: string;
+  payment_method?: string | null;
+  payment_status?: string | null;
 };
+
+function countsAsCustomerSpend(order: OrderAggRow): boolean {
+  if (order.status === 'cancelled') return false;
+  if (order.payment_status === 'paid') return true;
+  return order.payment_method === 'cod' && order.status === 'completed';
+}
 
 export async function listCustomers(filters: CustomerListFilters = {}): Promise<CustomerListRow[]> {
   const supabase = await createClient();
@@ -42,7 +50,7 @@ export async function listCustomers(filters: CustomerListFilters = {}): Promise<
 
   const { data: orderRows } = await supabase
     .from('orders')
-    .select('user_id, total_amount, created_at, status')
+    .select('user_id, total_amount, created_at, status, payment_method, payment_status')
     .in('user_id', ids)
     .neq('status', 'cancelled');
 
@@ -51,7 +59,9 @@ export async function listCustomers(filters: CustomerListFilters = {}): Promise<
     if (!row.user_id) continue;
     const a = aggregates.get(row.user_id) ?? { count: 0, total: 0, last: null };
     a.count += 1;
-    a.total += Number(row.total_amount);
+    if (countsAsCustomerSpend(row)) {
+      a.total += Number(row.total_amount);
+    }
     if (!a.last || row.created_at > a.last) a.last = row.created_at;
     aggregates.set(row.user_id, a);
   }
@@ -77,7 +87,7 @@ export async function getCustomerDetail(id: string) {
     supabase.from('addresses').select('*').eq('user_id', id).order('is_default', { ascending: false }),
     supabase
       .from('orders')
-      .select('id, code, total_amount, status, payment_method, created_at')
+      .select('id, code, total_amount, status, payment_method, payment_status, created_at')
       .eq('user_id', id)
       .order('created_at', { ascending: false })
       .limit(100),

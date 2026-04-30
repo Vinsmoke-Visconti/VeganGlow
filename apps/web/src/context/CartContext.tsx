@@ -1,23 +1,42 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { normalizeProductImage } from '@/lib/imageUrl';
 
-type CartItem = {
+export type CartItem = {
   id: string;
+  slug: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
 };
 
+export type CartProduct = {
+  id: string;
+  slug?: string | null;
+  name: string;
+  price: number;
+  image?: string | null;
+  image_url?: string | null;
+};
+
+export type LastAddedInfo = {
+  id: string;
+  name: string;
+  image: string;
+  at: number;
+};
+
 type CartContextType = {
   cartItems: CartItem[];
-  addToCart: (product: any) => void;
+  addToCart: (product: CartProduct) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalAmount: number;
   totalCount: number;
+  lastAdded: LastAddedInfo | null;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -25,6 +44,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [lastAdded, setLastAdded] = useState<LastAddedInfo | null>(null);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -46,7 +66,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [cartItems, isLoaded]);
 
-  const addToCart = (product: any) => {
+  const addToCart = (product: CartProduct) => {
+    const normalizedImage = normalizeProductImage(product.image || product.image_url) ?? '';
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
@@ -54,13 +75,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
           item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prevItems, { 
-        id: product.id, 
-        name: product.name, 
-        price: product.price, 
-        image: product.image || product.image_url || '', 
-        quantity: 1 
+      return [...prevItems, {
+        id: product.id,
+        slug: product.slug || product.id,
+        name: product.name,
+        price: product.price,
+        image: normalizedImage,
+        quantity: 1,
       }];
+    });
+    setLastAdded({
+      id: product.id,
+      name: product.name,
+      image: normalizedImage,
+      at: Date.now(),
     });
   };
 
@@ -97,6 +125,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalAmount,
         totalCount,
+        lastAdded,
       }}
     >
       {children}

@@ -1,0 +1,381 @@
+KẾ HOẠCH THƯƠNG MẠI ĐIỆN TỬ, THIẾT KẾ GIAO DIỆN VÀ TRIỂN KHAI WEBSITE CHO DOANH NGHIỆP
+Giới thiệu về doanh nghiệp 
+Tên doanh nghiệp: VeganGlow – là một thương hiệu mà nhóm tự xây dựng.
+Lĩnh vực: Mỹ phẩm và chăm sóc cá nhân thiên nhiên thuần chay
+Mô hình kinh doanh: B2C – bán trực tiếp đến người tiêu dùng thông qua website thương mại điện tử, đồng thời kết hợp phân phối trên các sàn như Shopee, Lazada.
+VeganGlow là thương hiệu mỹ phẩm thuần chay tại Việt Nam, chuyên phát triển các sản phẩm chăm sóc da và chăm sóc cá nhân từ nguồn nguyên liệu thiên nhiên quen thuộc của Việt Nam.
+Xây dựng kế hoạch thương mại điện tử cho doanh nghiệp 
+Giá trị kinh doanh
+Giá trị cốt lõi của VeganGlow:
+Sản phẩm: Mỹ phẩm thuần chay 100% không thử nghiệm trên động vật, đáp ứng tiêu chuẩn khắt khe về thành phần lành tính.
+Trải nghiệm: Website thương mại điện tử tối ưu, cá nhân hóa quy trình chăm sóc da cho từng cá nhân thông qua dữ liệu và công nghệ.
+Cam kết: Minh bạch thông tin, tối ưu sự tiện lợi và xây dựng cộng đồng tiêu dùng bền vững.
+Khác biệt: Nâng tầm giá trị kinh doanh bằng việc kết hợp giữa sản phẩm "sạch" và dịch vụ khách hàng tận tâm, chuyên nghiệp
+Xác định doanh thu
+Nguồn doanh thu từ hoạt động thương mại điện tử của VeganGlow bao gồm:
+Doanh thu từ bán trực tiếp các sản phẩm mỹ phẩm thuần chay qua website. 
+Doanh thu từ các bộ sản phẩm chăm sóc da theo quy trình như dưỡng sáng, phục hồi, chống lão hóa, trị mụn. 
+Doanh thu từ chương trình khuyến mãi theo mùa, combo ưu đãi và voucher điện tử. 
+Doanh thu từ hoạt động bán chéo sản phẩm như sữa rửa mặt đi kèm toner, serum đi kèm kem dưỡng. 
+Doanh thu từ chương trình thành viên như tích điểm, đổi quà và ưu đãi dành cho khách hàng thân thiết. 
+Doanh thu từ các sản phẩm phiên bản giới hạn hoặc sản phẩm mới ra mắt theo xu hướng thị trường. 
+Mô hình doanh thu của VeganGlow chủ yếu dựa trên bán lẻ trực tuyến đến người tiêu dùng theo mô hình B2C. Ngoài ra, doanh nghiệp có thể mở rộng thêm doanh thu từ hợp tác với KOL/KOC, affiliate marketing hoặc các chiến dịch quảng bá liên kết với đối tác làm đẹp.
+ Cơ hội thị trường
+Thị trường mỹ phẩm tại Việt Nam đang có nhiều tiềm năng phát triển, đặc biệt trong nhóm sản phẩm thiên nhiên, lành tính, thuần chay và không thử nghiệm trên động vật. Người tiêu dùng ngày càng quan tâm đến sức khỏe làn da, nguồn gốc thành phần, mức độ an toàn của sản phẩm và trách nhiệm của thương hiệu đối với môi trường. Đây là điều kiện thuận lợi để VeganGlow phát triển trong phân khúc mỹ phẩm thuần chay thông qua mô hình thương mại điện tử B2C.
+Thị trường mục tiêu của VeganGlow là khách hàng từ 18 đến 35 tuổi, chủ yếu thuộc nhóm Gen Z và Millennials tại các thành phố lớn như TP.HCM, Hà Nội và Đà Nẵng. Đây là nhóm khách hàng có thói quen mua sắm trực tuyến, thường xuyên tiếp cận thông tin làm đẹp qua mạng xã hội, KOL/KOC, TikTok, Facebook, Instagram và các sàn thương mại điện tử. Họ có xu hướng ưu tiên các sản phẩm minh bạch về thành phần, phù hợp với từng loại da, giá cả hợp lý và có hình ảnh thương hiệu hiện đại.
+Về quy mô thị trường, mỹ phẩm là ngành hàng có nhu cầu tiêu dùng thường xuyên vì khách hàng có xu hướng mua lặp lại các sản phẩm như sữa rửa mặt, toner, serum, kem dưỡng và kem chống nắng. Bên cạnh đó, sự phát triển của thương mại điện tử giúp doanh nghiệp tiếp cận khách hàng rộng hơn mà không cần phụ thuộc hoàn toàn vào cửa hàng vật lý. VeganGlow có thể khai thác website chính thức, mạng xã hội và các sàn TMĐT để mở rộng độ phủ thương hiệu.
+Tiềm năng tăng trưởng của VeganGlow đến từ bốn yếu tố chính:
+Xu hướng tiêu dùng xanh: khách hàng ngày càng quan tâm đến mỹ phẩm thuần chay, cruelty-free, bao bì thân thiện môi trường và sản phẩm có nguồn gốc thiên nhiên.
+Sự phát triển của TMĐT: khách hàng trẻ quen với việc tìm kiếm, so sánh, đọc đánh giá và mua mỹ phẩm online.
+Khả năng mua lặp lại cao: mỹ phẩm chăm sóc da là nhóm sản phẩm được sử dụng thường xuyên, tạo cơ hội tăng doanh thu từ khách hàng cũ.
+Khả năng cá nhân hóa: VeganGlow có thể gợi ý routine chăm sóc da theo loại da, vấn đề da và lịch sử mua hàng của từng khách hàng.
+Tuy nhiên, thị trường cũng có thách thức vì ngành mỹ phẩm online có nhiều đối thủ mạnh như Cocoon, The Body Shop, Cỏ Mềm và các thương hiệu mỹ phẩm thiên nhiên khác. Do đó, để tận dụng cơ hội thị trường, VeganGlow cần tập trung vào định vị rõ ràng: mỹ phẩm thuần chay, thành phần thiên nhiên Việt Nam, minh bạch thông tin, trải nghiệm mua sắm thuận tiện và chăm sóc khách hàng cá nhân hóa.
+Nhìn chung, cơ hội thị trường của VeganGlow là khả thi vì doanh nghiệp lựa chọn đúng phân khúc đang tăng trưởng, đúng nhóm khách hàng có hành vi mua sắm online mạnh và đúng xu hướng tiêu dùng bền vững. Nếu xây dựng tốt thương hiệu, website TMĐT và chiến lược giữ chân khách hàng, VeganGlow có thể phát triển ổn định trong thị trường mỹ phẩm thuần chay tại Việt Nam.
+Môi trường cạnh tranh
+Hiểu rõ môi trường cạnh tranh là bước quan trọng để xây dựng mô hình thương mại điện tử thành công. Ngành mỹ phẩm trực tuyến tại Việt Nam có mức độ cạnh tranh cao do sự tham gia của nhiều thương hiệu lớn, sàn thương mại điện tử và các nhà bán lẻ mỹ phẩm chuyên nghiệp.
+Đối thủ cạnh tranh chính: Các đối thủ nổi bật trên thị trường Việt Nam hiện nay gồm Cocoon, The Body Shop, cùng với một số thương hiệu có định vị gần như Cỏ Mềm, Lemonade hoặc các nhãn hàng mỹ phẩm thiên nhiên, mỹ phẩm sạch và cruelty-free. Đây là những thương hiệu có lợi thế về nhận diện thương hiệu, danh mục sản phẩm đa dạng, độ phủ trên sàn TMĐT và khả năng tiếp cận nhóm khách hàng trẻ.
+Vị thế cạnh tranh của doanh nghiệp: Doanh nghiệp mỹ phẩm thuần chay có lợi thế khi xu hướng tiêu dùng xanh, an toàn và thân thiện môi trường ngày càng được quan tâm. Nếu doanh nghiệp xây dựng được hình ảnh thương hiệu rõ ràng, minh bạch về thành phần, nhấn mạnh cam kết thuần chay và không thử nghiệm trên động vật, thì có thể tạo được sự khác biệt trên thị trường. Tuy nhiên, lợi thế này chỉ bền vững khi doanh nghiệp đồng thời duy trì chất lượng sản phẩm, dịch vụ khách hàng tốt và hoạt động marketing hiệu quả.
+Cạnh tranh giữa các đối thủ hiện tại: Mức độ cạnh tranh cao do có nhiều thương hiệu trong và ngoài nước cùng tham gia thị trường, đặc biệt trên các nền tảng số. Các doanh nghiệp liên tục cạnh tranh về giá bán, chương trình khuyến mãi, nội dung quảng cáo, đánh giá khách hàng và tốc độ giao hàng.
+Nguy cơ từ đối thủ mới gia nhập: Mức độ trung bình đến cao vì rào cản gia nhập thị trường online không quá lớn. Nhiều thương hiệu mới có thể bắt đầu bằng mô hình gia công sản phẩm và bán qua sàn thương mại điện tử hoặc mạng xã hội. Tuy nhiên, việc xây dựng uy tín và niềm tin với khách hàng vẫn là thách thức lớn.
+Áp lực từ sản phẩm thay thế: Mức độ cao vì khách hàng có thể dễ dàng chuyển sang mỹ phẩm thiên nhiên, dược mỹ phẩm hoặc các dòng mỹ phẩm phổ thông nhưng được quảng bá là lành tính và an toàn. Điều này làm cho doanh nghiệp phải liên tục khẳng định giá trị khác biệt của sản phẩm thuần chay.
+Quyền thương lượng của khách hàng: Mức độ cao do khách hàng có nhiều lựa chọn, dễ dàng so sánh giá, xem đánh giá và chuyển sang thương hiệu khác. Trong môi trường TMĐT, hành vi tiêu dùng bị ảnh hưởng mạnh bởi review, KOL/KOC, chương trình khuyến mãi và trải nghiệm mua sắm.
+Quyền thương lượng của nhà cung cấp: Mức độ trung bình. Nếu doanh nghiệp phụ thuộc vào nguồn nguyên liệu sạch, bao bì thân thiện môi trường hoặc đơn vị gia công chuyên biệt thì nhà cung cấp sẽ có ảnh hưởng lớn hơn đến chi phí và chất lượng sản phẩm.
+Định hướng cạnh tranh: Để tồn tại và phát triển, doanh nghiệp cần tập trung vào các yếu tố then chốt như nắm bắt xu hướng tiêu dùng xanh, cải tiến chất lượng sản phẩm, minh bạch thành phần, tối ưu kênh bán hàng online, tăng cường truyền thông số và xây dựng trải nghiệm khách hàng tích cực. Đồng thời, doanh nghiệp cần thường xuyên theo dõi đối thủ để điều chỉnh chiến lược giá, marketing và danh mục sản phẩm phù hợp.
+Lợi thế cạnh tranh
+Lợi thế cạnh tranh là yếu tố then chốt giúp VeganGlow khác biệt so với các đối thủ trong ngành mỹ phẩm trực tuyến. Doanh nghiệp có thể xây dựng lợi thế cạnh tranh dựa trên các yếu tố sau:
+Định vị thương hiệu rõ ràng: tập trung chuyên sâu vào mỹ phẩm thuần chay, không thử nghiệm trên động vật và thân thiện môi trường. 
+Chất lượng sản phẩm: lựa chọn các sản phẩm có thành phần lành tính, rõ nguồn gốc, phù hợp nhiều loại da và giảm nguy cơ kích ứng. 
+Thông tin minh bạch: website cung cấp đầy đủ mô tả sản phẩm, thành phần, công dụng, hướng dẫn sử dụng và đối tượng phù hợp. 
+Trải nghiệm mua sắm thuận tiện: giao diện hiện đại, dễ sử dụng, hỗ trợ tìm kiếm, lọc sản phẩm theo loại da, công dụng và mức giá. 
+Khả năng cá nhân hóa: gợi ý routine chăm sóc da theo nhu cầu khách hàng. 
+Hình ảnh thương hiệu: thiết kế bao bì, giao diện và nội dung truyền thông nhất quán với phong cách xanh, sạch, hiện đại. 
+Dịch vụ khách hàng: hỗ trợ tư vấn nhanh, chính sách đổi trả hợp lý và chương trình thành viên để giữ chân khách hàng. 
+Chiến lược thị trường
+Dựa trên đặc điểm khách hàng mục tiêu và xu hướng tiêu dùng hiện nay, VeganGlow cần xây dựng chiến lược thị trường toàn diện nhằm đưa sản phẩm đến đúng đối tượng, đúng thời điểm và đúng nhu cầu.
+Các định hướng chiến lược chính bao gồm:
+Chiến lược ra mắt sản phẩm và chương trình khuyến mãi: triển khai các chiến dịch theo mùa như mùa hè, dịp lễ, ngày phụ nữ hoặc các bộ quà tặng chăm sóc da. 
+Chiến lược nội dung: xây dựng nội dung về chăm sóc da, phân biệt mỹ phẩm thuần chay, hướng dẫn lựa chọn sản phẩm theo loại da và giải đáp các hiểu lầm phổ biến về mỹ phẩm sạch. 
+Chiến lược marketing số: sử dụng SEO, Facebook, Instagram, TikTok, KOL/KOC và email marketing để tăng độ nhận diện thương hiệu và dẫn khách hàng về website. 
+Chiến lược giữ chân khách hàng: tích điểm, mã giảm giá cho lần mua tiếp theo, nhắc mua lại sản phẩm và ưu đãi dành riêng cho thành viên. 
+Chiến lược giá: xây dựng mức giá hợp lý so với phân khúc mỹ phẩm sạch và thuần chay, kết hợp combo tiết kiệm để tăng giá trị đơn hàng trung bình. 
+Chiến lược phân phối: tập trung website làm kênh chính để xây dựng dữ liệu khách hàng, đồng thời có thể hỗ trợ thêm các kênh xã hội để tăng nhận diện thương hiệu. 
+Thông qua các chiến lược này, VeganGlow có thể vừa thu hút khách hàng mới, vừa gia tăng tỷ lệ quay lại mua hàng và củng cố vị thế thương hiệu trong phân khúc mỹ phẩm thuần chay.
+Phát triển tổ chức
+Để triển khai thương mại điện tử hiệu quả, VeganGlow cần xây dựng một cơ cấu tổ chức phù hợp với quy mô vận hành và định hướng phát triển lâu dài. Các yêu cầu chính trong phát triển tổ chức bao gồm:
+Thành lập bộ phận quản lý thương mại điện tử chuyên trách. 
+Xây dựng đội ngũ marketing số phụ trách nội dung, quảng cáo và truyền thông mạng xã hội. 
+Phát triển bộ phận vận hành đơn hàng, quản lý kho và xử lý giao nhận. 
+Bổ sung nhân sự công nghệ thông tin để quản lý website, bảo mật dữ liệu và hỗ trợ nâng cấp tính năng. 
+Thiết lập quy trình phối hợp giữa marketing, chăm sóc khách hàng, kho vận và kỹ thuật. 
+Hợp tác với đối tác vận chuyển, cổng thanh toán và nhà cung cấp mỹ phẩm đạt tiêu chuẩn. 
+Từng bước ứng dụng phân tích dữ liệu để theo dõi hành vi khách hàng, hiệu quả bán hàng và mức độ thành công của chiến dịch marketing. 
+Đội ngũ quản lý
+Đội ngũ quản lý của VeganGlow cần có cơ cấu rõ ràng để đảm bảo hoạt động thương mại điện tử được triển khai đồng bộ giữa chiến lược kinh doanh và vận hành kỹ thuật. Các vị trí quản lý chủ chốt có thể bao gồm:
+Giám đốc điều hành: chịu trách nhiệm định hướng chiến lược, phát triển thương hiệu và ra quyết định tổng thể. 
+Quản lý thương mại điện tử: phụ trách hoạt động bán hàng online, tối ưu website và theo dõi hiệu quả kinh doanh số. 
+Quản lý marketing: xây dựng chiến dịch truyền thông, quản lý nội dung, quảng cáo và hợp tác KOL/KOC. 
+Quản lý vận hành: phụ trách kho, xử lý đơn hàng, đóng gói và phối hợp giao hàng. 
+Quản lý công nghệ thông tin: quản trị website, cơ sở dữ liệu, tích hợp hệ thống và đảm bảo an toàn thông tin. 
+Quản lý chăm sóc khách hàng: xử lý phản hồi, tư vấn sản phẩm và nâng cao trải nghiệm người mua. 
+Bộ phận phân tích dữ liệu: theo dõi doanh thu, hành vi khách hàng và hỗ trợ ra quyết định dựa trên dữ liệu. 
+Quy trình xây dựng Website 
+Xác định mục tiêu và người dùng website
+Phân tích yêu cầu chức năng và phi chức năng
+
+
+PHÂN TÍCH HỆ THỐNG THÔNG TIN CỦA DOANH NGHIỆP
+Tên hệ thống được chọn: Hệ thống quản lý bán hàng đa kênh tích hợp CRM của VeganGlow
+Vai trò tổng quát: Đây là hệ thống trung tâm hỗ trợ VeganGlow quản lý toàn bộ quá trình bán hàng trực tuyến, từ tiếp nhận đơn hàng, quản lý tồn kho, xử lý thanh toán, chăm sóc khách hàng, lưu trữ hồ sơ khách hàng đến phân tích dữ liệu phục vụ marketing và ra quyết định quản trị. Đối với doanh nghiệp B2C trong lĩnh vực mỹ phẩm thuần chay, hệ thống này đặc biệt quan trọng vì khách hàng thường quan tâm đến thành phần sản phẩm, loại da phù hợp, đánh giá từ người mua trước và trải nghiệm chăm sóc sau bán.
+Khía cạnh tổ chức
+Hệ thống Quản lý bán hàng đa kênh tích hợp CRM có ảnh hưởng trực tiếp đến cấu trúc tổ chức, quy trình phối hợp giữa các bộ phận và văn hóa làm việc của VeganGlow. Hệ thống giúp doanh nghiệp vận hành thống nhất hơn, giảm xử lý thủ công và nâng cao chất lượng phục vụ khách hàng.
+Cấu trúc tổ chức:
+Hệ thống kết nối các bộ phận chính gồm: thương mại điện tử, marketing, kho vận, chăm sóc khách hàng, kế toán và quản lý.
+Bộ phận thương mại điện tử sử dụng hệ thống để quản lý sản phẩm, đơn hàng, giỏ hàng, thanh toán và trạng thái giao dịch.
+Bộ phận kho vận theo dõi tồn kho, xử lý đóng gói, cập nhật trạng thái xuất kho và phối hợp với đơn vị giao hàng.
+Bộ phận chăm sóc khách hàng sử dụng CRM để xem lịch sử mua hàng, thông tin tư vấn da, phản hồi và khiếu nại của khách hàng.
+Ban quản lý sử dụng hệ thống để theo dõi báo cáo tổng hợp về doanh thu, đơn hàng, tồn kho và hiệu quả kinh doanh.
+Quy trình kinh doanh:
+Hệ thống hỗ trợ và tự động hóa nhiều quy trình quan trọng trong hoạt động của VeganGlow:
+Quy trình đặt hàng trực tuyến: khách hàng chọn sản phẩm, thêm vào giỏ hàng, nhập thông tin giao hàng và thanh toán.
+Quy trình xử lý đơn hàng: hệ thống tự động ghi nhận đơn, kiểm tra tồn kho, xác nhận thanh toán và chuyển thông tin cho bộ phận kho.
+Quy trình quản lý tồn kho: khi có đơn hàng mới, số lượng sản phẩm được cập nhật tự động để tránh tình trạng bán vượt tồn kho.
+Quy trình chăm sóc khách hàng: hệ thống lưu lại lịch sử mua hàng, đánh giá sản phẩm, khiếu nại và thông tin tư vấn.
+Quy trình khách hàng thân thiết: hệ thống tự động cộng điểm, phân hạng thành viên và gửi mã giảm giá cho khách hàng phù hợp.
+Quy trình marketing cá nhân hóa: dựa trên dữ liệu mua hàng, hệ thống có thể hỗ trợ gửi email, voucher hoặc gợi ý sản phẩm theo nhu cầu từng nhóm khách hàng.
+Ví dụ, khi một khách hàng mua serum rau má dành cho da mụn, hệ thống có thể lưu lại thông tin này trong hồ sơ khách hàng. Ở lần mua tiếp theo, nhân viên chăm sóc khách hàng có thể tư vấn thêm sữa rửa mặt dịu nhẹ hoặc kem dưỡng phục hồi phù hợp với tình trạng da của khách.
+Văn hóa tổ chức:
+Hệ thống thúc đẩy văn hóa làm việc dựa trên dữ liệu thay vì chỉ dựa vào kinh nghiệm cá nhân.
+Nhân viên các bộ phận có thể phối hợp nhanh hơn vì thông tin đơn hàng, khách hàng và tồn kho được cập nhật tập trung.
+Hệ thống giúp tăng trách nhiệm cá nhân vì mỗi thao tác xử lý đơn hàng, chăm sóc khách hàng hoặc cập nhật tồn kho đều được ghi nhận.
+VeganGlow có thể xây dựng hình ảnh doanh nghiệp chuyên nghiệp, minh bạch và lấy khách hàng làm trung tâm.
+Người sử dụng hệ thống:
+Khách hàng: sử dụng website để xem sản phẩm, đặt hàng, thanh toán, theo dõi đơn và đánh giá sản phẩm.
+Nhân viên bán hàng online: quản lý đơn hàng, hỗ trợ khách hàng và xử lý thông tin mua hàng.
+Nhân viên kho: kiểm tra tồn kho, đóng gói sản phẩm và cập nhật trạng thái xuất hàng.
+Nhân viên chăm sóc khách hàng: tư vấn sản phẩm, xử lý phản hồi và lưu thông tin khách hàng.
+Nhà quản lý: theo dõi báo cáo doanh thu, hiệu quả bán hàng, tình trạng tồn kho và hiệu suất vận hành.
+Nhân viên kỹ thuật: bảo trì website, quản lý dữ liệu, phân quyền người dùng và xử lý lỗi hệ thống.
+Khía cạnh quản lý
+Hệ thống Quản lý bán hàng đa kênh tích hợp CRM hỗ trợ VeganGlow trong việc lập kế hoạch, giám sát hoạt động, đánh giá hiệu suất và ra quyết định ở nhiều cấp quản lý khác nhau.
+Hỗ trợ quản lý cấp tác nghiệp:
+Ở cấp tác nghiệp, hệ thống hỗ trợ các hoạt động hằng ngày như xử lý đơn hàng, kiểm tra thanh toán, cập nhật tồn kho, in phiếu giao hàng và phản hồi khách hàng.
+Nhân viên có thể biết đơn hàng nào đang chờ xác nhận, đang đóng gói, đang giao hoặc đã hoàn tất.
+Bộ phận kho có thể kiểm tra nhanh sản phẩm nào còn hàng, gần hết hàng hoặc cần nhập thêm.
+Bộ phận chăm sóc khách hàng có thể xem lịch sử mua hàng để tư vấn chính xác hơn.
+Hệ thống giúp giảm sai sót như giao nhầm sản phẩm, xử lý trùng đơn hoặc bỏ sót khiếu nại.
+Hỗ trợ quản lý cấp chiến thuật:
+Ở cấp chiến thuật, hệ thống giúp quản lý trung gian phân tích hiệu quả bán hàng, hiệu quả marketing và tình hình vận hành trong từng giai đoạn.
+Quản lý marketing có thể theo dõi chiến dịch nào mang lại nhiều đơn hàng nhất.
+Quản lý thương mại điện tử có thể biết sản phẩm nào bán chạy, sản phẩm nào có tỷ lệ hoàn đơn cao.
+Quản lý kho có thể dự báo nhu cầu nhập hàng theo mùa, ví dụ tăng tồn kho kem chống nắng vào mùa hè.
+Quản lý chăm sóc khách hàng có thể đánh giá mức độ hài lòng, số lượng khiếu nại và phản hồi sau mua.
+Hỗ trợ quản lý cấp chiến lược:
+Ở cấp chiến lược, hệ thống cung cấp dữ liệu giúp ban lãnh đạo đưa ra các quyết định dài hạn.
+Có nên mở rộng thêm dòng sản phẩm chăm sóc tóc, chăm sóc cơ thể hoặc bộ quà tặng mỹ phẩm thuần chay hay không.
+Có nên tập trung phát triển website riêng hay mở rộng thêm trên Shopee, Lazada, TikTok Shop.
+Có nên đầu tư thêm vào cá nhân hóa trải nghiệm khách hàng, chatbot tư vấn hoặc hệ thống BI.
+Có nên thay đổi chiến lược giá, chương trình thành viên hoặc chính sách giao hàng.
+Các loại báo cáo hệ thống cung cấp:
+Báo cáo doanh thu theo ngày, tháng, quý.
+Báo cáo số lượng đơn hàng.
+Báo cáo giá trị đơn hàng trung bình.
+Báo cáo sản phẩm bán chạy.
+Báo cáo tồn kho và cảnh báo hết hàng.
+Báo cáo tỷ lệ đơn hủy, đơn hoàn, đơn giao thành công.
+Báo cáo khách hàng mới và khách hàng quay lại.
+Báo cáo hiệu quả mã giảm giá, voucher và chiến dịch marketing.
+Báo cáo đánh giá sản phẩm và mức độ hài lòng của khách hàng.
+Giá trị quản lý của hệ thống:
+Giúp nhà quản lý ra quyết định nhanh hơn nhờ dữ liệu được cập nhật gần thời gian thực.
+Giúp giảm chi phí vận hành do hạn chế xử lý thủ công.
+Giúp tối ưu tồn kho, tránh thiếu hàng hoặc tồn kho quá nhiều.
+Giúp tăng tỷ lệ khách hàng quay lại thông qua CRM và chương trình thành viên.
+Giúp VeganGlow hiểu rõ hơn nhu cầu của nhóm khách hàng Gen Z và Millennials.
+Đóng góp vào lợi thế cạnh tranh:
+Hệ thống góp phần tạo lợi thế cạnh tranh cho VeganGlow theo nhiều cách:
+Tăng trải nghiệm khách hàng nhờ quy trình mua hàng nhanh, rõ ràng và dễ theo dõi.
+Tăng khả năng cá nhân hóa nhờ lưu trữ lịch sử mua hàng và hồ sơ chăm sóc da.
+Tăng hiệu quả marketing nhờ phân tích dữ liệu khách hàng và hành vi mua sắm.
+Giảm sai sót trong vận hành nhờ tự động hóa xử lý đơn hàng và tồn kho.
+Hỗ trợ xây dựng lòng tin thương hiệu thông qua dịch vụ minh bạch, chuyên nghiệp và nhất quán.
+Theo mô hình chuỗi giá trị, hệ thống hỗ trợ trực tiếp các hoạt động chính như bán hàng, vận hành, giao hàng và dịch vụ sau bán. Đây là những yếu tố quan trọng giúp VeganGlow cạnh tranh trong thị trường mỹ phẩm thuần chay, nơi khách hàng có nhiều lựa chọn và dễ dàng chuyển sang thương hiệu khác nếu trải nghiệm không tốt.
+Khía cạnh kỹ thuật
+Về mặt kỹ thuật, hệ thống Quản lý bán hàng đa kênh tích hợp CRM của VeganGlow cần có kiến trúc ổn định, bảo mật và dễ mở rộng để đáp ứng hoạt động thương mại điện tử.
+Phần cứng:
+Máy tính hoặc laptop cho nhân viên quản lý website, xử lý đơn hàng và chăm sóc khách hàng.
+Máy in hóa đơn, máy in phiếu giao hàng phục vụ đóng gói sản phẩm.
+Máy quét mã vạch để kiểm tra sản phẩm và cập nhật tồn kho nhanh hơn.
+Thiết bị di động cho quản lý theo dõi dashboard và trạng thái đơn hàng.
+Máy chủ cloud để lưu trữ website, cơ sở dữ liệu và hệ thống quản trị.
+Phần mềm:
+Website thương mại điện tử của VeganGlow.
+Hệ thống quản trị đơn hàng.
+Hệ thống CRM quản lý khách hàng.
+Hệ thống quản lý sản phẩm và danh mục.
+Hệ thống quản lý tồn kho.
+Hệ thống thanh toán trực tuyến.
+Hệ thống báo cáo và dashboard quản lý.
+Công cụ email marketing, chatbot hoặc live chat hỗ trợ tư vấn khách hàng.
+Cơ sở dữ liệu:
+Cơ sở dữ liệu của hệ thống có thể bao gồm các bảng chính:
+Customers: lưu thông tin khách hàng.
+SkinProfiles: lưu loại da, vấn đề da, nhu cầu chăm sóc.
+Products: lưu thông tin sản phẩm, thành phần, công dụng, giá bán.
+Categories: lưu danh mục sản phẩm.
+Orders: lưu thông tin đơn hàng.
+OrderDetails: lưu chi tiết từng sản phẩm trong đơn hàng.
+Payments: lưu trạng thái và phương thức thanh toán.
+Inventory: lưu số lượng tồn kho.
+Reviews: lưu đánh giá sản phẩm.
+LoyaltyPoints: lưu điểm thành viên.
+SupportTickets: lưu phản hồi, khiếu nại và yêu cầu hỗ trợ.
+Mạng và bảo mật:
+Website sử dụng giao thức HTTPS để bảo vệ dữ liệu khi truyền qua Internet.
+Hệ thống áp dụng SSL/TLS để mã hóa dữ liệu.
+Tài khoản quản trị cần có xác thực hai yếu tố để giảm rủi ro bị truy cập trái phép.
+Dữ liệu khách hàng, đặc biệt là thông tin cá nhân và hồ sơ chăm sóc da, cần được phân quyền truy cập rõ ràng.
+Hệ thống cần sao lưu dữ liệu định kỳ để tránh mất dữ liệu khi xảy ra lỗi.
+Nhật ký hệ thống cần được ghi lại để kiểm tra các thao tác quan trọng như chỉnh sửa đơn hàng, cập nhật tồn kho hoặc thay đổi thông tin khách hàng.
+Tích hợp hệ thống:
+Hệ thống cần tích hợp với nhiều nền tảng khác để vận hành hiệu quả:
+Cổng thanh toán: MoMo, ZaloPay, VNPay, thẻ ngân hàng hoặc COD.
+Đơn vị vận chuyển: Giao Hàng Nhanh, Giao Hàng Tiết Kiệm, Viettel Post.
+Công cụ marketing: Facebook Ads, Google Ads, TikTok Ads, email marketing.
+Nền tảng bán hàng khác: Shopee, Lazada hoặc TikTok Shop nếu VeganGlow mở rộng đa kênh.
+Hệ thống BI: đồng bộ dữ liệu doanh thu, khách hàng, sản phẩm và tồn kho để tạo dashboard phân tích.
+Sơ đồ kiến trúc hệ thống đề xuất
+
+Hình: Sơ đồ kiến trúc hệ thống quản lý bán hàng tích hợp CRM
+
+Điểm mạnh kỹ thuật:
+Dữ liệu được tập trung, giúp các bộ phận truy cập thông tin thống nhất.
+Hệ thống hỗ trợ tự động hóa nhiều bước trong quy trình bán hàng.
+Có khả năng mở rộng khi số lượng khách hàng và đơn hàng tăng.
+Hỗ trợ tích hợp với thanh toán, vận chuyển, marketing và BI.
+Giúp cá nhân hóa trải nghiệm khách hàng thông qua dữ liệu CRM.
+Điểm yếu kỹ thuật:
+Chi phí triển khai và bảo trì ban đầu có thể cao.
+Nhân viên cần được đào tạo để sử dụng hệ thống đúng cách.
+Dữ liệu từ nhiều kênh có thể bị trùng lặp hoặc không đồng nhất.
+Hệ thống phụ thuộc vào API của bên thứ ba như cổng thanh toán, đơn vị vận chuyển và nền tảng quảng cáo.
+Nếu bảo mật không tốt, dữ liệu khách hàng có thể bị rò rỉ, ảnh hưởng đến uy tín thương hiệu.
+Đề xuất cải tiến:
+Chuẩn hóa mã sản phẩm, mã khách hàng và quy trình nhập dữ liệu.
+Áp dụng phân quyền người dùng theo vai trò cụ thể.
+Tích hợp cảnh báo tồn kho thấp, sản phẩm bán chậm và sản phẩm sắp hết hạn.
+Bổ sung chatbot tư vấn cơ bản về loại da và routine chăm sóc da.
+Sử dụng AI để gợi ý sản phẩm phù hợp với lịch sử mua hàng.
+Đồng bộ dữ liệu sang hệ thống BI để hỗ trợ phân tích doanh thu và tăng trưởng.
+Tăng cường bảo mật bằng xác thực hai yếu tố, sao lưu dữ liệu và kiểm tra nhật ký hệ thống định kỳ.
+Mối Liên Hệ Giữa Tổ Chức - Quản Lý - Kỹ Thuật
+Ba khía cạnh của hệ thống có mối quan hệ chặt chẽ với nhau. Về tổ chức, VeganGlow cần quy trình phối hợp rõ ràng giữa marketing, bán hàng, kho vận và chăm sóc khách hàng. Về quản lý, doanh nghiệp cần dữ liệu chính xác để ra quyết định về sản phẩm, khách hàng, tồn kho và chiến dịch. Về kỹ thuật, hệ thống cung cấp nền tảng phần mềm, cơ sở dữ liệu, API và dashboard để biến quy trình tổ chức thành dữ liệu có thể đo lường.
+Nếu chỉ có công nghệ nhưng tổ chức không thay đổi cách làm việc, hệ thống sẽ không phát huy hiệu quả. Nếu nhà quản lý không sử dụng báo cáo để ra quyết định, dữ liệu chỉ dừng ở mức lưu trữ. Ngược lại, khi tổ chức vận hành theo quy trình rõ ràng, quản lý biết khai thác báo cáo và công nghệ được thiết kế phù hợp, hệ thống sẽ trở thành công cụ tạo lợi thế cạnh tranh cho VeganGlow.
+Đánh Giá Chung
+Hệ thống quản lý bán hàng đa kênh tích hợp CRM là lựa chọn phù hợp với VeganGlow vì doanh nghiệp hoạt động trong mô hình B2C, phụ thuộc nhiều vào trải nghiệm khách hàng, tốc độ xử lý đơn hàng, dữ liệu hành vi mua sắm và khả năng giữ chân khách hàng. Hệ thống giúp doanh nghiệp vận hành hiệu quả hơn, giảm sai sót thủ công, tăng khả năng cá nhân hóa và hỗ trợ ra quyết định dựa trên dữ liệu.
+Tuy nhiên, hiệu quả của hệ thống phụ thuộc vào chất lượng dữ liệu, mức độ đào tạo nhân viên, khả năng tích hợp với các nền tảng bên ngoài và chính sách bảo mật thông tin khách hàng. Trong giai đoạn đầu, VeganGlow nên triển khai theo từng bước: ưu tiên quản lý đơn hàng, tồn kho và CRM cơ bản; sau đó mở rộng sang BI, AI gợi ý sản phẩm và tự động hóa marketing. Cách triển khai này giúp doanh nghiệp kiểm soát chi phí, giảm rủi ro và vẫn đảm bảo hệ thống phát triển phù hợp với quy mô kinh doanh.
+MÔI TRƯỜNG KINH DOANH THÔNG MINH
+Giới thiệu 
+Trong thị trường mỹ phẩm Việt Nam cạnh tranh mạnh, việc khai thác và phân tích dữ liệu đã trở thành yếu tố quan trọng để doanh nghiệp duy trì và nâng cao vị thế. Sự phát triển của các kênh bán hàng như showroom và thương mại điện tử tạo ra lượng dữ liệu lớn, đòi hỏi doanh nghiệp cần có hệ thống BI để theo dõi và phân tích hiệu quả kinh doanh.
+Trong báo cáo này, nhóm lựa chọn phân tích Báo cáo Doanh thu và Tăng trưởng (Revenue & Growth Dashboard) làm loại báo cáo BI chính. Loại báo cáo này phù hợp với doanh nghiệp mỹ phẩm thuần chay vì ngành hàng này chịu ảnh hưởng lớn từ xu hướng tiêu dùng xanh, hành vi mua lặp lại, các chương trình khuyến mãi và hoạt động marketing số. Nhờ đó, doanh nghiệp có thể theo dõi kết quả kinh doanh, dự báo xu hướng và hỗ trợ ra quyết định hiệu quả hơn.
+Báo cáo BI
+Báo cáo Doanh thu và Tăng trưởng (Revenue & Growth Dashboard)  giúp doanh nghiệp theo dõi các chỉ số quan trọng như doanh thu, số đơn hàng, tốc độ tăng trưởng, giá trị đơn hàng trung bình và hiệu quả kinh doanh theo sản phẩm hoặc kênh bán hàng. Nhóm chọn báo cáo này vì doanh nghiệp mỹ phẩm thuần chay cần thường xuyên theo dõi tình hình bán hàng, mức tăng trưởng qua từng giai đoạn và hiệu quả của các hoạt động marketing. Bên cạnh đó, mỹ phẩm là ngành hàng có khả năng mua lặp lại cao, nên việc theo dõi doanh thu cũng giúp doanh nghiệp đánh giá khả năng giữ chân khách hàng và phát triển bền vững. 
+Báo cáo này tập trung vào việc trả lời các câu hỏi như: 
+Doanh thu hiện tại của doanh nghiệp là bao nhiêu? 
+Doanh thu tăng hay giảm so với kỳ trước? 
+Nhóm sản phẩm hoặc sản phẩm nào bán chạy nhất? 
+Số lượng đơn hàng và giá trị đơn hàng trung bình đang thay đổi như thế nào? 
+Chiến dịch marketing nào đang đóng góp tốt cho doanh thu? 
+Doanh thu tăng trưởng có ổn định hay chỉ tăng theo từng thời điểm khuyến mãi, mùa vụ?
+Đối với doanh nghiệp mỹ phẩm thuần chay, báo cáo Doanh thu & Tăng trưởng còn đặc biệt hữu ích vì ngành hàng này chịu tác động mạnh từ marketing, xu hướng tiêu dùng và hành vi mua lặp lại của khách hàng. Nhờ đó, doanh nghiệp có thể nhận biết sản phẩm chủ lực, thời điểm bán hàng cao điểm, kênh bán hiệu quả và mức độ tăng trưởng theo thời gian để đưa ra quyết định phù hợp hơn về quảng bá, tồn kho và chiến lược phát triển.
+Thiết kế môi trường kinh doanh thông minh
+Để xây dựng hệ thống kinh doanh thông minh phù hợp với doanh nghiệp thương mại điện tử kinh doanh mỹ phẩm thuần chay, nhóm thiết kế môi trường BI gồm 6 thành phần chính: Data Sources, ETL Process, Data Warehouse/Data Mart, OLAP & Analytics Engine, Data Mining/Advanced Analytics, BI Tools & Reporting. 
+Nguồn dữ liệu (Data Sources)
+Trong môi trường BI của doanh nghiệp thương mại điện tử kinh doanh mỹ phẩm thuần chay, dữ liệu được thu thập từ nhiều nguồn khác nhau nhằm phản ánh đầy đủ hoạt động kinh doanh. Các nguồn dữ liệu chính bao gồm:
+Dữ liệu từ website/app bán hàng: Đây là nguồn dữ liệu quan trọng nhất, phản ánh trực tiếp hoạt động kinh doanh của doanh nghiệp, gồm các thông tin: 
+Thông tin khách hàng; 
+Thông tin đơn hàng; 
+Chi tiết sản phẩm; 
+Giỏ hàng; 
+Thanh toán; 
+Lịch sử mua hàng; 
+Đánh giá sản phẩm
+Hệ thống marketing: Nguồn dữ liệu này được thu thập từ các kênh quảng bá như Facebook Ads, Google Ads, TikTok Ads, email marketing, mã giảm giá và dữ liệu truy cập website.
+Dữ liệu từ Facebook Ads, Google Ads, TikTok Ads…
+Email marketing.
+Mã giảm giá / voucher.
+Dữ liệu truy cập website.
+Hệ thống kho và vận hành: Dữ liệu kho vận giúp doanh nghiệp kiểm soát khả năng cung ứng sản phẩm, theo dõi quá trình giao nhận và đánh giá hiệu quả vận hành. Bao gồm:
+Số lượng tồn kho.
+Nhập hàng / xuất hàng.
+Trạng thái giao hàng.
+Đơn hoàn trả.
+Đơn hủy.
+Dữ liệu chăm sóc khách hàng: Nguồn dữ liệu này giúp doanh nghiệp hiểu rõ hơn trải nghiệm của khách hàng sau mua, từ đó nâng cao chất lượng dịch vụ và khả năng giữ chân khách hàng.
+Chatbot hỗ trợ.
+Phản hồi khách hàng.
+Ticket khiếu nại.
+Mức độ hài long.
+Lý do đổi trả.
+Dữ liệu từ bên thứ ba: 
+Đơn vị vận chuyển.
+Cổng thanh toán.
+Dữ liệu xu hướng thị trường.
+Quy trình ETL (Extract – Transform – Load)
+Quy trình ETL có vai trò trích xuất dữ liệu từ nhiều nguồn, làm sạch và chuẩn hóa dữ liệu, sau đó nạp vào kho dữ liệu trung tâm. Nhờ đó, doanh nghiệp có thể đảm bảo dữ liệu dùng cho phân tích và báo cáo BI là chính xác, nhất quán và sẵn sàng hỗ trợ ra quyết định. ETL gồm 3 bước:
+Extract: trích xuất dữ liệu từ các nguồn như:
+Website/app 
+CRM 
+Facebook Ads / Google Ads 
+Hệ thống kho 
+File Excel/CSV từ đối tác vận chuyển
+Transform: biến đổi dữ liệu, tức là làm sạch và chuẩn hóa dữ liệu như:
+Loại bỏ bản ghi trùng lặp 
+Xử lý giá trị null 
+Chuẩn hóa định dạng ngày tháng 
+Chuẩn hóa tên sản phẩm, mã sản phẩm 
+Chuẩn hóa đơn vị tiền tệ 
+Kiểm tra dữ liệu sai logic
+Load: nạp dữ liệu đã xử lý vào Data Warehouse / Data Mart để sẵn sàng cho việc phân tích.
+Data Warehouse / Data Mart
+Data Warehouse là nơi lưu trữ dữ liệu tập trung sau khi dữ liệu đã được xử lý qua quy trình ETL. Đối với doanh nghiệp thương mại điện tử kinh doanh mỹ phẩm thuần chay, kho dữ liệu được xây dựng theo mô hình Star Schema vì mô hình này dễ hiểu, dễ thiết kế và phù hợp với báo cáo Doanh thu & Tăng trưởng.
+Fact table – Bảng sự kiện
+– Fact_Sales: lưu trữ dữ liệu giao dịch bán hàng
+Order_ID: mã đơn hàng
+Customer_ID: mã khách hàng
+Product_ID: mã sản phẩm
+Date_ID: mã thời gian
+Channel_ID: mã kênh bán (website, Shopee…)
+Region_ID: mã vùng địa lý
+Quantity: số lượng bán
+Revenue: doanh thu thu được từ giao dịch 
+Discount: giá trị chiết khấu hoặc khuyến mãi 
+Cost: chi phí liên quan đến sản phẩm
+Profit: lợi nhuận thu được từ giao dịch
+Dimension tables – Các bảng chiều
+Dim_Customer: lưu thông tin khách hàng như mã khách hàng, tên, giới tính, nhóm tuổi, phân khúc, thành phố và ngày tham gia.
+Dim_Product: lưu thông tin sản phẩm như mã sản phẩm, tên sản phẩm, danh mục, thương hiệu, chứng nhận thuần chay, loại da phù hợp và giá bán.
+Dim_Date: lưu thông tin thời gian như ngày, tháng, quý, năm và thứ trong tuần.
+Dim_Channel: lưu thông tin kênh bán hàng như website, Shopee, Facebook, TikTok.
+Dim_Region: lưu thông tin khu vực như thành phố, tỉnh và vùng địa lý.
+Dim_Campaign (nếu mở rộng): lưu thông tin chiến dịch marketing như tên chiến dịch, nguồn marketing, ngân sách, ngày bắt đầu và ngày kết thúc.
+Từ Data Warehouse, doanh nghiệp có thể tách ra nhiều Data Mart khác nhau tùy theo mục đích phân tích. Với doanh nghiệp TMĐT kinh doanh mỹ phẩm thuần chay, có thể chia như sau:
+Sales Data Mart: phục vụ phân tích doanh thu, số đơn hàng, lợi nhuận, giá trị đơn hàng trung bình, tăng trưởng theo thời gian.
+Customer Data Mart: phục vụ phân tích khách hàng như phân khúc khách hàng, hành vi mua sắm, tần suất mua lại, giá trị vòng đời khách hàng.
+Product Data Mart: phục vụ phân tích hiệu quả sản phẩm, nhóm sản phẩm bán chạy, sản phẩm lợi nhuận cao, xu hướng tiêu dùng theo dòng mỹ phẩm.
+Marketing Data Mart: phục vụ đánh giá hiệu quả các chiến dịch quảng cáo, nguồn khách hàng, voucher, traffic website, tỷ lệ chuyển đổi.
+Logistics Data Mart: phục vụ phân tích giao hàng, hoàn trả, hủy đơn, thời gian giao hàng và hiệu quả vận hành.
+OLAP & Analytics Engine
+OLAP và Analytics Engine là hai thành phần hỗ trợ phân tích dữ liệu trong hệ thống BI. 
+Đối với doanh nghiệp thương mại điện tử kinh doanh mỹ phẩm thuần chay, OLAP giúp phân tích dữ liệu đa chiều nhờ các thao tác như:
+Slice: lọc dữ liệu theo một tiêu chí, ví dụ xem doanh thu của dòng serum thuần chay hoặc doanh thu trong tháng 3.
+Dice: lọc dữ liệu theo nhiều điều kiện kết hợp, ví dụ doanh thu của serum, khách hàng nữ và khu vực TP.HCM.
+Drill-down: đi từ dữ liệu tổng quát xuống chi tiết, ví dụ từ năm đến quý, tháng và ngày.
+Roll-up: tổng hợp dữ liệu từ chi tiết lên mức cao hơn, ví dụ từ ngày lên tháng, quý và năm.
+Pivot: xoay chiều dữ liệu để so sánh giữa các nhóm, ví dụ so sánh doanh thu các dòng sản phẩm theo từng kênh bán hàng.
+Trong khi đó, Analytics Engine thực hiện việc tính toán các chỉ số như tổng doanh thu, lợi nhuận, số đơn hàng, giá trị đơn hàng trung bình, tốc độ tăng trưởng và hiệu quả của từng kênh bán hàng. Nhờ đó, doanh nghiệp có thể không chỉ quan sát dữ liệu theo nhiều góc nhìn mà còn rút ra được các kết quả phân tích có giá trị để hỗ trợ ra quyết định.
+Data Mining / Advanced Analytics
+Ngoài phân tích mô tả (Descriptive Analytics) qua OLAP, doanh nghiệp mỹ phẩm thuần chay B2C cần lớp phân tích nâng cao để dự đoán xu hướng tương lai và chủ động ra quyết định chiến lược. Data Mining khai thác các mô hình ẩn trong dữ liệu lịch sử nhờ các mô hình học sâu nhằm tạo ra tri thức có giá trị thực tiễn — giúp doanh nghiệp không chỉ nhìn lại quá khứ mà còn hành động dựa trên tương lai.
+Đối với doanh nghiệp thương mại điện tử kinh doanh mỹ phẩm thuần chay, các ứng dụng phân tích nâng cao có thể bao gồm:
+Phân khúc khách hàng
+Dự báo doanh thu , phát hiện bất thường
+Dự đoán sản phẩm bán chạy
+BI Tools & Reporting
+Hệ thống báo cáo và Dashboard là lớp cuối cùng trong môi trường kinh doanh thông minh, có nhiệm vụ trực quan hóa dữ liệu đã được xử lý từ Data Warehouse, OLAP và Analytics Engine. Đối với VeganGlow, dashboard giúp ban quản lý theo dõi tình hình doanh thu, tốc độ tăng trưởng, hiệu quả sản phẩm, hiệu quả kênh bán hàng và hành vi mua hàng của khách hàng.
+Công cụ có thể sử dụng để xây dựng dashboard là Power BI, Looker Studio, Tableau hoặc Metabase. Trong phạm vi báo cáo này, nhóm đề xuất sử dụng Power BI vì công cụ này dễ kết nối với dữ liệu Excel, SQL hoặc Data Warehouse, hỗ trợ biểu đồ trực quan, bộ lọc linh hoạt và phù hợp với nhu cầu phân tích của doanh nghiệp thương mại điện tử.
+Dashboard chính được đề xuất là Revenue & Growth Dashboard - Báo cáo Doanh thu và Tăng trưởng.
+Các thành phần chính trên dashboard gồm:
+Bộ lọc dữ liệu:
+Khoảng thời gian: ngày, tuần, tháng, quý, năm.
+Kênh bán hàng: website, Shopee, Lazada, TikTok Shop.
+Danh mục sản phẩm: sữa rửa mặt, toner, serum, kem dưỡng, kem chống nắng.
+Khu vực khách hàng: TP.HCM, Hà Nội, Đà Nẵng và các tỉnh khác.
+Chiến dịch marketing: mã giảm giá, combo, flash sale, chiến dịch KOL/KOC.
+Các chỉ số KPI chính:
+Tổng doanh thu.
+Số lượng đơn hàng.
+Giá trị đơn hàng trung bình.
+Tỷ lệ tăng trưởng doanh thu.
+Lợi nhuận gộp.
+Tỷ lệ khách hàng quay lại.
+Tỷ lệ đơn hàng bị hủy hoặc hoàn trả.
+Các biểu đồ trực quan:
+Biểu đồ đường thể hiện xu hướng doanh thu theo thời gian.
+Biểu đồ cột so sánh doanh thu theo danh mục sản phẩm.
+Biểu đồ tròn thể hiện tỷ trọng doanh thu theo kênh bán hàng.
+Biểu đồ thanh xếp hạng top sản phẩm bán chạy.
+Bảng chi tiết doanh thu theo sản phẩm, khu vực và chiến dịch.
+Biểu đồ so sánh khách hàng mới và khách hàng quay lại.
+Dashboard này hỗ trợ ra quyết định ở nhiều cấp quản lý khác nhau. Ở cấp Operational, nhân viên vận hành có thể theo dõi số đơn hàng, tình trạng bán hàng và sản phẩm sắp hết tồn kho để xử lý kịp thời. Ở cấp Tactical, quản lý marketing và quản lý thương mại điện tử có thể đánh giá hiệu quả chiến dịch, xác định kênh bán hàng tốt nhất và điều chỉnh chương trình khuyến mãi. Ở cấp Strategic, ban lãnh đạo có thể phân tích xu hướng tăng trưởng dài hạn, quyết định mở rộng dòng sản phẩm, đầu tư kênh bán hàng mới hoặc thay đổi chiến lược kinh doanh.
+Ý nghĩa của dashboard đối với VeganGlow:
+Giúp theo dõi hiệu quả kinh doanh theo thời gian thực hoặc gần thời gian thực.
+Giúp phát hiện nhanh sản phẩm bán chạy, sản phẩm bán chậm và kênh bán hiệu quả.
+Hỗ trợ tối ưu tồn kho, hạn chế thiếu hàng hoặc tồn kho quá nhiều.
+Giúp đánh giá hiệu quả marketing dựa trên doanh thu thực tế.
+Hỗ trợ xây dựng chiến lược giữ chân khách hàng thông qua phân tích tỷ lệ mua lại.
+Giúp nhà quản lý đưa ra quyết định dựa trên dữ liệu thay vì cảm tính.
+Nhờ BI Dashboard và Report, dữ liệu phức tạp từ nhiều nguồn khác nhau được chuyển thành các biểu đồ, chỉ số và báo cáo dễ hiểu. Đây là công cụ quan trọng giúp VeganGlow kiểm soát hoạt động kinh doanh, cải thiện hiệu quả vận hành và nâng cao năng lực cạnh tranh trong thị trường mỹ phẩm thuần chay trực tuyến.
+Sơ đồ chi tiết 
+Link Drawio của sơ đồ: 
+https://drive.google.com/file/d/1oVgDu9XSkg9bgpB_0hTZQo9mIHEvS8zb/view?usp=sharing
+
+Hình: Sơ đồ môi trường BI chi tiết

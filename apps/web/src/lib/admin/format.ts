@@ -56,7 +56,24 @@ export const ORDER_STATUS_BADGE: Record<string, string> = {
 
 export const PAYMENT_LABEL: Record<string, string> = {
   cod: 'COD',
-  card: 'Thẻ',
+  card: 'Chuyển khoản',
+  bank_transfer: 'Chuyển khoản',
+};
+
+export const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  unpaid: 'Chưa thanh toán',
+  pending: 'Chờ tiền vào',
+  paid: 'Đã nhận tiền',
+  failed: 'Thanh toán lỗi',
+  refunded: 'Đã hoàn tiền',
+};
+
+export const PAYMENT_STATUS_BADGE: Record<string, string> = {
+  unpaid: 'badgeMuted',
+  pending: 'badgePending',
+  paid: 'badgeSuccess',
+  failed: 'badgeDanger',
+  refunded: 'badgeMuted',
 };
 
 export function slugify(s: string): string {

@@ -1,6 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+function safeRedirectPath(value: string | null, fallback = '/') {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return fallback;
+  }
+
+  try {
+    const parsed = new URL(value, 'https://veganglow.local');
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
 /**
  * OAuth callback handler.
  *
@@ -20,7 +33,7 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const next = searchParams.get('next') ?? '/';
+  const next = safeRedirectPath(searchParams.get('next'));
   const isAdminFlow = searchParams.get('admin') === 'true' || next.startsWith('/admin');
 
   if (!code) {
@@ -64,8 +77,26 @@ export async function GET(request: Request) {
   return NextResponse.redirect(`${origin}${next}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function promoteGithubCollaboratorIfEligible(supabase: any, user: any): Promise<boolean> {
+type AuthUserLike = {
+  id: string;
+  email?: string | null;
+  user_metadata?: { user_name?: string; full_name?: string } | null;
+};
+
+type StaffProfileUpsertClient = {
+  upsert: (row: {
+    id: string;
+    role_id: string;
+    full_name: string;
+    email: string;
+    is_active: boolean;
+  }) => Promise<{ error: { message: string } | null }>;
+};
+
+async function promoteGithubCollaboratorIfEligible(
+  supabase: Awaited<ReturnType<typeof import('@/lib/supabase/server').createClient>>,
+  user: AuthUserLike
+): Promise<boolean> {
   const githubUsername = user.user_metadata?.user_name;
   const repo = process.env.GITHUB_REPO;
   const token = process.env.GITHUB_ADMIN_TOKEN;
@@ -97,14 +128,19 @@ async function promoteGithubCollaboratorIfEligible(supabase: any, user: any): Pr
       .single();
 
     if (!role) return false;
+    const roleId = (role as { id: string }).id;
 
-    await supabase.from('staff_profiles').upsert({
+    const { error: upsertError } = await (
+      supabase.from('staff_profiles') as unknown as StaffProfileUpsertClient
+    ).upsert({
       id: user.id,
-      role_id: role.id,
-      full_name: user.user_metadata.full_name || githubUsername,
-      email: user.email,
+      role_id: roleId,
+      full_name: user.user_metadata?.full_name || githubUsername,
+      email: user.email ?? '',
       is_active: true,
     });
+
+    if (upsertError) return false;
 
     return true;
   } catch (err) {

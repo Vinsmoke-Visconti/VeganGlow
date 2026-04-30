@@ -45,3 +45,6 @@ file_size_limit = "5MB"
 
 [realtime]
 enabled = true
+
+[functions.bank-transfer-webhook]
+verify_jwt = false

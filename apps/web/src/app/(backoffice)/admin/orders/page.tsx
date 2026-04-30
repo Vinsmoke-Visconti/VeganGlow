@@ -7,6 +7,8 @@ import {
   ORDER_STATUS_LABEL,
   ORDER_STATUS_BADGE,
   PAYMENT_LABEL,
+  PAYMENT_STATUS_LABEL,
+  PAYMENT_STATUS_BADGE,
 } from '@/lib/admin/format';
 import shared from '../admin-shared.module.css';
 import { Suspense } from 'react';
@@ -50,6 +52,7 @@ export default async function AdminOrders({ searchParams }: Props) {
                 <th>Tổng</th>
                 <th>Trạng thái</th>
                 <th>TT</th>
+                <th>Tiền</th>
                 <th>Lúc</th>
                 <th></th>
               </tr>
@@ -71,9 +74,19 @@ export default async function AdminOrders({ searchParams }: Props) {
                     </span>
                   </td>
                   <td>{PAYMENT_LABEL[o.payment_method] ?? o.payment_method}</td>
+                  <td>
+                    <span className={`${shared.badge} ${shared[PAYMENT_STATUS_BADGE[o.payment_status] ?? 'badgeMuted']}`}>
+                      {PAYMENT_STATUS_LABEL[o.payment_status] ?? o.payment_status}
+                    </span>
+                  </td>
                   <td>{formatDate(o.created_at)}</td>
                   <td>
-                    <OrderRowActions id={o.id} status={o.status} />
+                    <OrderRowActions
+                      id={o.id}
+                      status={o.status}
+                      paymentMethod={o.payment_method}
+                      paymentStatus={o.payment_status}
+                    />
                   </td>
                 </tr>
               ))}

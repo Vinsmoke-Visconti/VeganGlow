@@ -1,7 +1,7 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 2rem 1.5rem; /* Giảm từ 4rem xuống 2rem */
 }
 
 .breadcrumb {
@@ -10,7 +10,7 @@
   gap: 0.75rem;
   font-size: 0.875rem;
   color: var(--color-text-muted);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem; /* Giảm từ 2.5rem xuống 1.5rem */
 }
 
 .breadcrumb a {
@@ -26,7 +26,7 @@
 .productGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 3rem; /* Giảm từ 4rem xuống 3rem */
   align-items: start;
 }
 
@@ -74,13 +74,13 @@
   align-self: flex-start;
   background: var(--color-primary-50);
   color: var(--color-primary);
-  padding: 0.5rem 1.25rem;
+  padding: 0.4rem 1rem;
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* Giảm từ 1.5rem xuống 1rem */
 }
 
 .productTitle {
@@ -96,7 +96,7 @@
 .sku {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* Giảm từ 1.5rem xuống 1rem */
   font-weight: 600;
 }
 
@@ -123,8 +123,8 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 2.5rem;
-  padding: 2rem;
+  margin-bottom: 2rem; /* Giảm từ 2.5rem xuống 2rem */
+  padding: 1.25rem 2rem; /* Thu nhỏ chiều cao row giá */
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(10px);
   border-radius: 1.5rem;
@@ -259,7 +259,7 @@
    Tabs / Accordion
    ============================================ */
 .tabsSection {
-  margin-top: 6rem;
+  margin-top: 3rem; /* Giảm từ 6rem xuống 3rem */
 }
 
 .tabHeaders {
@@ -327,8 +327,8 @@
    Reviews Section
    ============================================ */
 .reviewsSection {
-  margin-top: 8rem;
-  padding: 4rem;
+  margin-top: 4rem; /* Giảm từ 8rem xuống 4rem */
+  padding: 2.5rem; /* Giảm từ 4rem xuống 2.5rem */
   background: white;
   border-radius: 3rem;
   box-shadow: var(--shadow-lg);

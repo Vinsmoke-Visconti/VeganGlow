@@ -1,6 +1,7 @@
 'use client';
 
 import { createBrowserClient } from '@/lib/supabase/client';
+import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BadgeCheck,
@@ -42,6 +43,24 @@ type Profile = {
   verification_status: 'unverified' | 'pending' | 'verified' | 'rejected';
 };
 
+type ProfileUpdatePayload = Partial<{
+  first_name: string | null;
+  last_name: string | null;
+  full_name: string | null;
+  username: string | null;
+  phone: string | null;
+  birthday: string | null;
+  cccd_number: string | null;
+  cccd_full_name: string | null;
+  verification_status: 'unverified' | 'pending' | 'verified' | 'rejected';
+}>;
+
+type ProfileUpdateClient = {
+  update: (row: ProfileUpdatePayload) => {
+    eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
+  };
+};
+
 export default function ProfilePage() {
   const router = useRouter();
   const supabase = createBrowserClient();
@@ -54,6 +73,7 @@ export default function ProfilePage() {
 
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
   const [cccdNumber, setCccdNumber] = useState('');
   const [cccdFullName, setCccdFullName] = useState('');
@@ -77,7 +97,7 @@ export default function ProfilePage() {
       if (!user) { router.replace('/login?redirectTo=/profile'); return; }
       setEmail(user.email || '');
 
-      const { data: profileData } = await (supabase.from('profiles') as any)
+      const { data: profileData } = await supabase.from('profiles')
         .select('*').eq('id', user.id).maybeSingle();
 
       if (profileData) {
@@ -85,6 +105,7 @@ export default function ProfilePage() {
         setProfile(row);
         setLastName(row.last_name || '');
         setFirstName(row.first_name || '');
+        setUsername(row.username || '');
         setPhone(row.phone || '');
         setCccdNumber(row.cccd_number || '');
         setCccdFullName(row.cccd_full_name || '');
@@ -109,21 +130,26 @@ export default function ProfilePage() {
     setSaving(true);
     const bday = (day && month && year) ? `${day}/${month}/${year}` : null;
     try {
-      const { error } = await (supabase.from('profiles') as any)
+      const { error } = await (
+        supabase.from('profiles') as unknown as ProfileUpdateClient
+      )
         .update({
           first_name: firstName.trim() || null,
           last_name: lastName.trim() || null,
           full_name: `${lastName.trim()} ${firstName.trim()}`.trim() || null,
+          username: username.trim().toLowerCase() || null,
           phone: phone.trim() || null,
           birthday: bday,
           cccd_number: cccdNumber.trim() || null,
           cccd_full_name: cccdFullName.trim().toUpperCase() || null,
-        }).eq('id', profile.id);
+        } as any).eq('id', profile.id);
       
       if (error) throw error;
       setFeedback({ kind: 'success', message: 'Đã lưu thay đổi!' });
       setTimeout(() => setFeedback(null), 2000);
-    } catch (err: any) { setFeedback({ kind: 'error', message: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Đã có lỗi xảy ra.';
+      setFeedback({ kind: 'error', message });
     } finally { setSaving(false); }
   };
 
@@ -131,7 +157,9 @@ export default function ProfilePage() {
     setNfcScanning(true);
     setTimeout(async () => {
       try {
-        await (supabase.from('profiles') as any).update({ verification_status: 'pending' }).eq('id', profile?.id);
+        await (supabase.from('profiles') as unknown as ProfileUpdateClient)
+          .update({ verification_status: 'pending' })
+          .eq('id', profile?.id ?? '');
         setProfile(prev => prev ? { ...prev, verification_status: 'pending' } : null);
         setIsNfcModalOpen(false);
         setFeedback({ kind: 'success', message: 'Hồ sơ đang chờ duyệt!' });
@@ -169,7 +197,18 @@ export default function ProfilePage() {
           <section className={styles.cleanCard}>
             <div className={styles.identityFlex}>
               <div className={styles.avatarInner}>
-                {profile?.avatar_url ? <img src={profile.avatar_url} /> : <User />}
+                {profile?.avatar_url ? (
+                  <Image
+                    src={profile.avatar_url}
+                    alt={profile.full_name || 'Avatar'}
+                    width={96}
+                    height={96}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                    unoptimized
+                  />
+                ) : (
+                  <User />
+                )}
                 <label className={styles.camBtn}><Camera size={18} /><input type="file" hidden /></label>
               </div>
               <div className={styles.identityInfo}>
@@ -210,6 +249,8 @@ export default function ProfilePage() {
           <section className={styles.cleanCard}>
             <div className={styles.cardHeader}><Fingerprint size={20} /><h3>Định danh & Bảo mật</h3></div>
             <div className={styles.cleanForm}>
+              <div className={styles.fieldGroup}><label className={styles.cleanLabel}>Tên đăng nhập (Username)</label>
+                <input className={styles.cleanInput} value={username} onChange={e => setUsername(e.target.value.toLowerCase())} placeholder="myusername" /></div>
               <div className={styles.fieldGroup}><label className={styles.cleanLabel}>Email liên kết (Cố định)</label>
                 <div className={styles.readonlyField}><Mail size={16} /> <span>{email}</span></div></div>
               <div className={styles.cleanRow}>
