@@ -2,6 +2,16 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { audit } from '@/lib/security/auditLog';
+
+async function auditCtx() {
+  const h = await headers();
+  return {
+    ip: h.get('x-forwarded-for')?.split(',')[0] ?? null,
+    userAgent: h.get('user-agent'),
+  };
+}
 
 type Result = { ok: true } | { ok: false; error: string };
 type ManualConfirmResult =
@@ -81,6 +91,17 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
   revalidatePath('/admin/orders');
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath('/admin');
+
+  await audit(
+    {
+      action: status === 'cancelled' ? 'order.cancelled' : 'order.status_changed',
+      severity: status === 'cancelled' ? 'warn' : 'info',
+      entity: 'order',
+      entity_id: id,
+      details: { from: currentStatus, to: status },
+    },
+    await auditCtx()
+  );
   return { ok: true };
 }
 
@@ -132,6 +153,16 @@ export async function adminConfirmBankTransferPayment(
     revalidatePath('/admin/orders');
     revalidatePath(`/admin/orders/${id}`);
     revalidatePath('/admin');
+    await audit(
+      {
+        action: 'order.note_added',
+        severity: 'warn',
+        entity: 'order',
+        entity_id: id,
+        details: { manual_payment_confirmed: true, order_code: row.order_code, note: trimmedNote || null },
+      },
+      await auditCtx()
+    );
     return { ok: true, message: row.message };
   }
   if (row.message === 'ALREADY_PAID') {

@@ -3,6 +3,16 @@
 import { cacheDelete } from '@/lib/redis';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { audit } from '@/lib/security/auditLog';
+
+async function auditCtx() {
+  const h = await headers();
+  return {
+    ip: h.get('x-forwarded-for')?.split(',')[0] ?? null,
+    userAgent: h.get('user-agent'),
+  };
+}
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -58,6 +68,17 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
     revalidatePath(`/products/${input.slug}`);
+    await audit(
+      {
+        action: 'product.updated',
+        severity: 'info',
+        entity: 'product',
+        entity_id: id,
+        summary: `Updated product "${input.name}"`,
+        details: { slug: input.slug, price: input.price, stock: input.stock },
+      },
+      await auditCtx()
+    );
     return { ok: true, id };
   } else {
     const { id: _ignored, ...rest } = input;
@@ -68,9 +89,21 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
       .select('id')
       .single();
     if (error) return { ok: false, error: error.message };
-    await invalidateProductCache((data as { id: string }).id, null, rest);
+    const newId = (data as { id: string }).id;
+    await invalidateProductCache(newId, null, rest);
     revalidatePath('/admin/products');
-    return { ok: true, id: (data as { id: string }).id };
+    await audit(
+      {
+        action: 'product.created',
+        severity: 'info',
+        entity: 'product',
+        entity_id: newId,
+        summary: `Created product "${input.name}"`,
+        details: { slug: input.slug, price: input.price, stock: input.stock },
+      },
+      await auditCtx()
+    );
+    return { ok: true, id: newId };
   }
 }
 
@@ -81,6 +114,17 @@ export async function deleteProduct(id: string): Promise<Result> {
   if (error) return { ok: false, error: error.message };
   await invalidateProductCache(id, before, null);
   revalidatePath('/admin/products');
+  await audit(
+    {
+      action: 'product.archived',
+      severity: 'info',
+      entity: 'product',
+      entity_id: id,
+      summary: `Deleted product`,
+      details: { slug: before?.slug ?? null },
+    },
+    await auditCtx()
+  );
   return { ok: true };
 }
 
@@ -95,5 +139,15 @@ export async function toggleProductActive(id: string, isActive: boolean): Promis
   await invalidateProductCache(id, before, before);
   revalidatePath('/admin/products');
   if (before?.slug) revalidatePath(`/products/${before.slug}`);
+  await audit(
+    {
+      action: isActive ? 'product.restored' : 'product.archived',
+      severity: 'info',
+      entity: 'product',
+      entity_id: id,
+      summary: isActive ? 'Activated product' : 'Deactivated product',
+    },
+    await auditCtx()
+  );
   return { ok: true };
 }
