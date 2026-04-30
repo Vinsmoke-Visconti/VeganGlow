@@ -5,8 +5,32 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import crypto from 'node:crypto';
 
-export type AuthFormState = { error?: string } | null;
+import { audit } from '@/lib/security/auditLog';
+import {
+  checkLoginIpRate,
+  checkLoginEmailRate,
+  checkAdminLoginIpRate,
+} from '@/lib/security/rateLimit';
+import { constantDelay } from '@/lib/security/constantDelay';
+import { verifyTurnstile } from '@/lib/security/turnstile';
+
+export type AuthFormState = { error?: string; requiresCaptcha?: boolean } | null;
+
+const GENERIC_LOGIN_ERROR = 'Email hoặc mật khẩu không đúng';
+const TARGET_LOGIN_DELAY_MS = 300;
+
+function emailHash(email: string): string {
+  return crypto
+    .createHash('sha256')
+    .update(email.toLowerCase().trim())
+    .digest('hex');
+}
+
+function getClientIp(headersList: Awaited<ReturnType<typeof headers>>): string | null {
+  return headersList.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null;
+}
 
 type RpcUsernameToEmail = (
   fn: 'get_email_from_username',
@@ -63,13 +87,42 @@ function getTrustedAppOrigin(originHeader: string | null) {
 }
 
 export async function login(_prevState: AuthFormState, formData: FormData) {
+  const startedAt = Date.now();
+  const headersList = await headers();
+  const ip = getClientIp(headersList);
+  const userAgent = headersList.get('user-agent');
+
   let identifier = formData.get('email') as string;
   const password = formData.get('password') as string;
+  const captchaToken = String(formData.get('cf-turnstile-response') ?? '');
   const redirectTo = safeRedirectPath(formData.get('redirectTo'));
+
+  // 1. IP rate limit (progressive: tier 1 captcha at 3 fails, hard 429 at 30)
+  const ipRate = ip ? await checkLoginIpRate(ip) : null;
+  if (ipRate?.allowed === false) {
+    await audit(
+      { action: 'auth.rate_limited', severity: 'warn', details: { tier: ipRate.tier, key: 'login:ip' } },
+      { ip, userAgent }
+    );
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_LOGIN_ERROR };
+  }
+  if (ipRate?.requiresCaptcha) {
+    const valid = await verifyTurnstile(captchaToken, ip);
+    if (!valid) {
+      await audit(
+        { action: 'auth.captcha_challenged', severity: 'info', details: { reason: 'tier1_ip' } },
+        { ip, userAgent }
+      );
+      await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+      return { error: GENERIC_LOGIN_ERROR, requiresCaptcha: true };
+    }
+  }
 
   const supabase = await createClient();
 
-  if (!identifier.includes('@')) {
+  // Resolve username -> email if needed (preserve existing behavior)
+  if (identifier && !identifier.includes('@')) {
     const getEmailFromUsername = supabase.rpc.bind(supabase) as unknown as RpcUsernameToEmail;
     const { data: resolvedEmail } = await getEmailFromUsername(
       'get_email_from_username',
@@ -80,14 +133,44 @@ export async function login(_prevState: AuthFormState, formData: FormData) {
     }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // 2. Sign in
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: identifier,
     password,
   });
 
-  if (error) {
-    return { error: error.message };
+  if (error || !data.user) {
+    // Increment per-email counter so progressive challenge applies even
+    // across IP rotations targeting the same victim email.
+    if (identifier && identifier.includes('@')) {
+      await checkLoginEmailRate(emailHash(identifier));
+    }
+    await audit(
+      { action: 'auth.login_fail', severity: 'warn', details: { reason: 'wrong_password' } },
+      { ip, userAgent }
+    );
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_LOGIN_ERROR };
   }
+
+  // 3. Cross-realm block: staff (non-super_admin) cannot log in to storefront
+  const role = data.user.app_metadata?.staff_role as string | undefined;
+  const isSuper = data.user.app_metadata?.is_super_admin === true;
+  if (role && role !== 'customer' && !isSuper) {
+    await supabase.auth.signOut();
+    await audit(
+      { action: 'auth.cross_realm_blocked', severity: 'warn', details: { realm: 'storefront' } },
+      { ip, userAgent }
+    );
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_LOGIN_ERROR };
+  }
+
+  await audit(
+    { action: 'auth.login_success', severity: 'info', details: { method: 'password' } },
+    { ip, userAgent }
+  );
+  await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
 
   revalidatePath('/', 'layout');
   redirect(redirectTo);
@@ -154,12 +237,40 @@ export async function adminGoogleLogin() {
 }
 
 export async function adminLogin(_prevState: AuthFormState, formData: FormData) {
+  const startedAt = Date.now();
+  const headersList = await headers();
+  const ip = getClientIp(headersList);
+  const userAgent = headersList.get('user-agent');
+
   let identifier = formData.get('email') as string;
   const password = formData.get('password') as string;
+  const captchaToken = String(formData.get('cf-turnstile-response') ?? '');
+
+  // 1. Stricter rate-limit for admin (captcha at fail #1, hard 429 at #15)
+  const ipRate = ip ? await checkAdminLoginIpRate(ip) : null;
+  if (ipRate?.allowed === false) {
+    await audit(
+      { action: 'auth.rate_limited', severity: 'warn', details: { tier: ipRate.tier, key: 'admin_login:ip' } },
+      { ip, userAgent }
+    );
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_LOGIN_ERROR };
+  }
+  if (ipRate?.requiresCaptcha) {
+    const valid = await verifyTurnstile(captchaToken, ip);
+    if (!valid) {
+      await audit(
+        { action: 'auth.captcha_challenged', severity: 'info', details: { reason: 'admin_login_tier1' } },
+        { ip, userAgent }
+      );
+      await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+      return { error: GENERIC_LOGIN_ERROR, requiresCaptcha: true };
+    }
+  }
 
   const supabase = await createClient();
 
-  if (!identifier.includes('@')) {
+  if (identifier && !identifier.includes('@')) {
     const getEmailFromUsername = supabase.rpc.bind(supabase) as unknown as RpcUsernameToEmail;
     const { data: resolvedEmail } = await getEmailFromUsername(
       'get_email_from_username',
@@ -170,22 +281,43 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
     }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // 2. Sign in
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: identifier,
     password,
   });
 
-  if (error) {
-    return { error: 'Tài khoản không có quyền truy cập hoặc mật khẩu không chính xác.' };
+  if (error || !data.user) {
+    if (identifier && identifier.includes('@')) {
+      await checkLoginEmailRate(emailHash(identifier));
+    }
+    await audit(
+      { action: 'auth.login_fail', severity: 'warn', details: { reason: 'wrong_password' } },
+      { ip, userAgent }
+    );
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_LOGIN_ERROR };
   }
 
-  const { data: isStaff } = await supabase.rpc('is_staff');
-
-  if (!isStaff) {
+  // 3. Cross-realm block: customer cannot enter admin
+  const role = data.user.app_metadata?.staff_role as string | undefined;
+  if (!role || role === 'customer') {
     await supabase.auth.signOut();
-    return { error: 'Tài khoản không có quyền truy cập hoặc mật khẩu không chính xác.' };
+    await audit(
+      { action: 'auth.cross_realm_blocked', severity: 'warn', details: { realm: 'admin' } },
+      { ip, userAgent }
+    );
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_LOGIN_ERROR };
   }
 
+  await audit(
+    { action: 'auth.login_success', severity: 'info', details: { method: 'password' } },
+    { ip, userAgent }
+  );
+  await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+
+  // Middleware decides next step (setup-mfa / mfa-challenge / dashboard) based on AAL.
   revalidatePath('/admin', 'layout');
   redirect('/admin');
 }
