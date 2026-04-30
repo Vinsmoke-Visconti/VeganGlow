@@ -17,21 +17,19 @@ export function CustomersFilter({ defaultQ }: { defaultQ?: string }) {
   }
 
   return (
-    <div className={shared.toolbar}>
-      <div className={shared.filterBar}>
-        <div className={shared.searchInput}>
-          <Search size={16} />
-          <input
-            placeholder="Tìm khách hàng theo tên"
-            defaultValue={defaultQ ?? ''}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const value = (e.target as HTMLInputElement).value.trim();
-                setParam(value || undefined);
-              }
-            }}
-          />
-        </div>
+    <div className={shared.filterBar}>
+      <div className={shared.searchInput}>
+        <Search size={16} />
+        <input
+          placeholder="Tìm khách hàng theo tên"
+          defaultValue={defaultQ ?? ''}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              const value = (e.target as HTMLInputElement).value.trim();
+              setParam(value || undefined);
+            }
+          }}
+        />
       </div>
     </div>
   );

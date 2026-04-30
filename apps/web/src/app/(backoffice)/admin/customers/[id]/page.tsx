@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, MapPin, ShoppingBag, Ticket } from 'lucide-react';
+import { ChevronLeft, MapPin, ShoppingBag, Ticket, User, Calendar, CreditCard, Hash } from 'lucide-react';
 import { getCustomerDetail } from '@/lib/admin/queries/customers';
 import {
   formatVND,
@@ -12,11 +12,14 @@ import {
 import shared from '../../admin-shared.module.css';
 import styles from './customer-detail.module.css';
 
+import { CustomerEditClient } from '../_components/CustomerEditClient';
+
 type Props = { params: Promise<{ id: string }> };
 
 type ProfileShape = {
   id: string;
   full_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   role: string | null;
   created_at: string;
@@ -74,27 +77,28 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   return (
     <div className={shared.page}>
-      <Link href="/admin/customers" className={`${shared.btn} ${shared.btnGhost}`}>
+      <Link href="/admin/customers" className={`${shared.btn} ${shared.btnGhost}`} style={{ alignSelf: 'flex-start', marginBottom: 12 }}>
         <ChevronLeft size={14} /> Danh sách khách hàng
       </Link>
 
-      <div className={shared.pageHeader} style={{ marginTop: 12 }}>
-        <div>
-          <h1 className={shared.pageTitle}>{profile.full_name ?? '—'}</h1>
-          <p className={shared.pageSubtitle}>
-            Thành viên từ {formatDateShort(profile.created_at)}
-          </p>
-        </div>
-      </div>
-
       <div className={styles.grid}>
+        {/* LEFT — Profile sidebar */}
         <div>
           <section className={styles.card}>
-            <div className={styles.profileRow}>
+            <div className={styles.profileRow} style={{ position: 'relative' }}>
+              <div style={{ position: 'absolute', top: 0, right: 0 }}>
+                 <CustomerEditClient profile={{ id: profile.id, full_name: profile.full_name, username: profile.username }} />
+              </div>
               <div className={styles.avatar}>{initial}</div>
               <div className={styles.profileMeta}>
                 <h3 className={styles.profileName}>{profile.full_name ?? '—'}</h3>
-                <span className={styles.profileSub}>ID: {profile.id.slice(0, 8)}…</span>
+                <span className={styles.profileSub}>
+                  @{profile.username || 'user'}
+                </span>
+                <span className={styles.profileSub}>
+                  <Calendar size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                  Tham gia {formatDateShort(profile.created_at)}
+                </span>
               </div>
             </div>
 
@@ -110,29 +114,27 @@ export default async function CustomerDetailPage({ params }: Props) {
             </div>
           </section>
 
+          {/* Addresses */}
           <section className={styles.card}>
             <h3 className={styles.cardTitle}>
-              <MapPin size={14} style={{ display: 'inline', marginRight: 6 }} />
+              <MapPin size={14} />
               Địa chỉ ({addresses.length})
             </h3>
             {addresses.length === 0 ? (
-              <p style={{ color: 'var(--vg-ink-500)', fontSize: 13 }}>Chưa có địa chỉ</p>
+              <p style={{ color: 'var(--vg-ink-400)', fontSize: 13, margin: 0 }}>Chưa có địa chỉ</p>
             ) : (
               addresses.map((a) => (
                 <div key={a.id} className={styles.addressItem}>
-                  <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                     <strong>{a.full_name}</strong>
                     {a.is_default && (
-                      <span
-                        className={`${shared.badge} ${shared.badgeSuccess}`}
-                        style={{ marginLeft: 6 }}
-                      >
-                        Mặc định
-                      </span>
+                      <span className={`${shared.badge} ${shared.badgeSuccess}`}>Mặc định</span>
                     )}
                   </div>
-                  <div>{a.phone}</div>
-                  <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--vg-ink-500)', fontSize: 12, marginBottom: 2 }}>
+                    <User size={10} /> {a.phone}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--vg-ink-500)' }}>
                     {a.address}
                     {a.ward ? `, ${a.ward}` : ''}
                     {a.province ? `, ${a.province}` : ''}
@@ -143,19 +145,23 @@ export default async function CustomerDetailPage({ params }: Props) {
             )}
           </section>
 
+          {/* Vouchers */}
           <section className={styles.card}>
             <h3 className={styles.cardTitle}>
-              <Ticket size={14} style={{ display: 'inline', marginRight: 6 }} />
+              <Ticket size={14} />
               Voucher ({vouchers.length})
             </h3>
             {vouchers.length === 0 ? (
-              <p style={{ color: 'var(--vg-ink-500)', fontSize: 13 }}>Chưa nhận voucher</p>
+              <p style={{ color: 'var(--vg-ink-400)', fontSize: 13, margin: 0 }}>Chưa nhận voucher</p>
             ) : (
               <ul className={styles.voucherList}>
                 {vouchers.map((v) => (
                   <li key={v.id} className={styles.voucherItem}>
                     <span>
-                      <strong>{v.voucher?.code ?? '—'}</strong> · {v.voucher?.title ?? ''}
+                      <strong>{v.voucher?.code ?? '—'}</strong>
+                      <span style={{ color: 'var(--vg-ink-400)', marginLeft: 6, fontSize: 11 }}>
+                        {v.voucher?.title ?? ''}
+                      </span>
                     </span>
                     <span
                       className={`${shared.badge} ${
@@ -171,47 +177,52 @@ export default async function CustomerDetailPage({ params }: Props) {
           </section>
         </div>
 
+        {/* RIGHT — Order history */}
         <div>
-          <section className={styles.card}>
+          <section className={styles.card} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <h3 className={styles.cardTitle}>
-              <ShoppingBag size={14} style={{ display: 'inline', marginRight: 6 }} />
+              <ShoppingBag size={14} />
               Lịch sử đơn hàng ({orders.length})
             </h3>
             {orders.length === 0 ? (
-              <p style={{ color: 'var(--vg-ink-500)', fontSize: 13 }}>Chưa có đơn nào</p>
+              <p style={{ color: 'var(--vg-ink-400)', fontSize: 13, margin: 0, flex: 1, display: 'grid', placeItems: 'center' }}>Chưa có đơn nào</p>
             ) : (
-              <table className={shared.table}>
-                <thead>
-                  <tr>
-                    <th>Mã</th>
-                    <th>Tổng</th>
-                    <th>Trạng thái</th>
-                    <th>Lúc</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((o) => (
-                    <tr key={o.id}>
-                      <td>
-                        <Link href={`/admin/orders/${o.id}`}>
-                          <strong>{o.code}</strong>
-                        </Link>
-                      </td>
-                      <td>{formatVND(o.total_amount)}</td>
-                      <td>
-                        <span
-                          className={`${shared.badge} ${
-                            shared[ORDER_STATUS_BADGE[o.status] ?? 'badgeMuted']
-                          }`}
-                        >
-                          {ORDER_STATUS_LABEL[o.status] ?? o.status}
-                        </span>
-                      </td>
-                      <td>{formatDate(o.created_at)}</td>
+              <div className={shared.tableWrap} style={{ flex: 1 }}>
+                <table className={shared.table}>
+                  <thead>
+                    <tr>
+                      <th><Hash size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Mã</th>
+                      <th>Tổng</th>
+                      <th><CreditCard size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />Thanh toán</th>
+                      <th>Trạng thái</th>
+                      <th>Thời gian</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {orders.map((o) => (
+                      <tr key={o.id}>
+                        <td>
+                          <Link href={`/admin/orders/${o.id}`} style={{ color: 'var(--vg-leaf-700)', fontWeight: 600, textDecoration: 'none' }}>
+                            {o.code}
+                          </Link>
+                        </td>
+                        <td style={{ fontWeight: 600 }}>{formatVND(o.total_amount)}</td>
+                        <td style={{ fontSize: 12, color: 'var(--vg-ink-500)' }}>{o.payment_method}</td>
+                        <td>
+                          <span
+                            className={`${shared.badge} ${
+                              shared[ORDER_STATUS_BADGE[o.status] ?? 'badgeMuted']
+                            }`}
+                          >
+                            {ORDER_STATUS_LABEL[o.status] ?? o.status}
+                          </span>
+                        </td>
+                        <td style={{ fontSize: 12, color: 'var(--vg-ink-400)' }}>{formatDate(o.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         </div>

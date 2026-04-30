@@ -1,5 +1,5 @@
 /* ============================================
-   VeganGlow Admin - Roles & Permissions
+   VeganGlow Admin — Roles & Permissions (Clean)
    ============================================ */
 
 .sectionTitle {
@@ -8,14 +8,12 @@
   gap: var(--vg-space-2);
   margin-bottom: var(--vg-space-4);
   color: var(--vg-ink-900);
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-lg);
-  font-weight: 700;
-  letter-spacing: 0;
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .sectionIcon {
-  color: var(--vg-leaf-700);
+  color: var(--vg-leaf-600);
 }
 
 .rolesSection {
@@ -25,28 +23,20 @@
 
 .rolesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--vg-space-4);
 }
 
 .roleCard {
   padding: var(--vg-space-5);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(238, 247, 239, 0.68)),
-    var(--vg-glass-bg);
-  box-shadow: var(--vg-shadow-1);
-  transition:
-    transform var(--vg-duration-fast) var(--vg-ease-out),
-    box-shadow var(--vg-duration-fast) var(--vg-ease-out),
-    border-color var(--vg-duration-fast) var(--vg-ease-out);
+  background: var(--vg-surface-0);
+  transition: border-color var(--vg-duration-fast);
 }
 
 .roleCard:hover {
-  transform: translateY(-2px);
-  border-color: rgba(50, 125, 91, 0.24);
-  box-shadow: var(--vg-shadow-2);
+  border-color: var(--vg-border-hover);
 }
 
 .roleHeader {
@@ -57,26 +47,25 @@
 }
 
 .roleIcon {
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--vg-radius-md);
-  background: linear-gradient(135deg, var(--vg-leaf-50), var(--vg-leaf-100));
-  color: var(--vg-leaf-800);
+  background: var(--vg-leaf-50);
+  color: var(--vg-leaf-700);
   flex-shrink: 0;
 }
 
 .roleName {
   color: var(--vg-ink-900);
   font-size: var(--vg-text-base);
-  font-weight: 850;
-  letter-spacing: 0;
+  font-weight: 600;
 }
 
 .roleSlug {
-  color: var(--vg-ink-500);
+  color: var(--vg-ink-400);
   font-family: var(--vg-font-mono);
   font-size: var(--vg-text-xs);
 }
@@ -84,32 +73,32 @@
 .roleCount {
   display: inline-flex;
   width: fit-content;
-  padding: 4px 9px;
+  padding: 3px 8px;
   border-radius: var(--vg-radius-sm);
-  background: rgba(50, 125, 91, 0.1);
-  color: var(--vg-leaf-900);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-600);
   font-size: var(--vg-text-xs);
-  font-weight: 850;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .roleBar {
-  height: 7px;
+  height: 4px;
   border-radius: var(--vg-radius-pill);
-  background: var(--vg-parchment-100);
+  background: var(--vg-surface-100);
   overflow: hidden;
 }
 
 .roleBarFill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--vg-leaf-500), var(--vg-gold-500));
-  transition: width var(--vg-duration-base) var(--vg-ease-out);
+  background: var(--vg-gradient-leaf-vivid);
+  transition: width var(--vg-duration-base);
 }
 
 .roleDesc {
   margin-top: var(--vg-space-3);
-  color: var(--vg-ink-500);
+  color: var(--vg-ink-400);
   font-size: var(--vg-text-xs);
   line-height: var(--vg-leading-normal);
 }
@@ -119,22 +108,20 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--vg-space-3);
-  padding: var(--vg-space-5) var(--vg-space-6);
-  border-bottom: 1px solid var(--vg-parchment-200);
-  background: linear-gradient(90deg, rgba(238, 247, 239, 0.74), transparent);
+  padding: var(--vg-space-5);
+  border-bottom: 1px solid var(--vg-border);
   flex-wrap: wrap;
 }
 
 .matrixTitle {
   margin: 0 0 4px;
   color: var(--vg-ink-900);
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-lg);
-  font-weight: 700;
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .matrixDesc {
-  color: var(--vg-ink-500);
+  color: var(--vg-ink-400);
   font-size: var(--vg-text-sm);
 }
 
@@ -142,8 +129,8 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  background: rgba(243, 241, 234, 0.96);
-  box-shadow: 0 1px 0 var(--vg-parchment-200);
+  background: var(--vg-surface-50);
+  border-bottom: 1px solid var(--vg-border);
 }
 
 .legend {
@@ -151,18 +138,18 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--vg-space-4);
-  padding: var(--vg-space-4) var(--vg-space-6);
-  border-bottom: 1px solid var(--vg-parchment-200);
-  background: rgba(251, 250, 246, 0.78);
-  color: var(--vg-ink-600, var(--vg-ink-500));
+  padding: var(--vg-space-3) var(--vg-space-5);
+  border-bottom: 1px solid var(--vg-border);
+  background: var(--vg-surface-50);
+  color: var(--vg-ink-500);
   font-size: var(--vg-text-xs);
 }
 
 .legendTitle {
-  color: var(--vg-ink-500);
+  color: var(--vg-ink-400);
   font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -173,8 +160,8 @@
 }
 
 .legendChip {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -187,16 +174,16 @@
 }
 
 .legendChipNo {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid var(--vg-parchment-200);
+  background: var(--vg-surface-100);
+  border: 1px solid var(--vg-border);
   color: var(--vg-ink-300);
 }
 
 .legendChipModule {
-  width: 8px;
-  height: 15px;
+  width: 6px;
+  height: 14px;
   border-radius: var(--vg-radius-sm);
-  background: linear-gradient(180deg, var(--vg-leaf-500), var(--vg-gold-500));
+  background: var(--vg-leaf-500);
 }
 
 .matrixCol {
@@ -205,12 +192,12 @@
 }
 
 .matrixGroupRow td {
-  padding: var(--vg-space-3) var(--vg-space-6);
-  background: rgba(238, 247, 239, 0.84) !important;
-  color: var(--vg-leaf-900) !important;
+  padding: var(--vg-space-3) var(--vg-space-5);
+  background: var(--vg-surface-50) !important;
+  color: var(--vg-ink-700) !important;
   font-size: var(--vg-text-xs);
-  font-weight: 850;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -220,8 +207,8 @@
 
 .matrixYes,
 .matrixNo {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -234,7 +221,7 @@
 }
 
 .matrixNo {
-  background: var(--vg-parchment-100);
+  background: var(--vg-surface-100);
   color: var(--vg-ink-300);
 }
 
@@ -246,21 +233,21 @@
 }
 
 .permIcon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--vg-radius-sm);
-  background: rgba(50, 125, 91, 0.1);
-  color: var(--vg-leaf-800);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-500);
 }
 
 .permKey {
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--vg-radius-sm);
-  background: var(--vg-parchment-100);
-  color: var(--vg-ink-500);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-400);
   font-family: var(--vg-font-mono);
   font-size: 11px;
 }

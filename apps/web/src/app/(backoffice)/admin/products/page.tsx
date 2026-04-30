@@ -51,19 +51,6 @@ export default async function AdminProducts({ searchParams }: Props) {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Sản phẩm</h1>
-          <p className={shared.pageSubtitle}>
-            Quản lý kho hàng và danh mục. Hiện có {products.length} sản phẩm đang vận hành.
-          </p>
-        </div>
-        <div className={shared.pageActions}>
-          <Link href="/admin/products/new" className={`${shared.btn} ${shared.btnPrimary}`}>
-            <Plus size={14} /> Thêm sản phẩm
-          </Link>
-        </div>
-      </div>
 
       <Suspense fallback={<div className={shared.loadingSkeleton} style={{ height: '400px', borderRadius: 'var(--vg-radius-xl)' }} />}>
         <ProductsClient 

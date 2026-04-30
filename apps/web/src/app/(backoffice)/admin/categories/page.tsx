@@ -7,12 +7,7 @@ export default async function AdminCategories() {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Danh mục sản phẩm</h1>
-          <p className={shared.pageSubtitle}>{categories.length} danh mục</p>
-        </div>
-      </div>
+
 
       <CategoriesClient categories={categories} />
     </div>

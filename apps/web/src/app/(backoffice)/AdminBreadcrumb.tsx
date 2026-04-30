@@ -23,7 +23,9 @@ export function AdminBreadcrumb() {
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
 
-  if (segments.length <= 1) return null;
+  // Do not return early before hooks, though there are no hooks after this,
+  // it's safer for React hydration to avoid early returns.
+  const isRoot = segments.length <= 1;
 
   const crumbs = segments.reduce<{ href: string; label: string }[]>((list, seg) => {
     const prev = list.length > 0 ? list[list.length - 1].href : '';
@@ -31,6 +33,8 @@ export function AdminBreadcrumb() {
     list.push({ href, label: SEGMENT_LABEL[seg] || decodeURIComponent(seg) });
     return list;
   }, []);
+
+  if (isRoot) return null;
 
   return (
     <nav aria-label="Breadcrumb" className={styles.breadcrumb}>

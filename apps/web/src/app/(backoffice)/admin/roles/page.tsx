@@ -13,14 +13,7 @@ export default async function AdminRoles() {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Phân quyền hệ thống</h1>
-          <p className={shared.pageSubtitle}>
-            Cấu hình quyền hạn cho từng vai trò hoặc trực tiếp cho từng tài khoản nhân sự.
-          </p>
-        </div>
-      </div>
+
 
       <PermissionMatrix roles={roles} permissions={permissions} staff={staff} currentUser={currentUser} />
     </div>
