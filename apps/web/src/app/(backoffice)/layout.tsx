@@ -8,6 +8,7 @@ import PageTransition from '@/components/ui/PageTransition';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminProfileMenu } from './AdminProfileMenu';
 import { AdminBreadcrumb } from './AdminBreadcrumb';
+import { IdleTimeoutGuard } from '@/components/admin/IdleTimeoutGuard';
 
 type StaffRoleRow = {
   full_name: string | null;
@@ -68,6 +69,7 @@ export default async function BackofficeLayout({
 
   return (
     <div className={styles.adminContainer}>
+      <IdleTimeoutGuard />
       <AdminSidebar permissions={permissions} />
 
       <div className={styles.mainWrapper}>
