@@ -28,12 +28,13 @@
 
 ```
 apps/backend/supabase/migrations/
-  00021_security_hardening_rls_audit.sql
-  00022_audit_log_expansion.sql
-  00023_mfa_backup_codes.sql
-  00024_jwt_custom_claims_hook.sql
-  00025_ensure_profile_on_signup.sql
-  00026_search_path_audit.sql
+  00022_security_hardening_rls_audit.sql      (00021 already taken by RBAC hierarchy upgrade)
+  00023_audit_log_expansion.sql
+  00024_mfa_backup_codes.sql
+  00025_jwt_custom_claims_hook.sql
+  00026_ensure_profile_on_signup.sql
+  00027_search_path_audit.sql
+  00028_enable_pgtap.sql
 
 apps/backend/supabase/tests/rls/
   staff_profiles.test.sql
