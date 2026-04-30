@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { logAction } from '@/lib/admin/audit';
 
 type StaffInvitationWriteClient = {
   upsert: (
@@ -26,6 +25,11 @@ type StaffProfileWriteClient = {
   };
 };
 
+/**
+ * Super Admin invites a staff member by email. The user does NOT need to exist
+ * in auth.users yet — they'll be auto-promoted on first login (Google or
+ * email/password) by the on_auth_user_created trigger.
+ */
 export async function inviteStaff(prevState: unknown, formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase();
   const fullName = (formData.get('fullName') as string)?.trim();
@@ -39,25 +43,28 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
 
   const { data: isSuperAdmin, error: authError } = await supabase.rpc('is_super_admin');
   if (authError || !isSuperAdmin) {
+    console.error('Staff Action Authorization Error:', authError);
     return { error: 'Quyền truy cập bị từ chối. Chỉ Super Admin mới có quyền mời nhân sự.' };
   }
 
-  const { data: role } = (await supabase
+  const { data: role, error: roleErr } = await supabase
     .from('roles')
-    .select('id, display_name')
+    .select('id')
     .eq('name', roleName)
-    .single()) as any;
+    .single();
 
-  if (!role) return { error: `Vai trò "${roleName}" không tồn tại.` };
+  if (roleErr || !role) {
+    return { error: `Vai trò "${roleName}" không tồn tại.` };
+  }
 
   const { data: { user } } = await supabase.auth.getUser();
 
   const { error } = await (
-    supabase.from('staff_invitations') as any
+    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
   ).upsert(
     {
       email,
-      role_id: role.id,
+      role_id: (role as { id: string }).id,
       full_name: fullName,
       status: 'pending',
       invited_by: user?.id ?? null,
@@ -65,19 +72,17 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
     { onConflict: 'email' },
   );
 
-  if (error) return { error: 'Không thể tạo lời mời: ' + error.message };
+  if (error) {
+    console.error('Staff Invitation Error:', error);
+    return { error: 'Không thể tạo lời mời: ' + error.message };
+  }
 
-  await logAction({
-    resource_type: 'staff',
-    action: 'Invite Staff',
-    entity: fullName,
-    summary: `Mời nhân viên mới: ${fullName} (${email}) với vai trò ${role.display_name}`
-  });
-
+  // If the invitee already has an auth.users row (e.g. signed up earlier as a
+  // customer), promote them right away so they don't have to log out/in.
   await supabase.rpc('sweep_pending_invitations');
 
   revalidatePath('/admin/users');
-  return { success: `Đã mời ${email} với vai trò ${role.display_name}.` };
+  return { success: `Đã mời ${email} với vai trò ${roleName}.` };
 }
 
 export async function revokeStaffInvitation(invitationId: string) {
@@ -88,22 +93,13 @@ export async function revokeStaffInvitation(invitationId: string) {
     return { error: 'Chỉ Super Admin mới được phép thu hồi lời mời.' };
   }
 
-  const { data: inv } = (await supabase.from('staff_invitations').select('email, full_name').eq('id', invitationId).maybeSingle()) as any;
-
   const { error } = await (
-    supabase.from('staff_invitations') as any
+    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
   )
     .update({ status: 'revoked' })
     .eq('id', invitationId);
 
   if (error) return { error: error.message };
-
-  await logAction({
-    resource_type: 'staff',
-    action: 'Revoke Invitation',
-    entity: inv?.full_name || inv?.email,
-    summary: `Thu hồi lời mời của: ${inv?.full_name} (${inv?.email})`
-  });
 
   revalidatePath('/admin/users');
   return { success: 'Đã thu hồi lời mời.' };
@@ -117,23 +113,13 @@ export async function deactivateStaff(staffId: string) {
     return { error: 'Chỉ Super Admin mới được phép vô hiệu hóa nhân sự.' };
   }
 
-  const { data: p } = (await supabase.from('staff_profiles').select('full_name, email').eq('id', staffId).maybeSingle()) as any;
-
   const { error } = await (
-    supabase.from('staff_profiles') as any
+    supabase.from('staff_profiles') as unknown as StaffProfileWriteClient
   )
     .update({ is_active: false })
     .eq('id', staffId);
 
   if (error) return { error: error.message };
-
-  await logAction({
-    resource_type: 'staff',
-    resource_id: staffId,
-    action: 'Deactivate Staff',
-    entity: p?.full_name,
-    summary: `Vô hiệu hóa nhân sự: ${p?.full_name} (${p?.email})`
-  });
 
   revalidatePath('/admin/users');
   return { success: 'Đã vô hiệu hóa nhân sự.' };

@@ -12,12 +12,7 @@ export default async function NewProductPage() {
       <Link href="/admin/products" className={`${shared.btn} ${shared.btnGhost}`}>
         <ChevronLeft size={14} /> Danh sách sản phẩm
       </Link>
-      <div className={shared.pageHeader} style={{ marginTop: 12 }}>
-        <div>
-          <h1 className={shared.pageTitle}>Sản phẩm mới</h1>
-          <p className={shared.pageSubtitle}>Tạo một mục sản phẩm mới cho cửa hàng</p>
-        </div>
-      </div>
+
       <ProductForm categories={categories} />
     </div>
   );

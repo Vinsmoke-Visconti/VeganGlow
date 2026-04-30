@@ -12,10 +12,10 @@ type Props = {
 
 export function AdminViewSwitcher({ mode, onChange }: Props) {
   return (
-    <div className={shared.viewSwitcher}>
+    <div className={shared.viewToggle}>
       <button
         type="button"
-        className={`${shared.viewBtn} ${mode === 'table' ? shared.viewBtnActive : ''}`}
+        className={`${shared.viewToggleBtn} ${mode === 'table' ? shared.viewToggleBtnActive : ''}`}
         onClick={() => onChange('table')}
         title="Dạng bảng (Details)"
       >
@@ -23,7 +23,7 @@ export function AdminViewSwitcher({ mode, onChange }: Props) {
       </button>
       <button
         type="button"
-        className={`${shared.viewBtn} ${mode === 'grid' ? shared.viewBtnActive : ''}`}
+        className={`${shared.viewToggleBtn} ${mode === 'grid' ? shared.viewToggleBtnActive : ''}`}
         onClick={() => onChange('grid')}
         title="Dạng lưới (Tiles)"
       >

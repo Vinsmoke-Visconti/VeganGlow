@@ -121,7 +121,7 @@ export async function getTopProducts(days = 7, limit = 5) {
   since.setDate(since.getDate() - days);
   const { data } = await supabase
     .from('order_items')
-    .select('product_id, product_name, quantity, unit_price, order:orders!inner(created_at, status, payment_method, payment_status)')
+    .select('product_id, product_name, quantity, unit_price, order:orders!inner(created_at, status, payment_method, payment_status), product:products(image, category_id, categories(name))')
     .gte('orders.created_at', since.toISOString())
     .neq('orders.status', 'cancelled');
 
@@ -135,12 +135,24 @@ export async function getTopProducts(days = 7, limit = 5) {
       payment_status?: string | null;
       payment_method?: string | null;
     };
+    product?: {
+      image: string | null;
+      category_id: string | null;
+      categories: { name: string } | null;
+    } | null;
   };
-  const totals = new Map<string, { name: string; qty: number; revenue: number }>();
+  const totals = new Map<string, { name: string; qty: number; revenue: number; image: string | null; category: string | null }>();
   for (const row of (data ?? []) as Row[]) {
     if (row.order && !countsAsRevenue(row.order)) continue;
     const key = row.product_id ?? row.product_name;
-    const t = totals.get(key) ?? { name: row.product_name, qty: 0, revenue: 0 };
+    const cat = Array.isArray(row.product?.categories) ? row.product?.categories[0]?.name : row.product?.categories?.name;
+    const t = totals.get(key) ?? { 
+      name: row.product_name, 
+      qty: 0, 
+      revenue: 0,
+      image: row.product?.image ?? null,
+      category: cat ?? null
+    };
     t.qty += row.quantity;
     t.revenue += Number(row.unit_price) * row.quantity;
     totals.set(key, t);
@@ -148,5 +160,5 @@ export async function getTopProducts(days = 7, limit = 5) {
   return Array.from(totals.entries())
     .sort((a, b) => b[1].qty - a[1].qty)
     .slice(0, limit)
-    .map(([id, t]) => ({ id, name: t.name, quantity: t.qty, revenue: t.revenue }));
+    .map(([id, t]) => ({ id, name: t.name, quantity: t.qty, revenue: t.revenue, image: t.image, category: t.category }));
 }

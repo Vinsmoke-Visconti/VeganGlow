@@ -64,15 +64,7 @@ export default async function OrderDetailPage({ params }: Props) {
         <ChevronLeft size={14} /> Quay lại danh sách
       </Link>
 
-      <div className={shared.pageHeader} style={{ marginTop: 12 }}>
-        <div>
-          <h1 className={shared.pageTitle}>{order.code}</h1>
-          <p className={shared.pageSubtitle}>{formatDate(order.created_at)}</p>
-        </div>
-        <span className={`${shared.badge} ${shared[ORDER_STATUS_BADGE[order.status] ?? 'badgeMuted']}`}>
-          {ORDER_STATUS_LABEL[order.status] ?? order.status}
-        </span>
-      </div>
+
 
       <div className={styles.grid}>
         <section className={styles.card}>

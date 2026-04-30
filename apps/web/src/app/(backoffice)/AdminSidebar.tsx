@@ -1,26 +1,26 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
-  LayoutDashboard,
-  ShoppingBag,
-  Package,
   FolderOpen,
-  Users,
-  UserCog,
-  Shield,
-  Settings,
+  LayoutDashboard,
   Leaf,
-  Sparkles,
   Megaphone,
+  Package,
   PanelLeftClose,
   PanelLeftOpen,
-  ScrollText,
+  Settings,
+  Shield,
+  ShoppingBag,
+  Sparkles,
+  UserCog,
+  Users,
+  Activity,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useSyncExternalStore } from 'react';
 import styles from './backoffice-layout.module.css';
-import type { LucideIcon } from 'lucide-react';
 
 type NavItem = {
   href: string;
@@ -59,7 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin/users', icon: UserCog, label: 'Nhân sự', permission: 'users:read' },
       { href: '/admin/roles', icon: Shield, label: 'Phân quyền', permission: 'users:write' },
-      { href: '/admin/audit-logs', icon: ScrollText, label: 'Nhật ký hoạt động' },
+      { href: '/admin/audit-logs', icon: Activity, label: 'Nhật ký hệ thống', permission: 'users:read' },
       { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
       { href: '/admin/about-team', icon: Sparkles, label: 'Tác giả & Nhóm' },
     ],
@@ -79,7 +79,7 @@ function readCollapsed(): boolean {
 }
 
 function subscribeCollapsed(cb: () => void): () => void {
-  if (typeof window === 'undefined') return () => {};
+  if (typeof window === 'undefined') return () => { };
   window.addEventListener(COLLAPSE_EVENT, cb);
   window.addEventListener('storage', cb);
   return () => {

@@ -22,12 +22,7 @@ export default async function AdminMarketing({ searchParams }: Props) {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Marketing</h1>
-          <p className={shared.pageSubtitle}>Voucher, banner và flash sale</p>
-        </div>
-      </div>
+
 
       <div className={shared.tabBar}>
         <Link

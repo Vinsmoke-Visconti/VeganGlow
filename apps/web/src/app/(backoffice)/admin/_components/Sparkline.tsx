@@ -6,7 +6,7 @@ type Point = { date: string; total: number };
 
 export function Sparkline({ data }: { data: Point[] }) {
   if (data.length === 0) {
-    return <div style={{ color: 'var(--vg-ink-500)', fontSize: 'var(--vg-text-sm)' }}>Chưa có dữ liệu</div>;
+    return <div style={{ color: 'var(--vg-ink-400)', fontSize: 'var(--vg-text-sm)' }}>Chưa có dữ liệu</div>;
   }
   const max = Math.max(...data.map((d) => d.total), 1);
   const w = 600;
@@ -27,10 +27,10 @@ export function Sparkline({ data }: { data: Point[] }) {
       aria-label="Biểu đồ doanh thu 7 ngày"
     >
       <polygon fill="var(--vg-leaf-100)" opacity="0.5" points={areaPoints} />
-      <polyline fill="none" stroke="var(--vg-leaf-700)" strokeWidth={2} points={points} />
+      <polyline fill="none" stroke="var(--vg-leaf-600)" strokeWidth={1.5} points={points} strokeLinejoin="round" strokeLinecap="round" />
       {data.map((d, i) => (
         <g key={d.date}>
-          <circle cx={i * stepX} cy={h - (d.total / max) * (h - 16) - 4} r={3} fill="var(--vg-leaf-700)" />
+          <circle cx={i * stepX} cy={h - (d.total / max) * (h - 16) - 4} r={2.5} fill="var(--vg-leaf-600)" />
           <title>{`${d.date}: ${formatVND(d.total)}`}</title>
         </g>
       ))}

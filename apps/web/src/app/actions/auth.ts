@@ -1,11 +1,10 @@
 'use server';
 
+import { sendPasswordOtpEmail } from '@/lib/email';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { sendPasswordOtpEmail } from '@/lib/email';
-import { logAction } from '@/lib/admin/audit';
 
 export type AuthFormState = { error?: string } | null;
 
@@ -161,7 +160,7 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
   const supabase = await createClient();
 
   if (!identifier.includes('@')) {
-    const getEmailFromUsername = supabase.rpc.bind(supabase) as any;
+    const getEmailFromUsername = supabase.rpc.bind(supabase) as unknown as RpcUsernameToEmail;
     const { data: resolvedEmail } = await getEmailFromUsername(
       'get_email_from_username',
       { p_username: identifier }
@@ -186,12 +185,6 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
     await supabase.auth.signOut();
     return { error: 'Tài khoản không có quyền truy cập hoặc mật khẩu không chính xác.' };
   }
-
-  await logAction({
-    resource_type: 'auth',
-    action: 'Admin Login',
-    summary: `Nhân sự đăng nhập hệ thống: ${identifier}`
-  });
 
   revalidatePath('/admin', 'layout');
   redirect('/admin');

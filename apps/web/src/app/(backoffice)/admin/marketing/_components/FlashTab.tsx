@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Plus, Edit, Trash2, X, Loader2, Zap } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Loader2, Zap, Clock } from 'lucide-react';
 import { upsertFlashSale, deleteFlashSale } from '@/app/actions/admin/marketing';
 import { formatDate } from '@/lib/admin/format';
 import { SafeImage } from '@/components/ui/SafeImage';

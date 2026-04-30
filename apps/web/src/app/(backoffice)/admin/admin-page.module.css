@@ -1,28 +1,21 @@
 /* ============================================
-   VeganGlow Admin - Dashboard sections
+   VeganGlow Admin — Dashboard Sections (Clean)
    ============================================ */
 
 .section {
-  position: relative;
-  overflow: hidden;
   margin-bottom: var(--vg-space-5);
   padding: var(--vg-space-5);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: var(--vg-radius-xl);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(251, 250, 246, 0.74)),
-    var(--vg-glass-bg);
-  box-shadow: var(--vg-shadow-1);
-  backdrop-filter: blur(var(--vg-glass-blur));
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  background: var(--vg-surface-0);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 }
 
-.section::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 4px;
-  background: linear-gradient(90deg, var(--vg-leaf-700), var(--vg-gold-500), transparent 70%);
-  opacity: 0.9;
+.twoCol .section {
+  margin-bottom: 0;
+  height: 100%;
 }
 
 .sectionHead {
@@ -31,21 +24,21 @@
   justify-content: space-between;
   gap: var(--vg-space-3);
   margin-bottom: var(--vg-space-4);
-  flex-wrap: wrap;
 }
 
 .sectionTitle {
   margin: 0;
   color: var(--vg-ink-900);
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-lg);
-  font-weight: 700;
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .twoCol {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.85fr);
-  gap: var(--vg-space-5);
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  gap: var(--vg-space-4);
+  flex: 1;
+  min-height: 0;
 }
 
 .topList {
@@ -55,62 +48,93 @@
   display: flex;
   flex-direction: column;
   gap: var(--vg-space-2);
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .topItem {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  display: flex;
   align-items: center;
   gap: var(--vg-space-3);
   padding: var(--vg-space-3);
-  border: 1px solid rgba(231, 227, 214, 0.72);
+  border: 1px solid var(--vg-surface-200);
   border-radius: var(--vg-radius-md);
-  background: rgba(251, 250, 246, 0.82);
   font-size: var(--vg-text-sm);
-  transition:
-    background var(--vg-duration-fast) var(--vg-ease-out),
-    border-color var(--vg-duration-fast) var(--vg-ease-out),
-    transform var(--vg-duration-fast) var(--vg-ease-out);
+  transition: background var(--vg-duration-fast);
 }
 
 .topItem:hover {
-  background: var(--vg-leaf-50);
-  border-color: rgba(50, 125, 91, 0.18);
-  transform: translateX(2px);
+  background: var(--vg-surface-50);
 }
 
 .topRank {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
-  background: rgba(50, 125, 91, 0.1);
-  color: var(--vg-leaf-900);
-  display: inline-flex;
+  background: var(--vg-leaf-50);
+  color: var(--vg-leaf-800);
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--vg-font-display);
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.topImageWrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--vg-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--vg-surface-200);
+  background: var(--vg-surface-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.topInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .topName {
-  color: var(--vg-ink-900);
-  font-weight: 750;
+  color: var(--vg-ink-800);
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.topQty {
-  color: var(--vg-ink-500);
-  font-size: var(--vg-text-xs);
-  font-weight: 700;
-  white-space: nowrap;
+.topCategory {
+  color: var(--vg-ink-400);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.topStats {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .topRevenue {
-  color: var(--vg-ink-900);
-  font-family: var(--vg-font-display);
-  font-weight: 700;
+  color: var(--vg-ink-800);
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: var(--vg-text-sm);
+}
+
+.topQty {
+  color: var(--vg-ink-400);
+  font-size: 11px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -123,14 +147,5 @@
 @media (max-width: 640px) {
   .section {
     padding: var(--vg-space-4);
-  }
-
-  .topItem {
-    grid-template-columns: 34px minmax(0, 1fr);
-  }
-
-  .topQty,
-  .topRevenue {
-    grid-column: 2;
   }
 }

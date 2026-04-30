@@ -80,7 +80,6 @@ export default async function BackofficeLayout({
             <AdminProfileMenu
               displayName={displayName}
               initial={initial}
-              email={email}
               roleLabel={roleLabel}
             />
           </div>

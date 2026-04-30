@@ -9,13 +9,8 @@ export default async function AdminUsers() {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Nhân sự</h1>
-          <p className={shared.pageSubtitle}>
-            Quản lý đội ngũ nhân sự và phân quyền hệ thống. {staff.length} nhân viên đang hoạt động.
-          </p>
-        </div>
+      <div className={shared.toolbar}>
+        <div style={{ flex: 1 }} />
         <InviteStaffForm roles={roles} />
       </div>
 

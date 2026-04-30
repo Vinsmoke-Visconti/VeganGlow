@@ -1,27 +1,26 @@
+/* ============================================
+   VeganGlow Admin — Profile (Clean)
+   ============================================ */
+
 .grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.8fr);
   gap: var(--vg-space-5);
 }
 
 .card {
   margin-bottom: var(--vg-space-4);
   padding: var(--vg-space-5);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: var(--vg-radius-xl);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(251, 250, 246, 0.76)),
-    var(--vg-glass-bg);
-  box-shadow: var(--vg-shadow-1);
-  backdrop-filter: blur(var(--vg-glass-blur));
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  background: var(--vg-surface-0);
 }
 
 .cardTitle {
   margin: 0 0 var(--vg-space-4);
   color: var(--vg-ink-900);
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-lg);
-  font-weight: 700;
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .headRow {
@@ -30,47 +29,43 @@
   gap: var(--vg-space-4);
   margin-bottom: var(--vg-space-5);
   padding-bottom: var(--vg-space-4);
-  border-bottom: 1px solid var(--vg-parchment-200);
+  border-bottom: 1px solid var(--vg-border);
 }
 
 .avatar {
-  width: 76px;
-  height: 76px;
+  width: 64px;
+  height: 64px;
   border-radius: 999px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.26), transparent 48%),
-    linear-gradient(135deg, var(--vg-leaf-500), var(--vg-leaf-800));
+  background: var(--vg-gradient-leaf-vivid);
   color: #fff;
   display: grid;
   place-items: center;
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-2xl);
-  font-weight: 700;
-  box-shadow: 0 14px 30px rgba(50, 125, 91, 0.22);
+  font-size: var(--vg-text-xl);
+  font-weight: 600;
   flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(46,150,73,0.2);
 }
 
 .name {
   margin: 0;
   color: var(--vg-ink-900);
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-xl);
-  font-weight: 700;
+  font-size: var(--vg-text-lg);
+  font-weight: 600;
 }
 
 .email,
 .position {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   font-size: var(--vg-text-sm);
 }
 
 .email {
-  color: var(--vg-ink-500);
+  color: var(--vg-ink-400);
 }
 
 .position {
-  color: var(--vg-ink-700);
-  font-weight: 700;
+  color: var(--vg-ink-600);
+  font-weight: 500;
 }
 
 .activityList {
@@ -79,25 +74,23 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--vg-space-3);
+  gap: var(--vg-space-2);
 }
 
 .activityItem {
   display: flex;
   gap: var(--vg-space-3);
   padding: var(--vg-space-3);
-  border: 1px solid var(--vg-parchment-200);
+  border: 1px solid var(--vg-surface-200);
   border-radius: var(--vg-radius-md);
-  background: rgba(251, 250, 246, 0.72);
 }
 
 .activityDot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   margin-top: 6px;
   border-radius: 999px;
   background: var(--vg-leaf-500);
-  box-shadow: 0 0 0 5px rgba(86, 163, 94, 0.12);
   flex-shrink: 0;
 }
 
@@ -108,22 +101,22 @@
 
 .activityText {
   margin: 0;
-  color: var(--vg-ink-900);
+  color: var(--vg-ink-800);
   font-size: var(--vg-text-sm);
 }
 
 .activitySummary {
-  margin: 4px 0 0;
-  color: var(--vg-ink-700);
+  margin: 2px 0 0;
+  color: var(--vg-ink-500);
   font-size: var(--vg-text-xs);
   line-height: var(--vg-leading-normal);
 }
 
 .activityTime {
-  margin: 5px 0 0;
-  color: var(--vg-ink-500);
+  margin: 4px 0 0;
+  color: var(--vg-ink-400);
   font-size: var(--vg-text-xs);
-  font-weight: 700;
+  font-weight: 500;
 }
 
 @media (max-width: 1024px) {
@@ -133,13 +126,9 @@
 }
 
 @media (max-width: 640px) {
-  .headRow {
-    align-items: flex-start;
-  }
-
   .avatar {
-    width: 60px;
-    height: 60px;
-    font-size: var(--vg-text-xl);
+    width: 48px;
+    height: 48px;
+    font-size: var(--vg-text-lg);
   }
 }

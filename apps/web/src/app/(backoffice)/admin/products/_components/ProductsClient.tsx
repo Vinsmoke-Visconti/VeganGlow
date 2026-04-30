@@ -98,8 +98,15 @@ export function ProductsClient({ products, filters, categories }: Props) {
   return (
     <>
       <div className={shared.toolbar}>
-        <ProductFilters defaults={filters} categories={categories} />
-        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+        <div style={{ display: 'flex', gap: 12, flex: 1 }}>
+          <ProductFilters defaults={filters} categories={categories} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+          <Link href="/admin/products/new" className={`${shared.btn} ${shared.btnPrimary}`} style={{ minHeight: 42 }}>
+             Thêm sản phẩm
+          </Link>
+        </div>
       </div>
 
       {products.length === 0 ? (
