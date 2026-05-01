@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useMemo } from 'react';
 import Image from 'next/image';
 import { createBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   ArrowRight,
 } from 'lucide-react';
+import styles from './orders.module.css';
 
 type OrderItem = {
   id: string;
@@ -82,18 +83,20 @@ function getStatusText(status: string) {
   }
 }
 
-function statusToneClasses(status: string) {
+function getStatusClass(status: string) {
   switch (status) {
-    case 'completed':
-      return 'bg-success/10 text-success';
-    case 'shipping':
-      return 'bg-primary-50 text-primary';
-    case 'cancelled':
-      return 'bg-error/10 text-error';
+    case 'pending':
+      return styles.statusPending;
     case 'confirmed':
-      return 'bg-bg-secondary text-text';
+      return styles.statusConfirmed;
+    case 'shipping':
+      return styles.statusShipping;
+    case 'completed':
+      return styles.statusCompleted;
+    case 'cancelled':
+      return styles.statusCancelled;
     default:
-      return 'bg-secondary/10 text-secondary';
+      return '';
   }
 }
 
@@ -147,6 +150,12 @@ function OrdersContent() {
     fetchOrders();
   }, [supabase]);
 
+  const counts = useMemo(() => {
+    const map: Record<string, number> = { all: orders.length };
+    for (const o of orders) map[o.status] = (map[o.status] || 0) + 1;
+    return map;
+  }, [orders]);
+
   const filteredOrders = orders.filter((order) => {
     if (filter === 'all') return true;
     return order.status === filter;
@@ -154,180 +163,200 @@ function OrdersContent() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] grid place-items-center text-text-muted">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 size={28} className="animate-spin text-primary" />
-          <span className="text-sm">Đang truy xuất lịch sử đơn hàng...</span>
+      <div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', color: 'var(--color-text-muted)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+          <div className={styles.loadingSpinner}></div>
+          <span style={{ fontSize: '0.875rem' }}>Đang truy xuất lịch sử đơn hàng...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-10 lg:py-16">
-      <Link
-        href="/profile"
-        className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text mb-6"
-      >
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: 'var(--space-4)' }}>
+      <Link href="/profile" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <ArrowLeft size={14} /> Quay lại hồ sơ
       </Link>
 
-      <header className="mb-10">
-        <span className="text-xs uppercase tracking-[0.2em] text-primary">Lịch sử mua sắm</span>
-        <h1 className="font-serif text-3xl lg:text-4xl font-medium tracking-tight text-text mt-1">
-          Đơn hàng của tôi
-        </h1>
-        <p className="mt-2 text-text-secondary text-sm">
-          Theo dõi và quản lý các đơn hàng bạn đã đặt tại VeganGlow.
-        </p>
-      </header>
-
-      <nav
-        role="tablist"
-        aria-label="Lọc trạng thái đơn hàng"
-        className="flex gap-2 overflow-x-auto pb-3 mb-6 border-b border-border-light"
-      >
-        {TABS.map((tab) => {
-          const isActive = filter === tab.value;
-          return (
-            <button
-              key={tab.value}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setFilter(tab.value)}
-              className={`shrink-0 -mb-px px-4 py-2.5 text-sm font-medium tracking-tight border-b-2 transition ${
-                isActive
-                  ? 'border-text text-text'
-                  : 'border-transparent text-text-muted hover:text-text'
-              }`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      {filteredOrders.length === 0 ? (
-        <div className="text-center py-16 lg:py-24 rounded-2xl bg-bg-card border border-border-light">
-          <div className="inline-grid place-items-center w-20 h-20 rounded-full bg-primary-50 text-primary mb-4">
-            <ShoppingBag size={32} />
+      <div className={styles.wrapper}>
+        <header className={styles.pageHeader}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <span style={{ display: 'grid', placeItems: 'center', width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-primary-50)', color: 'var(--color-primary)' }}>
+              <Package size={18} />
+            </span>
+            <h1 className={styles.pageTitle}>Đơn hàng của tôi</h1>
           </div>
-          <h3 className="font-serif text-xl font-medium text-text mb-2">
-            Không tìm thấy đơn hàng nào
-          </h3>
-          <p className="text-text-secondary text-sm mb-6">
-            Có vẻ như bạn chưa có đơn hàng nào trong mục này.
+          <p className={styles.pageSubtitle} style={{ marginLeft: '48px' }}>
+            Theo dõi và quản lý các đơn hàng bạn đã đặt tại VeganGlow.
           </p>
-          <Link
-            href="/products"
-            className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-text text-white text-sm font-medium hover:bg-primary-dark transition"
-          >
-            Khám phá ngay
-            <ArrowRight size={16} className="ml-1.5" />
-          </Link>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {filteredOrders.map((order) => {
-            const status = order.status || 'pending';
-            const items = order.order_items ?? [];
+        </header>
+
+        {/* Pill tabs */}
+        <nav role="tablist" aria-label="Lọc trạng thái đơn hàng" className={styles.tabsContainer}>
+          {TABS.map((tab) => {
+            const isActive = filter === tab.value;
+            const count = counts[tab.value] ?? 0;
             return (
-              <article
-                key={order.id}
-                className="rounded-2xl bg-bg-card border border-border-light overflow-hidden"
+              <button
+                key={tab.value}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setFilter(tab.value)}
+                className={`${styles.tabBtn} ${isActive ? styles.tabBtnActive : ''}`}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                {/* Header */}
-                <div className="flex flex-wrap items-center justify-between gap-3 px-5 lg:px-6 py-4 border-b border-border-light bg-bg-secondary/40">
-                  <div className="flex flex-col">
-                    <span className="font-mono text-sm font-semibold text-text">
-                      #{order.code || order.id.slice(0, 8).toUpperCase()}
-                    </span>
-                    <span className="text-xs text-text-muted">
-                      {new Date(order.created_at).toLocaleDateString('vi-VN', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                      })}
-                    </span>
-                  </div>
+                {tab.label}
+                {count > 0 && (
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minWidth: '20px',
+                      height: '20px',
+                      padding: '0 6px',
+                      borderRadius: '10px',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      background: isActive ? 'var(--color-primary-50)' : 'var(--color-bg-secondary)',
+                      color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)'
+                    }}
+                  >
+                    {count}
+                  </span>
+                )}
+                {isActive && <div className={styles.tabIndicator} />}
+              </button>
+            );
+          })}
+        </nav>
 
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-3 h-7 rounded-full text-xs font-medium ${statusToneClasses(status)}`}
-                    >
-                      {getStatusIcon(status, 12)} {getStatusText(status)}
-                    </span>
-                    {(order.payment_method === 'bank_transfer' || order.payment_method === 'card') && (
-                      <span
-                        className={`inline-flex items-center px-3 h-7 rounded-full text-xs font-medium ${
-                          order.payment_status === 'paid'
-                            ? 'bg-success/10 text-success'
-                            : 'bg-secondary/10 text-secondary'
-                        }`}
-                      >
-                        {getPaymentStatusText(order.payment_status)}
+        {filteredOrders.length === 0 ? (
+          <EmptyState
+            icon={<ShoppingBag size={32} />}
+            title="Không tìm thấy đơn hàng"
+            description="Có vẻ như bạn chưa có đơn hàng nào trong mục này. Khám phá những sản phẩm thuần chay để bắt đầu hành trình."
+            action={
+              <Link href="/products" className={styles.shopNowBtn} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+                Khám phá sản phẩm
+                <ArrowRight size={16} />
+              </Link>
+            }
+          />
+        ) : (
+          <div className={styles.orderGrid}>
+            {filteredOrders.map((order) => {
+              const status = order.status || 'pending';
+              const items = order.order_items ?? [];
+              return (
+                <article key={order.id} className={styles.orderCard}>
+                  {/* Header strip */}
+                  <div className={styles.cardHeader}>
+                    <div className={styles.orderBasicInfo}>
+                      <span className={styles.orderId}>
+                        #{order.code || order.id.slice(0, 8).toUpperCase()}
                       </span>
-                    )}
-                  </div>
-                </div>
+                      <span className={styles.orderDate}>
+                        {new Date(order.created_at).toLocaleDateString('vi-VN', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
 
-                {/* Items */}
-                <div className="px-5 lg:px-6 py-4 flex flex-col gap-3">
-                  {items.slice(0, 2).map((item) => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-primary-50 grid place-items-center">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span className={`${styles.statusTag} ${getStatusClass(status)}`}>
+                        {getStatusIcon(status, 12)} {getStatusText(status)}
+                      </span>
+                      {(order.payment_method === 'bank_transfer' || order.payment_method === 'card') && (
+                        <span
+                          className={styles.statusTag}
+                          style={{
+                            background: order.payment_status === 'paid' ? '#dcfce7' : '#f3f4f6',
+                            color: order.payment_status === 'paid' ? '#166534' : '#4b5563',
+                            border: `1px solid ${order.payment_status === 'paid' ? '#bbf7d0' : '#e5e7eb'}`
+                          }}
+                        >
+                          {getPaymentStatusText(order.payment_status)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Items */}
+                  <div className={styles.cardBody}>
+                    {items.slice(0, 2).map((item) => (
+                      <div key={item.id} className={styles.orderItem}>
                         {item.product_image ? (
                           <Image
                             src={item.product_image}
                             alt={item.product_name}
-                            width={56}
-                            height={56}
-                            className="w-full h-full object-cover"
+                            width={60}
+                            height={60}
                             unoptimized
                           />
                         ) : (
-                          <Package size={20} className="text-primary" />
+                          <div className={styles.itemImagePlaceholder}>
+                            <Package size={24} />
+                          </div>
                         )}
+                        <div className={styles.itemMeta}>
+                          <div className={styles.itemName}>{item.product_name}</div>
+                          <div className={styles.itemQty}>Số lượng: {item.quantity}</div>
+                        </div>
+                        <div className={styles.itemPrice}>
+                          {formatVND(Number(item.unit_price))}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-text line-clamp-1">{item.product_name}</p>
-                        <p className="text-xs text-text-muted mt-0.5">
-                          Số lượng: {item.quantity}
-                        </p>
+                    ))}
+
+                    {items.length > 2 && (
+                      <div className={styles.moreItems} style={{ textAlign: 'left', paddingLeft: '76px' }}>
+                        ... và {items.length - 2} sản phẩm khác
                       </div>
-                      <span className="text-sm font-medium text-text tabular-nums">
-                        {formatVND(Number(item.unit_price))}
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className={styles.cardFooter}>
+                    <div className={styles.orderTotal}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>Tổng thanh toán</span>
+                      <span className={styles.totalPrice}>
+                        {formatVND(Number(order.total_amount))}
                       </span>
                     </div>
-                  ))}
-
-                  {items.length > 2 && (
-                    <p className="text-xs text-text-muted">
-                      ... và {items.length - 2} sản phẩm khác
-                    </p>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="flex flex-wrap items-center justify-between gap-3 px-5 lg:px-6 py-4 border-t border-border-light">
-                  <div className="text-sm text-text-secondary">
-                    Tổng thanh toán:{' '}
-                    <span className="font-serif text-lg font-semibold text-text ml-1">
-                      {formatVND(Number(order.total_amount))}
-                    </span>
+                    <Link href={`/orders/${order.id}`} className={styles.viewDetailBtn} style={{ textDecoration: 'none' }}>
+                      Xem chi tiết <ChevronRight size={16} />
+                    </Link>
                   </div>
-                  <Link
-                    href={`/orders/${order.id}`}
-                    className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full border border-border bg-white text-sm text-text font-medium hover:border-text transition"
-                  >
-                    Xem chi tiết <ChevronRight size={14} />
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className={styles.emptyState}>
+      <div className={styles.emptyIcon}>{icon}</div>
+      <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: '0.5rem' }}>{title}</h3>
+      <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem', maxWidth: '400px', margin: '0 auto' }}>{description}</p>
+      {action && <div>{action}</div>}
     </div>
   );
 }

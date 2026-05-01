@@ -10,8 +10,8 @@ import {
   getAal,
 } from '@/lib/security/jwtClaims';
 
-/** Storefront paths that staff (non-super) cannot access. */
-const STAFF_BLOCKED_ROUTES = [
+/** Storefront paths that require auth. */
+const STOREFRONT_PROTECTED_ROUTES = [
   '/cart',
   '/checkout',
   '/profile',
@@ -89,13 +89,22 @@ export async function updateSession(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
+  // Helper to ensure cookies (like signOut) are preserved on redirect
+  const redirectWithCookies = (targetUrl: URL) => {
+    const redirectRes = NextResponse.redirect(targetUrl);
+    supabaseResponse.cookies.getAll().forEach(cookie => {
+      redirectRes.cookies.set(cookie.name, cookie.value);
+    });
+    return redirectRes;
+  };
+
   // ============================ ADMIN AREA ============================
   if (pathname.startsWith('/admin')) {
     // Not logged in → /admin/login
     if (!user) {
       if (pathname !== '/admin/login') {
         url.pathname = '/admin/login';
-        return NextResponse.redirect(url);
+        return redirectWithCookies(url);
       }
       return supabaseResponse;
     }
@@ -103,13 +112,14 @@ export async function updateSession(request: NextRequest) {
     // Already logged in but on /admin/login → bounce to /admin
     if (pathname === '/admin/login') {
       url.pathname = '/admin';
-      return NextResponse.redirect(url);
+      return redirectWithCookies(url);
     }
 
-    // Customer trying to enter admin → out
+    // Customer trying to enter admin → STRICT ISOLATION: sign out and force login
     if (!staff && !superAdmin) {
-      url.pathname = '/';
-      return NextResponse.redirect(url);
+      await supabase.auth.signOut();
+      url.pathname = '/admin/login';
+      return redirectWithCookies(url);
     }
 
     // Idle timeout (feature-flagged)
@@ -121,13 +131,12 @@ export async function updateSession(request: NextRequest) {
           await supabase.auth.signOut();
           url.pathname = '/admin/login';
           url.searchParams.set('reason', 'idle');
-          return NextResponse.redirect(url);
+          return redirectWithCookies(url);
         }
       }
     }
 
     // AAL enforcement for super_admin (forces TOTP setup + challenge)
-    // Feature-flagged: dev/test can bypass via FEATURE_MFA_ENFORCED!=='true'
     if (
       process.env.FEATURE_MFA_ENFORCED === 'true' &&
       superAdmin &&
@@ -154,18 +163,18 @@ export async function updateSession(request: NextRequest) {
 
       if (!hasVerifiedTotp) {
         url.pathname = '/admin/setup-mfa';
-        return NextResponse.redirect(url);
+        return redirectWithCookies(url);
       }
       if (aal === 'aal1') {
         url.pathname = '/admin/mfa-challenge';
-        return NextResponse.redirect(url);
+        return redirectWithCookies(url);
       }
     }
 
     // /admin/system/* requires super_admin
     if (pathname.startsWith('/admin/system') && !superAdmin) {
       url.pathname = '/admin';
-      return NextResponse.redirect(url);
+      return redirectWithCookies(url);
     }
 
     // Inject CSP nonce header for admin pages (admin layout already force-dynamic)
@@ -179,31 +188,34 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // ============================ STOREFRONT AUTH PAGES ============================
+  // ============================ STOREFRONT AREA ============================
+  
+  // Staff (non-super) trying to enter storefront → STRICT ISOLATION: sign out and force login
+  if (user && staff && !superAdmin) {
+    await supabase.auth.signOut();
+    url.pathname = '/login';
+    return redirectWithCookies(url);
+  }
+
+  // Auth Pages (Login / Register)
   if (pathname === '/login' || pathname === '/register') {
     if (user) {
-      // Staff (non-super) accidentally hit storefront login → bounce to admin
-      url.pathname = staff && !superAdmin ? '/admin' : '/';
-      return NextResponse.redirect(url);
+      url.pathname = '/';
+      return redirectWithCookies(url);
     }
     return supabaseResponse;
   }
 
-  // ============================ STOREFRONT PROTECTED ROUTES ============================
-  const isStaffBlocked = STAFF_BLOCKED_ROUTES.some(
+  // Storefront Protected Routes
+  const isProtected = STOREFRONT_PROTECTED_ROUTES.some(
     (r) => pathname === r || pathname.startsWith(`${r}/`)
   );
 
-  if (isStaffBlocked) {
+  if (isProtected) {
     if (!user) {
       url.pathname = '/login';
       url.searchParams.set('redirectTo', `${pathname}${request.nextUrl.search}`);
-      return NextResponse.redirect(url);
-    }
-    // Staff (non-super_admin) cannot purchase
-    if (staff && !superAdmin) {
-      url.pathname = '/admin';
-      return NextResponse.redirect(url);
+      return redirectWithCookies(url);
     }
   }
 

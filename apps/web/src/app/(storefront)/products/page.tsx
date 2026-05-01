@@ -90,7 +90,11 @@ export default async function ProductsPage({
 
   let dbQuery = supabase
     .from('products')
-    .select('*, categories!inner(name, slug), product_variants!left(price, compare_at_price, position, is_active)')
+    .select(
+      categorySlug
+        ? '*, categories!inner(name, slug), product_variants!left(price, compare_at_price, position, is_active)'
+        : '*, categories(name, slug), product_variants!left(price, compare_at_price, position, is_active)'
+    )
     .eq('is_active', true);
 
   if (query) dbQuery = dbQuery.ilike('name', `%${query}%`);

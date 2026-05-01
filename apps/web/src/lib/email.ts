@@ -222,7 +222,7 @@ export async function sendPasswordOtpEmail(
       subject: `[VeganGlow] Mã xác nhận ${title}`,
       html: `
         <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
-          <div style="background-color: #1a3c17; padding: 32px; text-align: center; color: white;">
+          <div style="background-color: #065e46; padding: 32px; text-align: center; color: white;">
             <h1 style="margin: 0; font-size: 24px; font-weight: 700;">Bảo mật tài khoản</h1>
           </div>
           
@@ -230,7 +230,7 @@ export async function sendPasswordOtpEmail(
             <p style="font-size: 16px; color: #475569; margin-bottom: 24px;">${message}</p>
             
             <div style="background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; display: inline-block; margin: 0 auto;">
-              <span style="font-size: 32px; font-weight: 800; letter-spacing: 0.2em; color: #1a3c17;">${escapeHtml(code)}</span>
+              <span style="font-size: 32px; font-weight: 800; letter-spacing: 0.2em; color: #065e46;">${escapeHtml(code)}</span>
             </div>
             
             <p style="margin-top: 32px; font-size: 14px; color: #94a3b8; line-height: 1.6;">
@@ -250,6 +250,118 @@ export async function sendPasswordOtpEmail(
     return data;
   } catch (error) {
     logger.error({ action: 'send_otp_email_error', error }, 'Failed to send OTP email');
+    throw error;
+  }
+}
+
+/**
+ * Gửi email khi thanh toán thành công (PayOS / Chuyển khoản)
+ */
+export async function sendPaymentSuccessEmail(email: string, orderId: string, amount: number) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      logger.warn('RESEND_API_KEY not set. Mocking payment success email.');
+      return { id: 'mock-id-' + Date.now() };
+    }
+
+    const safeOrderId = escapeHtml(orderId);
+    const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
+
+    const { data, error } = await resend.emails.send({
+      from: 'VeganGlow <onboarding@resend.dev>',
+      to: [email],
+      subject: `[VeganGlow] Thanh toán thành công đơn hàng #${safeOrderId}`,
+      html: `
+        <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+          <div style="background-color: #065e46; padding: 40px 20px; text-align: center; color: white;">
+            <div style="width: 64px; height: 64px; background-color: rgba(255,255,255,0.2); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 32px;">✓</div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 800;">Thanh toán thành công!</h1>
+            <p style="margin-top: 10px; opacity: 0.9; font-size: 16px;">Đơn hàng #${safeOrderId}</p>
+          </div>
+          
+          <div style="padding: 40px; color: #1e293b; line-height: 1.6;">
+            <p style="font-size: 16px; margin-top: 0; margin-bottom: 24px;">Xin chào,</p>
+            <p style="font-size: 15px; color: #475569;">Chúng tôi đã nhận được khoản thanh toán <strong>${amount.toLocaleString('vi-VN')}đ</strong> cho đơn hàng #${safeOrderId}.</p>
+            <p style="font-size: 15px; color: #475569;">Hiện tại đội ngũ VeganGlow đang tiến hành đóng gói sản phẩm và sẽ sớm giao cho đơn vị vận chuyển.</p>
+            
+            <div style="margin: 40px 0; text-align: center;">
+              <a href="${siteUrl}/orders" style="background-color: #065e46; color: white; padding: 14px 32px; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 15px; display: inline-block;">Xem tiến độ đơn hàng</a>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+            <p style="font-size: 14px; color: #64748b; margin: 0;">Trân trọng,<br>Đội ngũ VeganGlow</p>
+          </div>
+          
+          <div style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">© 2026 VeganGlow. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    if (error) throw error;
+    logger.info({ action: 'send_payment_success_email', orderId }, 'Payment success email sent');
+    return data;
+  } catch (error) {
+    logger.error({ action: 'send_payment_success_email_error', error }, 'Failed to send payment success email');
+    throw error;
+  }
+}
+
+/**
+ * Gửi email khi đơn hàng bắt đầu được vận chuyển
+ */
+export async function sendOrderShippedEmail(email: string, orderId: string, trackingUrl?: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      logger.warn('RESEND_API_KEY not set. Mocking order shipped email.');
+      return { id: 'mock-id-' + Date.now() };
+    }
+
+    const safeOrderId = escapeHtml(orderId);
+    const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
+
+    const { data, error } = await resend.emails.send({
+      from: 'VeganGlow <onboarding@resend.dev>',
+      to: [email],
+      subject: `[VeganGlow] Đơn hàng #${safeOrderId} đang được giao đến bạn`,
+      html: `
+        <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+          <div style="background-color: #065e46; padding: 40px 20px; text-align: center; color: white;">
+            <div style="width: 64px; height: 64px; background-color: rgba(255,255,255,0.2); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 32px;">🚚</div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 800;">Đơn hàng đang trên đường giao!</h1>
+            <p style="margin-top: 10px; opacity: 0.9; font-size: 16px;">Đơn hàng #${safeOrderId}</p>
+          </div>
+          
+          <div style="padding: 40px; color: #1e293b; line-height: 1.6;">
+            <p style="font-size: 16px; margin-top: 0; margin-bottom: 24px;">Xin chào,</p>
+            <p style="font-size: 15px; color: #475569;">Đơn hàng <strong>#${safeOrderId}</strong> của bạn đã được đóng gói cẩn thận và giao cho đơn vị vận chuyển.</p>
+            <p style="font-size: 15px; color: #475569;">Bạn có thể theo dõi hành trình đơn hàng của mình qua nút bên dưới. Vui lòng chú ý điện thoại để shipper có thể liên lạc khi giao hàng.</p>
+            
+            <div style="margin: 40px 0; text-align: center;">
+              ${trackingUrl ? `
+                <a href="${escapeHtml(trackingUrl)}" style="background-color: #065e46; color: white; padding: 14px 32px; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 15px; display: inline-block;">Tra cứu vận đơn</a>
+              ` : `
+                <a href="${siteUrl}/orders" style="background-color: #065e46; color: white; padding: 14px 32px; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 15px; display: inline-block;">Kiểm tra đơn hàng</a>
+              `}
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+            <p style="font-size: 14px; color: #64748b; margin: 0;">Trân trọng,<br>Đội ngũ VeganGlow</p>
+          </div>
+          
+          <div style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">© 2026 VeganGlow. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    if (error) throw error;
+    logger.info({ action: 'send_shipped_email', orderId }, 'Shipped email sent');
+    return data;
+  } catch (error) {
+    logger.error({ action: 'send_shipped_email_error', error }, 'Failed to send shipped email');
     throw error;
   }
 }

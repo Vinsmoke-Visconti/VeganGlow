@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createBrowserClient } from '@/lib/supabase/client';
 import type {
   AdminDashboardKpisPayload,
@@ -172,34 +173,32 @@ export function useAdminDashboard(
   range: DashboardRange,
   initialSnapshot: DashboardSnapshot,
 ) {
-  const [snapshot, setSnapshot] = useState<DashboardSnapshot>(initialSnapshot);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
+  const queryClient = useQueryClient();
   const [isRealtimeConnected, setIsRealtimeConnected] = useState(false);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const refresh = useCallback(async () => {
-    setIsRefreshing(true);
-    setError(null);
+  const {
+    data: snapshot = initialSnapshot,
+    dataUpdatedAt,
+    error,
+    isFetching,
+    refetch,
+  } = useQuery<DashboardSnapshot, Error>({
+    queryKey: ['admin-dashboard', range],
+    queryFn: () => fetchAdminDashboardSnapshot(range),
+    initialData: initialSnapshot,
+  });
 
-    try {
-      const nextSnapshot = await fetchAdminDashboardSnapshot(range);
-      setSnapshot(nextSnapshot);
-      setLastSyncedAt(new Date());
-    } catch (err) {
-      setError(messageFromError(err));
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [range]);
+  const refresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   useEffect(() => {
     const supabase = createBrowserClient();
     const queueRefresh = () => {
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
       refreshTimer.current = setTimeout(() => {
-        void refresh();
+        void queryClient.invalidateQueries({ queryKey: ['admin-dashboard', range] });
       }, 450);
     };
 
@@ -216,7 +215,7 @@ export function useAdminDashboard(
       if (refreshTimer.current) clearTimeout(refreshTimer.current);
       void supabase.removeChannel(channel);
     };
-  }, [range, refresh]);
+  }, [queryClient, range]);
 
   const selectedStats = useMemo(
     () => snapshot.periodStats[range],
@@ -226,10 +225,10 @@ export function useAdminDashboard(
   return {
     snapshot,
     selectedStats,
-    isRefreshing,
+    isRefreshing: isFetching,
     isRealtimeConnected,
-    lastSyncedAt,
-    error,
+    lastSyncedAt: dataUpdatedAt > 0 ? new Date(dataUpdatedAt) : null,
+    error: error ? messageFromError(error) : null,
     refresh,
   };
 }

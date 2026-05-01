@@ -8,6 +8,7 @@ import PageTransition from '@/components/ui/PageTransition';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminProfileMenu } from './AdminProfileMenu';
 import { AdminBreadcrumb } from './AdminBreadcrumb';
+import { AdminNotifications } from './AdminNotifications';
 import { IdleTimeoutGuard } from '@/components/admin/IdleTimeoutGuard';
 
 type StaffRoleRow = {
@@ -32,13 +33,30 @@ export default async function BackofficeLayout({
   let roleLabel = 'Quản trị viên';
   let roleId: string | null = null;
   let permissions: string[] = [];
+  let pendingOrders = 0;
+  let lowStockProducts = 0;
 
   if (user) {
-    const { data: staffRow } = await supabase
-      .from('staff_profiles')
-      .select('full_name, role:roles(id, name, display_name)')
-      .eq('id', user.id)
-      .maybeSingle<StaffRoleRow>();
+    const [staffResult, pendingOrdersResult, lowStockResult] = await Promise.all([
+      supabase
+        .from('staff_profiles')
+        .select('full_name, role:roles(id, name, display_name)')
+        .eq('id', user.id)
+        .maybeSingle<StaffRoleRow>(),
+      supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_active', true)
+        .lt('stock', 5),
+    ]);
+
+    const staffRow = staffResult.data;
+    pendingOrders = pendingOrdersResult.count ?? 0;
+    lowStockProducts = lowStockResult.count ?? 0;
 
     if (staffRow) {
       staffName = staffRow.full_name;
@@ -79,6 +97,10 @@ export default async function BackofficeLayout({
           </div>
 
           <div className={styles.topbarRight}>
+            <AdminNotifications
+              pendingOrders={pendingOrders}
+              lowStockProducts={lowStockProducts}
+            />
             <AdminProfileMenu
               displayName={displayName}
               initial={initial}

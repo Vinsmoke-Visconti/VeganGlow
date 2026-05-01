@@ -1,14 +1,50 @@
+'use client';
+
 import { ORDER_STATUS_LABEL } from '@/lib/admin/format';
+import type { TooltipProps } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 type Bucket = { status: string; total: number };
 
 const STATUS_COLOR: Record<string, string> = {
-  pending: 'bg-amber-500',
-  confirmed: 'bg-sky-500',
-  shipping: 'bg-indigo-500',
-  completed: 'bg-emerald-500',
-  cancelled: 'bg-zinc-300',
+  pending: '#f59e0b',
+  confirmed: '#0ea5e9',
+  packing: '#6366f1',
+  shipped: '#4f46e5',
+  shipping: '#4f46e5',
+  delivered: '#10b981',
+  completed: '#10b981',
+  cancelled: '#d4d4d8',
 };
+
+interface StatusTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: Bucket;
+    value: number;
+  }>;
+  label?: string | number;
+}
+
+function StatusTooltip({ active, payload, label }: StatusTooltipProps) {
+  if (!active || !payload?.length) return null;
+  const total = payload[0]?.value ?? 0;
+
+  return (
+    <div className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs shadow-lg">
+      <div className="font-medium text-zinc-900">{ORDER_STATUS_LABEL[String(label)] ?? label}</div>
+      <div className="mt-1 tabular-nums text-zinc-700">{total} đơn hàng</div>
+    </div>
+  );
+}
 
 export function StatusBreakdown({ data }: { data: Bucket[] }) {
   const total = data.reduce((s, b) => s + b.total, 0);
@@ -21,42 +57,53 @@ export function StatusBreakdown({ data }: { data: Bucket[] }) {
     );
   }
 
+  const chartData = data.map((bucket) => ({
+    ...bucket,
+    label: ORDER_STATUS_LABEL[bucket.status] ?? bucket.status,
+    percent: total > 0 ? Math.round((bucket.total / total) * 100) : 0,
+  }));
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex h-2 w-full overflow-hidden rounded-full bg-zinc-100">
-        {data.map((b) => {
-          const pct = (b.total / total) * 100;
-          const color = STATUS_COLOR[b.status] ?? 'bg-zinc-400';
-          return (
-            <div
-              key={b.status}
-              className={`h-full ${color}`}
-              style={{ width: `${pct}%` }}
-              title={`${ORDER_STATUS_LABEL[b.status] ?? b.status}: ${b.total}`}
+      <div style={{ width: '100%', height: 190 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 12, left: 12, bottom: 4 }}>
+            <XAxis type="number" hide domain={[0, 'dataMax']} />
+            <YAxis
+              type="category"
+              dataKey="status"
+              width={82}
+              tickFormatter={(value) => ORDER_STATUS_LABEL[String(value)] ?? String(value)}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: '#3f3f46', fontSize: 12 }}
             />
-          );
-        })}
+            <Tooltip content={<StatusTooltip />} cursor={{ fill: '#f4f4f5' }} />
+            <Bar dataKey="total" radius={[0, 999, 999, 0]} barSize={10}>
+              {chartData.map((bucket) => (
+                <Cell key={bucket.status} fill={STATUS_COLOR[bucket.status] ?? '#71717a'} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
-      <ul className="flex flex-col gap-2.5">
-        {data.map((b) => {
-          const pct = total > 0 ? (b.total / total) * 100 : 0;
-          const color = STATUS_COLOR[b.status] ?? 'bg-zinc-400';
-          return (
-            <li key={b.status} className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2.5">
-                <span className={`h-2 w-2 rounded-full ${color}`} />
-                <span className="text-zinc-700">
-                  {ORDER_STATUS_LABEL[b.status] ?? b.status}
-                </span>
-              </span>
-              <span className="flex items-baseline gap-1.5 tabular-nums">
-                <span className="font-medium text-zinc-900">{b.total}</span>
-                <span className="text-xs text-zinc-400">{pct.toFixed(0)}%</span>
-              </span>
-            </li>
-          );
-        })}
+      <ul className="flex flex-col gap-2">
+        {chartData.map((bucket) => (
+          <li key={bucket.status} className="flex items-center justify-between text-sm">
+            <span className="flex min-w-0 items-center gap-2.5">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: STATUS_COLOR[bucket.status] ?? '#71717a' }}
+              />
+              <span className="truncate text-zinc-700">{bucket.label}</span>
+            </span>
+            <span className="flex items-baseline gap-1.5 tabular-nums">
+              <span className="font-medium text-zinc-900">{bucket.total}</span>
+              <span className="text-xs text-zinc-400">{bucket.percent}%</span>
+            </span>
+          </li>
+        ))}
       </ul>
     </div>
   );

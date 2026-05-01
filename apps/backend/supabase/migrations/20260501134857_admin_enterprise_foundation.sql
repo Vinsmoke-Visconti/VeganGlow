@@ -34,14 +34,7 @@ create table if not exists public.price_history (
   changed_at timestamptz not null default now()
 );
 
-create table if not exists public.order_status_history (
-  id uuid primary key default gen_random_uuid(),
-  order_id uuid not null references public.orders(id) on delete cascade,
-  status text not null,
-  note text,
-  changed_by uuid references auth.users(id) on delete set null,
-  changed_at timestamptz not null default now()
-);
+
 
 create table if not exists public.stock_movements (
   id uuid primary key default gen_random_uuid(),
@@ -73,7 +66,6 @@ create table if not exists public.analytics_events (
 alter table public.product_variants enable row level security;
 alter table public.warehouses enable row level security;
 alter table public.price_history enable row level security;
-alter table public.order_status_history enable row level security;
 alter table public.stock_movements enable row level security;
 alter table public.customer_segments enable row level security;
 alter table public.analytics_events enable row level security;
@@ -96,62 +88,30 @@ create policy product_variants_write_staff on public.product_variants
   using (public.has_permission('products', 'write') or public.is_super_admin())
   with check (public.has_permission('products', 'write') or public.is_super_admin());
 
-drop policy if exists price_history_staff_all on public.price_history;
-drop policy if exists price_history_staff_read on public.price_history;
-drop policy if exists price_history_staff_write on public.price_history;
-create policy price_history_staff_read on public.price_history
-  for select to authenticated
-  using (public.has_permission('products', 'read') or public.is_super_admin())
-;
-create policy price_history_staff_write on public.price_history
+drop policy if exists warehouses_staff_all on public.warehouses;
+create policy warehouses_staff_all on public.warehouses
   for all to authenticated
-  using (public.has_permission('products', 'write') or public.is_super_admin())
+  using (public.is_staff() or public.is_super_admin())
+  with check (public.is_staff() or public.is_super_admin());
+
+drop policy if exists price_history_staff_all on public.price_history;
+create policy price_history_staff_all on public.price_history
+  for all to authenticated
+  using (public.has_permission('products', 'read') or public.is_super_admin())
   with check (public.has_permission('products', 'write') or public.is_super_admin());
 
-drop policy if exists order_status_history_staff_all on public.order_status_history;
-drop policy if exists order_status_history_staff_read on public.order_status_history;
-drop policy if exists order_status_history_staff_write on public.order_status_history;
-create policy order_status_history_staff_read on public.order_status_history
-  for select to authenticated
-  using (public.has_permission('orders', 'read') or public.is_super_admin())
-;
-create policy order_status_history_staff_write on public.order_status_history
-  for all to authenticated
-  using (public.has_permission('orders', 'write') or public.is_super_admin())
-  with check (public.has_permission('orders', 'write') or public.is_super_admin());
 
-drop policy if exists warehouses_staff_all on public.warehouses;
-drop policy if exists warehouses_staff_read on public.warehouses;
-drop policy if exists warehouses_staff_write on public.warehouses;
-create policy warehouses_staff_read on public.warehouses
-  for select to authenticated
-  using (public.has_permission('inventory', 'read') or public.is_super_admin());
-create policy warehouses_staff_write on public.warehouses
-  for all to authenticated
-  using (public.has_permission('inventory', 'write') or public.is_super_admin())
-  with check (public.has_permission('inventory', 'write') or public.is_super_admin());
 
 drop policy if exists stock_movements_staff_all on public.stock_movements;
-drop policy if exists stock_movements_staff_read on public.stock_movements;
-drop policy if exists stock_movements_staff_write on public.stock_movements;
-create policy stock_movements_staff_read on public.stock_movements
-  for select to authenticated
-  using (public.has_permission('inventory', 'read') or public.is_super_admin());
-create policy stock_movements_staff_write on public.stock_movements
+create policy stock_movements_staff_all on public.stock_movements
   for all to authenticated
-  using (public.has_permission('inventory', 'write') or public.is_super_admin())
-  with check (public.has_permission('inventory', 'write') or public.is_super_admin());
+  using (public.is_staff() or public.is_super_admin())
+  with check (public.is_staff() or public.is_super_admin());
 
 drop policy if exists customer_segments_staff_all on public.customer_segments;
-drop policy if exists customer_segments_staff_read on public.customer_segments;
-drop policy if exists customer_segments_staff_write on public.customer_segments;
-create policy customer_segments_staff_read on public.customer_segments
-  for select to authenticated
-  using (public.has_permission('customers', 'read') or public.is_super_admin())
-;
-create policy customer_segments_staff_write on public.customer_segments
+create policy customer_segments_staff_all on public.customer_segments
   for all to authenticated
-  using (public.has_permission('customers', 'write') or public.is_super_admin())
+  using (public.has_permission('customers', 'read') or public.is_super_admin())
   with check (public.has_permission('customers', 'write') or public.is_super_admin());
 
 drop policy if exists analytics_events_insert_public on public.analytics_events;
@@ -167,7 +127,6 @@ create policy analytics_events_read_staff on public.analytics_events
 grant select, insert, update, delete on public.product_variants to authenticated;
 grant select, insert, update, delete on public.warehouses to authenticated;
 grant select, insert, update, delete on public.price_history to authenticated;
-grant select, insert, update, delete on public.order_status_history to authenticated;
 grant select, insert, update, delete on public.stock_movements to authenticated;
 grant select, insert, update, delete on public.customer_segments to authenticated;
 grant select on public.analytics_events to authenticated;
@@ -179,7 +138,6 @@ create index if not exists idx_analytics_session on public.analytics_events(sess
 create index if not exists idx_stock_variant on public.stock_movements(variant_id, created_at desc);
 create index if not exists idx_stock_warehouse on public.stock_movements(warehouse_id, created_at desc);
 create index if not exists idx_price_history_product on public.price_history(product_id, changed_at desc);
-create index if not exists idx_order_status_history_order on public.order_status_history(order_id, changed_at desc);
 create index if not exists idx_product_variants_product on public.product_variants(product_id);
 
 insert into public.permissions (module, action, display_name, description) values

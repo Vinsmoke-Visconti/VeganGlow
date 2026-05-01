@@ -41,7 +41,10 @@ export function formatRelative(value: string | Date): string {
 export const ORDER_STATUS_LABEL: Record<string, string> = {
   pending: 'Chờ xử lý',
   confirmed: 'Đã xác nhận',
+  packing: 'Đang đóng gói',
+  shipped: 'Đã gửi hàng',
   shipping: 'Đang giao',
+  delivered: 'Đã giao',
   completed: 'Hoàn thành',
   cancelled: 'Đã hủy',
 };
@@ -49,7 +52,10 @@ export const ORDER_STATUS_LABEL: Record<string, string> = {
 export const ORDER_STATUS_BADGE: Record<string, string> = {
   pending: 'badgePending',
   confirmed: 'badgeShipping',
+  packing: 'badgeInfo',
+  shipped: 'badgeShipping',
   shipping: 'badgeShipping',
+  delivered: 'badgeSuccess',
   completed: 'badgeSuccess',
   cancelled: 'badgeDanger',
 };
