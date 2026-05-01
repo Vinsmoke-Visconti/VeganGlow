@@ -7,7 +7,7 @@ name: Deploy Docker
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, feature/*, feature/storefront-redesign-ui]
     paths:
       - 'apps/web/**'
       - 'packages/**'
@@ -45,7 +45,9 @@ jobs:
           context: .
           file: docker/Dockerfile.frontend
           push: true
-          tags: terrykozte/veganglow:latest,terrykozte/veganglow:${{ github.sha }}
+          tags: |
+            ${{ github.ref == 'refs/heads/main' && 'terrykozte/veganglow:latest' || format('terrykozte/veganglow:{0}', github.ref_name) }}
+            terrykozte/veganglow:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
