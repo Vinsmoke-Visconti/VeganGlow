@@ -39,6 +39,14 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      - name: Compute Docker tag from branch
+        id: meta
+        run: |
+          # Docker tags can't contain '/'. Replace '/' with '-' so refs like
+          # feature/storefront-redesign-ui become feature-storefront-redesign-ui.
+          SAFE_REF="${GITHUB_REF_NAME//\//-}"
+          echo "safe_ref=$SAFE_REF" >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -46,7 +54,7 @@ jobs:
           file: docker/Dockerfile.frontend
           push: true
           tags: |
-            ${{ github.ref == 'refs/heads/main' && 'terrykozte/veganglow:latest' || format('terrykozte/veganglow:{0}', github.ref_name) }}
+            ${{ github.ref == 'refs/heads/main' && 'terrykozte/veganglow:latest' || format('terrykozte/veganglow:{0}', steps.meta.outputs.safe_ref) }}
             terrykozte/veganglow:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}

@@ -4,6 +4,16 @@ import { CheckCircle2, AlertCircle, ShieldCheck, ArrowRight } from 'lucide-react
 import Link from 'next/link';
 import styles from './accept.module.css';
 
+type InviteRow = {
+  id: string;
+  email: string;
+  full_name: string;
+  status: string;
+  expires_at: string;
+  role: { display_name: string; name: string } | null;
+  inviter: { full_name: string | null } | null;
+};
+
 export default async function AcceptInvitePage({
   searchParams,
 }: {
@@ -37,7 +47,7 @@ export default async function AcceptInvitePage({
       inviter:profiles!staff_invitations_invited_by_fkey(full_name)
     `)
     .eq('token', token)
-    .single();
+    .single<InviteRow>();
 
   if (error || !invite) {
     return (

@@ -27,7 +27,8 @@ additional_redirect_urls = [
 jwt_expiry = 3600
 enable_signup = true
 enable_anonymous_sign_ins = false
-password_leaked_protection_enabled = true
+# Leaked password protection is enabled via Supabase Dashboard
+# (Authentication → Settings → Password Strength). It's not a valid config.toml key.
 
 [auth.email]
 enable_signup = true

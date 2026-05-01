@@ -166,6 +166,7 @@ function CheckoutContent() {
     enabled: isSuccess && lastPaymentMethod === 'bank_transfer' && paymentStage !== 'completed',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (liveStatus === 'paid' && paymentStage !== 'completed') {
       setPaymentStage('completed');

@@ -21,6 +21,8 @@ type StaffInvitationWriteClient = {
       full_name: string;
       status: 'pending';
       invited_by: string | null;
+      token: string;
+      expires_at: string;
     },
     options: { onConflict: string },
   ) => Promise<{ error: { message: string } | null }>;
@@ -28,6 +30,8 @@ type StaffInvitationWriteClient = {
     eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
   };
 };
+
+type RoleRow = { id: string; display_name: string };
 
 type StaffProfileWriteClient = {
   update: (row: { is_active: boolean }) => {
@@ -56,11 +60,13 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
     return { error: 'Quyền truy cập bị từ chối. Chỉ Super Admin mới có quyền mời nhân sự.' };
   }
 
-  const { data: role, error: roleErr } = await supabase
+  const { data: roleData, error: roleErr } = await supabase
     .from('roles')
     .select('id, display_name')
     .eq('name', roleName)
     .single();
+
+  const role = roleData as RoleRow | null;
 
   if (roleErr || !role) {
     return { error: `Vai trò "${roleName}" không tồn tại.` };
@@ -70,7 +76,9 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // Save to database
-  const { error } = await supabase.from('staff_invitations').upsert(
+  const { error } = await (
+    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
+  ).upsert(
     {
       email,
       role_id: role.id,

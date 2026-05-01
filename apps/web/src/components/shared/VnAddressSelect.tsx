@@ -52,6 +52,7 @@ export function VnAddressSelect({ value, onChange, required, layout = 'inline', 
     };
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!value.province_code) {
       setWards([]);
