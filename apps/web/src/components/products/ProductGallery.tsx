@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { normalizeProductImage } from '@/lib/imageUrl';
 
 export type GalleryImage = {
@@ -14,27 +14,22 @@ interface ProductGalleryProps {
   images: GalleryImage[];
   fallback?: string | null;
   productName: string;
-  overrideMainUrl?: string | null;
 }
 
-export default function ProductGallery({ images, fallback, productName, overrideMainUrl }: ProductGalleryProps) {
-  const list: GalleryImage[] =
-    images.length > 0
-      ? images
-      : fallback
-        ? [{ url: fallback, alt_text: productName }]
-        : [];
+export default function ProductGallery({ images, fallback, productName }: ProductGalleryProps) {
+  const list = useMemo<GalleryImage[]>(
+    () =>
+      images.length > 0
+        ? images
+        : fallback
+          ? [{ url: fallback, alt_text: productName }]
+          : [],
+    [images, fallback, productName],
+  );
 
   const [active, setActive] = useState(0);
 
-  useEffect(() => {
-    if (overrideMainUrl) {
-      const idx = list.findIndex((img) => img.url === overrideMainUrl);
-      if (idx >= 0) setActive(idx);
-    }
-  }, [overrideMainUrl, list]);
-
-  const mainUrl = overrideMainUrl ?? list[active]?.url ?? fallback ?? '';
+  const mainUrl = list[active]?.url ?? fallback ?? '';
   const mainSrc = normalizeProductImage(mainUrl) ?? mainUrl;
 
   if (!mainSrc) {

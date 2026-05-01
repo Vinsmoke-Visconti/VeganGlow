@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ArrowRight, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import styles from './wishlist.module.css';
 import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
 import { createBrowserClient } from '@/lib/supabase/client';
 
@@ -78,91 +76,113 @@ export default function WishlistPage() {
     if (error) setWishlist(prev);
   };
 
-  if (loading) return null;
-
-  if (authed === false) {
+  if (loading) {
     return (
-      <div className={styles.page}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Danh sách yêu thích</h1>
-          <p className={styles.subtitle}>Đăng nhập để xem các sản phẩm bạn đã lưu</p>
-        </div>
-        <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>
-            <Heart size={48} fill="currentColor" style={{ opacity: 0.2 }} />
-          </div>
-          <h3 className={styles.emptyTitle}>Bạn chưa đăng nhập</h3>
-          <p className={styles.emptyText}>
-            Đăng nhập để lưu danh sách yêu thích trên mọi thiết bị.
-          </p>
-          <button
-            type="button"
-            onClick={() =>
-              router.push(`/login?redirectTo=${encodeURIComponent('/wishlist')}`)
-            }
-            className={styles.shopBtn}
-          >
-            Đăng nhập <ArrowRight size={18} style={{ marginLeft: 8 }} />
-          </button>
+      <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-24 text-center">
+        <div className="inline-grid place-items-center w-12 h-12 rounded-full border border-border-light animate-pulse">
+          <Heart size={20} className="text-text-muted" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.page}>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className={styles.header}
-      >
-        <h1 className={styles.title}>Danh sách yêu thích</h1>
-        <p className={styles.subtitle}>Lưu lại những sản phẩm bạn yêu quý để mua sau</p>
-      </motion.div>
+    <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-20">
+      <header className="text-center max-w-2xl mx-auto mb-10 lg:mb-16">
+        <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] text-primary mb-4">
+          <Heart size={14} /> Bộ sưu tập riêng của bạn
+        </span>
+        <h1 className="font-serif text-4xl lg:text-6xl font-medium tracking-tight text-text">
+          Danh sách yêu thích
+        </h1>
+        <p className="mt-4 text-text-secondary leading-relaxed">
+          Lưu lại những sản phẩm bạn yêu quý để mua sau.
+        </p>
+      </header>
 
-      <AnimatePresence mode="wait">
-        {wishlist.length === 0 ? (
-          <motion.div
-            key="empty"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className={styles.emptyState}
-          >
-            <div className={styles.emptyIcon}>
-              <Heart size={48} fill="currentColor" style={{ opacity: 0.2 }} />
-            </div>
-            <h3 className={styles.emptyTitle}>Chưa có sản phẩm yêu thích</h3>
-            <p className={styles.emptyText}>
-              Hãy dạo quanh cửa hàng và nhấn vào biểu tượng trái tim để lưu lại những món đồ bạn ưng ý nhé.
-            </p>
-            <Link href="/products" className={styles.shopBtn}>
-              Tiếp tục mua sắm <ArrowRight size={18} style={{ marginLeft: 8 }} />
-            </Link>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={styles.grid}
-          >
+      {authed === false ? (
+        <EmptyState
+          icon={<Heart size={32} />}
+          title="Bạn chưa đăng nhập"
+          description="Đăng nhập để lưu danh sách yêu thích trên mọi thiết bị."
+          action={{
+            label: 'Đăng nhập',
+            onClick: () => router.push(`/login?redirectTo=${encodeURIComponent('/wishlist')}`),
+          }}
+        />
+      ) : wishlist.length === 0 ? (
+        <EmptyState
+          icon={<Heart size={32} />}
+          title="Chưa có sản phẩm yêu thích"
+          description="Hãy dạo quanh cửa hàng và nhấn vào biểu tượng trái tim để lưu lại những món đồ bạn ưng ý."
+          action={{ label: 'Tiếp tục mua sắm', href: '/products' }}
+        />
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-sm text-text-secondary">
+              <span className="font-medium text-text">{wishlist.length}</span> sản phẩm
+            </span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {wishlist.map((product) => (
-              <div key={product.id} style={{ position: 'relative' }}>
+              <div key={product.id} className="relative group">
                 <ProductCard product={product} />
                 <button
+                  type="button"
                   onClick={() => removeFromWishlist(product.id)}
-                  className={styles.removeWishlistBtn}
+                  className="absolute top-3 left-3 grid place-items-center w-9 h-9 rounded-full bg-white/85 backdrop-blur text-error opacity-0 group-hover:opacity-100 focus:opacity-100 transition"
                   title="Xóa khỏi danh sách"
+                  aria-label="Xóa khỏi danh sách yêu thích"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+interface EmptyStateProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  action: { label: string; href?: string; onClick?: () => void };
+}
+
+function EmptyState({ icon, title, description, action }: EmptyStateProps) {
+  const cta = (
+    <>
+      {action.label}
+      <ArrowRight size={16} className="ml-1.5" />
+    </>
+  );
+  return (
+    <div className="text-center py-16 lg:py-24">
+      <div className="inline-grid place-items-center w-20 h-20 rounded-full bg-primary-50 text-primary mb-6">
+        {icon}
+      </div>
+      <h3 className="font-serif text-2xl lg:text-3xl font-medium text-text mb-3">{title}</h3>
+      <p className="text-text-secondary max-w-md mx-auto mb-8 leading-relaxed">{description}</p>
+      {action.href ? (
+        <Link
+          href={action.href}
+          className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-text text-white text-sm font-medium hover:bg-primary-dark transition"
+        >
+          {cta}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-text text-white text-sm font-medium hover:bg-primary-dark transition"
+        >
+          {cta}
+        </button>
+      )}
     </div>
   );
 }
