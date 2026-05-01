@@ -2,11 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Star, ShoppingBag, Heart, Tag, Check } from 'lucide-react';
+import { Heart, Check, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { setBuyNow } from '@/lib/buyNow';
 import { normalizeProductImage } from '@/lib/imageUrl';
-import styles from './Product.module.css';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase/client';
@@ -16,8 +14,12 @@ export interface ProductCardProduct {
   name: string;
   slug: string;
   price: number;
-  original_price?: number;
   image?: string;
+  short_description?: string | null;
+  has_variants?: boolean;
+  default_compare_at_price?: number | null;
+  // Legacy fields kept for back-compat with callers; no longer rendered.
+  original_price?: number;
   description?: string;
   rating?: number;
   reviews_count?: number;
@@ -27,6 +29,9 @@ export interface ProductCardProduct {
     slug: string;
   } | null;
 }
+
+const formatVND = (n: number) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
 export default function ProductCard({ product }: { product: ProductCardProduct }) {
   const { addToCart } = useCart();
@@ -41,8 +46,7 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
     let alive = true;
 
     async function loadFavoriteState() {
-      // Jitter to prevent auth lock contention on page load with many cards
-      await new Promise(r => setTimeout(r, Math.random() * 300));
+      await new Promise((r) => setTimeout(r, Math.random() * 300));
       if (!alive) return;
 
       const {
@@ -68,29 +72,18 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
     };
   }, [product.id, supabase]);
 
-  const formatVND = (n: number) =>
-    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+  const compareAt = product.default_compare_at_price ?? product.original_price ?? null;
+  const discountPercent =
+    compareAt && compareAt > product.price
+      ? Math.round(((compareAt - product.price) / compareAt) * 100)
+      : 0;
 
-  const discountPercent = product.original_price && product.original_price > product.price
-    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
-    : 0;
-
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     addToCart(product);
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 1500);
-  };
-
-  const handleBuyNow = () => {
-    setBuyNow({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
-    });
-    router.push('/checkout?buyNow=1');
   };
 
   const handleWishlistToggle = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -111,13 +104,12 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
     const nextLiked = !isLiked;
     setIsLiked(nextLiked);
 
-    // Supabase generated types (PostgrestVersion 14.5) narrow Insert payloads
-    // to `never`; cast the table to bypass the type bug. Runtime behaviour is
-    // unaffected and the schema is enforced server-side via the favorites table.
     const { error } = nextLiked
-      ? await (supabase.from('favorites') as unknown as {
-          upsert: (row: { user_id: string; product_id: string }) => Promise<{ error: { message: string } | null }>;
-        }).upsert({
+      ? await (
+          supabase.from('favorites') as unknown as {
+            upsert: (row: { user_id: string; product_id: string }) => Promise<{ error: { message: string } | null }>;
+          }
+        ).upsert({
           user_id: user.id,
           product_id: product.id,
         })
@@ -132,108 +124,84 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
   };
 
   return (
-    <div className={styles.premiumCard}>
-      <div className={styles.imageWrap}>
-        <Link href={`/products/${product.slug}`}>
-          {productImage ? (
-            <Image
-              src={productImage}
-              alt={product.name}
-              width={400}
-              height={400}
-              className={styles.image}
-              priority={product.id === 'lcp-1' || product.id === 'lcp-2'} 
-              unoptimized
-            />
-          ) : (
-            <div className={styles.placeholder}>{product.name.charAt(0)}</div>
-          )}
-        </Link>
+    <article className="group relative flex flex-col bg-bg-card rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg">
+      <Link
+        href={`/products/${product.slug}`}
+        className="relative block aspect-square bg-primary-50 overflow-hidden"
+        aria-label={product.name}
+      >
+        {productImage ? (
+          <Image
+            src={productImage}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            unoptimized
+          />
+        ) : (
+          <div className="grid place-items-center h-full font-serif text-5xl text-primary">
+            {product.name.charAt(0)}
+          </div>
+        )}
 
-        {/* Badges */}
-        <div className={styles.badgeContainer}>
-          {discountPercent > 0 && (
-            <span className={`${styles.badge} ${styles.badgeSale}`}>
-              -{discountPercent}%
-            </span>
-          )}
-          {product.rating && product.rating >= 4.7 && (
-            <span className={styles.badge}>Yêu thích</span>
-          )}
-          {discountPercent >= 20 && (
-            <span className={`${styles.badge} ${styles.badgeCoupon}`}>
-              <Tag size={10} style={{marginRight: 4}} /> Có mã giảm giá
-            </span>
-          )}
-        </div>
+        {discountPercent > 0 && (
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-text text-white text-[11px] font-medium tracking-wide">
+            −{discountPercent}%
+          </span>
+        )}
 
-        {/* Wishlist Action */}
-        <button 
-          className={styles.wishlistBtn}
+        <button
+          type="button"
           onClick={handleWishlistToggle}
           disabled={favoritePending}
-          aria-label={isLiked ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
+          className="absolute top-3 right-3 grid place-items-center w-9 h-9 rounded-full bg-white/85 backdrop-blur transition hover:bg-white"
+          aria-label={isLiked ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
         >
-          <Heart 
-            size={18} 
-            fill={isLiked ? "#ef4444" : "none"} 
-            color={isLiked ? "#ef4444" : "currentColor"} 
+          <Heart
+            size={16}
+            fill={isLiked ? '#ef4444' : 'none'}
+            color={isLiked ? '#ef4444' : 'currentColor'}
           />
         </button>
-      </div>
+      </Link>
 
-      <div className={styles.info}>
-        <span className={styles.category}>{product.categories?.name || 'Mỹ phẩm'}</span>
-        
-        <Link href={`/products/${product.slug}`}>
-          <h3 className={styles.name}>{product.name}</h3>
+      <div className="flex flex-col gap-1.5 p-4">
+        <span className="text-[11px] uppercase tracking-[0.12em] text-text-muted">
+          {product.categories?.name || 'Mỹ phẩm'}
+        </span>
+
+        <Link
+          href={`/products/${product.slug}`}
+          className="font-serif text-base leading-snug text-text line-clamp-2 hover:text-primary transition"
+        >
+          {product.name}
         </Link>
-        
-        <p className={styles.description}>
-          {product.description || 'Sản phẩm thuần chay từ thảo dược thiên nhiên Việt Nam.'}
-        </p>
-        
-        <div className={styles.ratingRow}>
-          <div className={styles.stars}>
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                size={14} 
-                fill={i < Math.floor(product.rating || 5) ? "currentColor" : "none"} 
-              />
-            ))}
-          </div>
-          <span className={styles.ratingValue}>{product.rating?.toFixed(1) || '5.0'}</span>
-          <span className={styles.reviewsCount}>({product.reviews_count || 0} đánh giá)</span>
-        </div>
 
-        <div className={styles.priceContainer}>
-          <span className={styles.price}>{formatVND(product.price || 0)}</span>
-          {discountPercent > 0 && product.original_price && (
-            <span className={styles.oldPrice}>{formatVND(product.original_price)}</span>
+        <div className="flex items-baseline gap-2 mt-1">
+          <span className="font-serif text-lg font-semibold text-text">{formatVND(product.price)}</span>
+          {discountPercent > 0 && compareAt && (
+            <span className="text-sm text-text-muted line-through">{formatVND(compareAt)}</span>
           )}
         </div>
 
-        <div className={styles.buttonGroup}>
-          <button
-            className={`${styles.cartBtn} ${justAdded ? styles.cartBtnActive : ''}`}
-            onClick={handleAddToCart}
-            aria-label={justAdded ? 'Đã thêm vào giỏ' : 'Thêm vào giỏ hàng'}
-          >
-            {justAdded ? <Check size={18} /> : <ShoppingBag size={18} />}
-          </button>
-          <button
-            className={styles.buyBtn}
-            onClick={handleBuyNow}
-          >
-            Mua ngay
-          </button>
-        </div>
-
-        <Link href="/cart" className={styles.viewCartLink}>
-          <ShoppingBag size={14} /> Xem giỏ hàng
-        </Link>
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          className="mt-3 w-full h-10 rounded-full bg-text text-white text-sm font-medium tracking-tight inline-flex items-center justify-center gap-2 hover:bg-primary-dark transition"
+          aria-label={justAdded ? 'Đã thêm vào giỏ' : 'Thêm vào giỏ'}
+        >
+          {justAdded ? (
+            <>
+              <Check size={16} /> Đã thêm
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={16} /> Thêm vào giỏ
+            </>
+          )}
+        </button>
       </div>
-    </div>
+    </article>
   );
 }

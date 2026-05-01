@@ -230,7 +230,7 @@ export async function sendPasswordOtpEmail(
             <p style="font-size: 16px; color: #475569; margin-bottom: 24px;">${message}</p>
             
             <div style="background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; display: inline-block; margin: 0 auto;">
-              <span style="font-size: 32px; font-weight: 800; letter-spacing: 0.2em; color: #1a3c17;">${code}</span>
+              <span style="font-size: 32px; font-weight: 800; letter-spacing: 0.2em; color: #1a3c17;">${escapeHtml(code)}</span>
             </div>
             
             <p style="margin-top: 32px; font-size: 14px; color: #94a3b8; line-height: 1.6;">
