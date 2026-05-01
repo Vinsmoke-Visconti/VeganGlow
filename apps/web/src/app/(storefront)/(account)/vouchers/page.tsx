@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  Ticket, Clock, Tag, Search, 
-  Filter, ChevronRight, Gift, 
-  Info, CheckCircle2, Loader2,
+  Ticket, Clock, Tag, Gift, 
+  Info, Loader2,
   Sparkles, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,55 +21,73 @@ interface Voucher {
 }
 
 export default function VouchersPage() {
-  const [filter, setFilter] = useState('all');
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [activeTab, setActiveTab] = useState<'available' | 'my'>('available');
+  const [availableVouchers, setAvailableVouchers] = useState<Voucher[]>([]);
+  const [myVouchers, setMyVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [voucherCode, setVoucherCode] = useState('');
+  const [claimingId, setClaimingId] = useState<string | null>(null);
   const supabase = createBrowserClient();
 
   useEffect(() => {
-    fetchVouchers();
+    fetchAllData();
   }, []);
 
-  async function fetchVouchers() {
+  async function fetchAllData() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { data, error } = await supabase
+    // Fetch all active vouchers
+    const { data: allVouchers } = await supabase
+      .from('vouchers')
+      .select('*')
+      .eq('is_active', true);
+
+    // Fetch user's claimed vouchers
+    const { data: userVouchers } = await supabase
       .from('user_vouchers')
-      .select(`
-        is_used,
-        vouchers (
-          id,
-          code,
-          title,
-          description,
-          discount_type,
-          end_date
-        )
-      `)
+      .select('voucher_id, is_used')
       .eq('user_id', user.id);
 
-    if (error) {
-      console.error('Error fetching vouchers:', error);
-    } else {
-      const flattened = data.map((item: any) => ({
-        ...item.vouchers,
-        is_used: item.is_used
-      }));
-      setVouchers(flattened);
+    if (allVouchers) {
+      const claimedIds = userVouchers?.map(uv => uv.voucher_id) || [];
+      
+      // Available are those NOT yet claimed by user
+      setAvailableVouchers(allVouchers.filter(v => !claimedIds.includes(v.id)));
+      
+      // My vouchers are those claimed
+      const myFlat = userVouchers?.map(uv => {
+        const v = allVouchers.find(av => av.id === uv.voucher_id);
+        return v ? { ...v, is_used: uv.is_used } : null;
+      }).filter(Boolean) as Voucher[];
+      
+      setMyVouchers(myFlat);
     }
     setLoading(false);
   }
 
-  const filteredVouchers = vouchers.filter(v => {
-    if (filter === 'all') return true;
-    if (filter === 'shipping') return v.discount_type === 'shipping';
-    if (filter === 'discount') return v.discount_type === 'percentage' || v.discount_type === 'fixed';
-    if (filter === 'used') return v.is_used;
-    return !v.is_used;
-  });
+  const handleClaim = async (voucherId: string) => {
+    setClaimingId(voucherId);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('user_vouchers')
+        .insert({ user_id: user.id, voucher_id: voucherId });
+
+      if (error) throw error;
+      
+      // Refresh
+      await fetchAllData();
+      setActiveTab('my');
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setClaimingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -119,21 +136,24 @@ export default function VouchersPage() {
         </section>
         
         <div className={styles.tabs}>
-          {['all', 'shipping', 'discount', 'used'].map(t => (
-            <button 
-              key={t}
-              className={`${styles.tab} ${filter === t ? styles.tabActive : ''}`} 
-              onClick={() => setFilter(t)}
-            >
-              {t === 'all' ? 'Tất cả' : t === 'shipping' ? 'Vận chuyển' : t === 'discount' ? 'Giảm giá' : 'Đã dùng'}
-            </button>
-          ))}
+          <button 
+            className={`${styles.tab} ${activeTab === 'available' ? styles.tabActive : ''}`} 
+            onClick={() => setActiveTab('available')}
+          >
+            Sưu tầm Voucher
+          </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'my' ? styles.tabActive : ''}`} 
+            onClick={() => setActiveTab('my')}
+          >
+            Voucher của tôi ({myVouchers.length})
+          </button>
         </div>
       </header>
 
       <div className={styles.voucherGrid}>
         <AnimatePresence mode="popLayout">
-          {filteredVouchers.length > 0 ? filteredVouchers.map((v, idx) => (
+          {(activeTab === 'available' ? availableVouchers : myVouchers).length > 0 ? (activeTab === 'available' ? availableVouchers : myVouchers).map((v, idx) => (
             <motion.div 
               key={v.id} 
               className={`${styles.voucherCard} ${v.is_used ? styles.cardUsed : ''}`}
@@ -153,18 +173,28 @@ export default function VouchersPage() {
                 <div className={styles.cardInfo}>
                   <div className={styles.cardInfoTop}>
                     <h3 className={styles.voucherTitle}>{v.title}</h3>
-                    {!v.is_used && <span className={styles.tagLimited}>Số lượng có hạn</span>}
+                    {activeTab === 'available' && <span className={styles.tagLimited}>Số lượng có hạn</span>}
                   </div>
-                  <p className={styles.voucherDesc}>{v.description}</p>
+                  <p className={styles.voucherDesc}>{v.description || 'Không có mô tả'}</p>
                   
                   <div className={styles.voucherFooter}>
                     <div className={styles.expiryBox}>
                       <Clock size={12} />
-                      <span>HSD: {new Date(v.end_date).toLocaleDateString('vi-VN')}</span>
+                      <span>HSD: {v.end_date ? new Date(v.end_date).toLocaleDateString('vi-VN') : 'Không thời hạn'}</span>
                     </div>
-                    <button className={styles.useBtn} disabled={v.is_used}>
-                      {v.is_used ? 'Đã sử dụng' : 'Dùng ngay'}
-                    </button>
+                    {activeTab === 'available' ? (
+                      <button 
+                        className={styles.useBtn} 
+                        onClick={() => handleClaim(v.id)}
+                        disabled={claimingId === v.id}
+                      >
+                        {claimingId === v.id ? <Loader2 size={14} className={styles.spin} /> : 'Sưu tầm'}
+                      </button>
+                    ) : (
+                      <button className={styles.useBtn} disabled={v.is_used}>
+                        {v.is_used ? 'Đã sử dụng' : 'Dùng ngay'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -177,7 +207,7 @@ export default function VouchersPage() {
           )) : (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}><Ticket size={48} /></div>
-              <p>Bạn chưa có voucher nào trong danh mục này.</p>
+              <p>{activeTab === 'available' ? 'Hiện không có voucher mới nào.' : 'Bạn chưa sở hữu voucher nào.'}</p>
             </div>
           )}
         </AnimatePresence>

@@ -40,6 +40,8 @@ type Profile = {
   cccd_full_name: string | null;
   is_verified: boolean;
   verification_status: 'unverified' | 'pending' | 'verified' | 'rejected';
+  loyalty_tier: 'member' | 'silver' | 'gold' | 'platinum';
+  loyalty_points: number;
 };
 
 export default function ProfilePage() {
@@ -127,11 +129,20 @@ export default function ProfilePage() {
     } finally { setSaving(false); }
   };
 
+  const getTierLabel = (tier: string) => {
+    switch (tier) {
+      case 'silver': return 'Thành viên Bạc';
+      case 'gold': return 'Thành viên Vàng';
+      case 'platinum': return 'Thành viên Bạch kim';
+      default: return 'Thành viên mới';
+    }
+  };
+
   const startNfcVerification = async () => {
     setNfcScanning(true);
     setTimeout(async () => {
       try {
-        await (supabase.from('profiles') as any).update({ verification_status: 'pending' }).eq('id', profile?.id);
+        await supabase.from('profiles').update({ verification_status: 'pending' }).eq('id', profile?.id);
         setProfile(prev => prev ? { ...prev, verification_status: 'pending' } : null);
         setIsNfcModalOpen(false);
         setFeedback({ kind: 'success', message: 'Hồ sơ đang chờ duyệt!' });
@@ -176,7 +187,12 @@ export default function ProfilePage() {
                 <h2 className={styles.profileNameLarge}>{profile?.full_name || "Thành viên mới"}</h2>
                 <p className={styles.profileEmailSub}>{email}</p>
                 <div className={styles.quickBadges}>
-                  <span className={styles.roleBadge}>Khách hàng Thân thiết</span>
+                  <span className={`${styles.roleBadge} ${styles[profile?.loyalty_tier || 'member']}`}>
+                    {getTierLabel(profile?.loyalty_tier || 'member')}
+                  </span>
+                  {profile?.loyalty_points !== undefined && (
+                    <span className={styles.pointsBadge}>{profile.loyalty_points.toLocaleString()} điểm</span>
+                  )}
                 </div>
               </div>
             </div>

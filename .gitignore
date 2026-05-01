@@ -70,10 +70,6 @@ apps/mobile/ios/DerivedData/
 *.pem
 *.p12
 
-# Misc
-*.log
-pass_word_supadase.txt
-
 # Security & Secrets
 .env
 .env.local
@@ -88,3 +84,22 @@ credentials.json
 .npmrc
 .yarnrc
 pass_word_supadase.txt
+
+# AI, Agents & Documentation
+.agents/
+.claude/
+.kiro/
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+docs/
+figma_design/
+scratch/
+*.txt
+*.log
+!README.md
+!LICENSE
+!package.json
+!package-lock.json
+lint_output_original.txt
+motadoanhnghiepveganglowdemo.txt

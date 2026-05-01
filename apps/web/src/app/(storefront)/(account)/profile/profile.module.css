@@ -121,11 +121,27 @@
 
 .roleBadge {
   background: #f1f5f9;
-  padding: 4px 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 10px;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.member { background: #f1f5f9; color: #64748b; }
+.silver { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+.gold { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+.platinum { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+
+.pointsBadge {
+  background: #1a3c17;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 800;
 }
 
 /* FORMS */
