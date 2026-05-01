@@ -55,13 +55,13 @@ docker-compose.override.yml
 .supabase/
 supabase/.temp/
 
-# Mobile (Capacitor)
-mobile/android/.gradle/
-mobile/android/build/
-mobile/android/app/build/
-mobile/android/local.properties
-mobile/ios/App/Pods/
-mobile/ios/DerivedData/
+# Mobile (Capacitor) — apps/mobile/
+apps/mobile/android/.gradle/
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/local.properties
+apps/mobile/ios/App/Pods/
+apps/mobile/ios/DerivedData/
 *.xcworkspace
 *.xcuserdata
 
@@ -70,6 +70,36 @@ mobile/ios/DerivedData/
 *.pem
 *.p12
 
-# Misc
-*.log
+# Security & Secrets
+.env
+.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+*.token
+credentials.json
+.npmrc
+.yarnrc
 pass_word_supadase.txt
+
+# AI, Agents & Documentation
+.agents/
+.claude/
+.kiro/
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+docs/
+figma_design/
+scratch/
+*.txt
+*.log
+!README.md
+!LICENSE
+!package.json
+!package-lock.json
+lint_output_original.txt
+motadoanhnghiepveganglowdemo.txt
