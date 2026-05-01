@@ -21,11 +21,12 @@ const POLL_MS = 10_000;
  */
 export function IdleTimeoutGuard() {
   const [showWarning, setShowWarning] = useState(false);
-  const lastActivityRef = useRef(Date.now());
+  const lastActivityRef = useRef(0);
   const lastPingRef = useRef(0);
   const channelRef = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
+    lastActivityRef.current = Date.now();
     const channel = new BroadcastChannel('admin-activity');
     channelRef.current = channel;
 

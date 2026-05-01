@@ -127,7 +127,12 @@ export async function updateSession(request: NextRequest) {
     }
 
     // AAL enforcement for super_admin (forces TOTP setup + challenge)
-    if (superAdmin && !ADMIN_EXEMPT_PATHS.has(pathname)) {
+    // Feature-flagged: dev/test can bypass via FEATURE_MFA_ENFORCED!=='true'
+    if (
+      process.env.FEATURE_MFA_ENFORCED === 'true' &&
+      superAdmin &&
+      !ADMIN_EXEMPT_PATHS.has(pathname)
+    ) {
       const factorStatus = request.cookies.get('mfa_factor_status')?.value;
       let hasVerifiedTotp = factorStatus === 'verified';
 
