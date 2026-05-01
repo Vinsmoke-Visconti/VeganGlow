@@ -179,14 +179,20 @@ function OrdersContent() {
                     <div className={styles.itemsList}>
                       {order.order_items?.slice(0, 2).map((item) => (
                         <div key={item.id} className={styles.orderItem}>
-                          <Image
-                            src={item.product_image || 'https://via.placeholder.com/60'}
-                            alt={item.product_name}
-                            width={60}
-                            height={60}
-                            style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '4px' }}
-                            unoptimized
-                          />
+                          {item.product_image ? (
+                            <Image
+                              src={item.product_image}
+                              alt={item.product_name}
+                              width={60}
+                              height={60}
+                              style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '8px' }}
+                              unoptimized
+                            />
+                          ) : (
+                            <div className={styles.itemImagePlaceholder}>
+                              <Package size={20} />
+                            </div>
+                          )}
                           <div className={styles.itemMeta}>
                             <p className={styles.itemName}>{item.product_name}</p>
                             <p className={styles.itemQty}>Số lượng: {item.quantity}</p>

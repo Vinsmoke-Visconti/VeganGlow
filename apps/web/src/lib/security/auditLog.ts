@@ -64,6 +64,20 @@ export type AuditContext = {
   requestId?: string | null;
 };
 
+/**
+ * Build an AuditContext from the current request headers.
+ * Shared helper — use instead of copy-pasting auditCtx() in every action file.
+ */
+export async function getAuditContext(): Promise<AuditContext> {
+  // Dynamic import to avoid circular deps in edge middleware
+  const { headers } = await import('next/headers');
+  const h = await headers();
+  return {
+    ip: h.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+    userAgent: h.get('user-agent'),
+  };
+}
+
 let failureCounter = 0;
 
 /**

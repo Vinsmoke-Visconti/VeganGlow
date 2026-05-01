@@ -19,6 +19,7 @@ import { verifyTurnstile } from '@/lib/security/turnstile';
 export type AuthFormState = { error?: string; requiresCaptcha?: boolean } | null;
 
 const GENERIC_LOGIN_ERROR = 'Email hoặc mật khẩu không đúng';
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TARGET_LOGIN_DELAY_MS = 300;
 
 function emailHash(email: string): string {
@@ -177,10 +178,46 @@ export async function login(_prevState: AuthFormState, formData: FormData) {
 }
 
 export async function signup(_prevState: AuthFormState, formData: FormData) {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const fullName = formData.get('fullName') as string;
+  const startedAt = Date.now();
+  const headersList = await headers();
+  const ip = getClientIp(headersList);
 
+  const email = (formData.get('email') as string)?.trim() ?? '';
+  const password = formData.get('password') as string;
+  const fullName = (formData.get('fullName') as string)?.trim() ?? '';
+  const captchaToken = String(formData.get('cf-turnstile-response') ?? '');
+
+  const GENERIC_SIGNUP_ERROR = 'Không thể tạo tài khoản. Vui lòng thử lại.';
+
+  // 1. Rate limit (same progressive tiers as login)
+  const ipRate = ip ? await checkLoginIpRate(ip) : null;
+  if (ipRate?.allowed === false) {
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_SIGNUP_ERROR };
+  }
+  if (ipRate?.requiresCaptcha) {
+    const valid = await verifyTurnstile(captchaToken, ip);
+    if (!valid) {
+      await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+      return { error: GENERIC_SIGNUP_ERROR, requiresCaptcha: true };
+    }
+  }
+
+  // 2. Input validation
+  if (!EMAIL_REGEX.test(email) || email.length > 200) {
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Email không hợp lệ.' };
+  }
+  if (!password || password.length < 8 || password.length > 128) {
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Mật khẩu phải từ 8 đến 128 ký tự.' };
+  }
+  if (!fullName || fullName.length < 2 || fullName.length > 120) {
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Họ tên phải từ 2 đến 120 ký tự.' };
+  }
+
+  // 3. Create account
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signUp({
@@ -194,9 +231,13 @@ export async function signup(_prevState: AuthFormState, formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    // Never expose Supabase internals — log server-side only
+    console.error('[signup] Supabase error:', error.message);
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: GENERIC_SIGNUP_ERROR };
   }
 
+  await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
   revalidatePath('/', 'layout');
   redirect('/login?message=Kiểm tra email của bạn để xác nhận tài khoản.');
 }

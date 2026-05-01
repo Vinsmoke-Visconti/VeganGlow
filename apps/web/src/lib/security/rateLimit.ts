@@ -21,11 +21,25 @@ export type RateLimitResult = {
  * Atomic increment with TTL. Returns tier classification.
  * NOTE: This always increments — do not call to "check" without intent to record.
  * For check-only without increment, use peekRateLimit().
+ *
+ * SECURITY: Fails closed — if Redis is unavailable, requests are denied to
+ * prevent brute-force when the cache layer is down.
  */
 export async function checkRateLimit(key: string, opts: RateLimitOptions): Promise<RateLimitResult> {
-  const count = await redis.incr(key);
-  if (count === 1) {
-    await redis.expire(key, opts.window);
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    console.error('[rateLimit] Redis not configured — failing closed');
+    return { count: 999, tier: 2, allowed: false, requiresCaptcha: true };
+  }
+
+  let count: number;
+  try {
+    count = await redis.incr(key);
+    if (count === 1) {
+      await redis.expire(key, opts.window);
+    }
+  } catch (err) {
+    console.error('[rateLimit] Redis error — failing closed:', err);
+    return { count: 999, tier: 2, allowed: false, requiresCaptcha: true };
   }
 
   if (count > opts.hardLimit) {

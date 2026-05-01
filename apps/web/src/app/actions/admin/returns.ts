@@ -52,16 +52,18 @@ export async function createReturnRequest(input: CreateReturnInput): Promise<Res
   if (error) return { ok: false, error: error.message };
   const returnId = (ret as { id: string }).id;
 
-  // Insert items
-  for (const item of input.items) {
+  // Batch insert all items in a single query (avoids N+1)
+  if (input.items.length > 0) {
     const { error: itemErr } = await supabase
       .from('order_return_items')
-      .insert({
-        return_id: returnId,
-        order_item_id: item.order_item_id,
-        quantity: item.quantity,
-        reason: item.reason,
-      } as never);
+      .insert(
+        input.items.map(item => ({
+          return_id: returnId,
+          order_item_id: item.order_item_id,
+          quantity: item.quantity,
+          reason: item.reason,
+        })) as never[]
+      );
     if (itemErr) return { ok: false, error: itemErr.message };
   }
 

@@ -153,23 +153,7 @@ export default function WishlistPage() {
                 <ProductCard product={product} />
                 <button
                   onClick={() => removeFromWishlist(product.id)}
-                  style={{
-                    position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    background: 'white',
-                    color: '#ef4444',
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: 'var(--shadow-md)',
-                    zIndex: 10,
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
+                  className={styles.removeWishlistBtn}
                   title="Xóa khỏi danh sách"
                 >
                   <Trash2 size={18} />

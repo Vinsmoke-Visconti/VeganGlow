@@ -16,18 +16,6 @@ type TestimonialRow = {
   avatar_initials: string;
 };
 
-const FALLBACK_TESTIMONIALS: TestimonialRow[] = [
-  { id: 'fallback-1', name: 'Nguyễn Thị Lan', role: 'Khách hàng thân thiết', rating: 5,
-    text: 'Sau 3 tuần dùng VeganGlow Serum, da mình sáng hẳn lên! Không còn lo ngại về thành phần hóa học nữa.',
-    avatar_initials: 'NL' },
-  { id: 'fallback-2', name: 'Trần Minh Châu', role: 'Beauty Blogger', rating: 5,
-    text: 'Đây là thương hiệu thuần chay Việt Nam mình tự hào giới thiệu. Chất lượng sánh ngang hàng quốc tế.',
-    avatar_initials: 'MC' },
-  { id: 'fallback-3', name: 'Lê Thị Hoa', role: 'Da nhạy cảm', rating: 5,
-    text: 'Da mình cực kỳ nhạy cảm nhưng sản phẩm VeganGlow không gây kích ứng gì. Thực sự yên tâm khi dùng.',
-    avatar_initials: 'LH' },
-];
-
 export default async function Home() {
   const supabase = await createClient();
 
@@ -56,7 +44,7 @@ export default async function Home() {
   const testimonials: TestimonialRow[] =
     !testimonialsError && testimonialsData && testimonialsData.length > 0
       ? (testimonialsData as unknown as TestimonialRow[])
-      : FALLBACK_TESTIMONIALS;
+      : [];
 
   return (
     <div className={styles.main}>
@@ -277,36 +265,38 @@ export default async function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className={styles.testimonialsSection}>
-        <div className="container">
-          <FadeIn direction="up">
-            <h2 className={styles.sectionTitle}>Khách Hàng Nói Gì?</h2>
-            <p className={styles.sectionSubtitle}>
-              Hàng nghìn khách hàng đã tin tưởng và yêu thích VeganGlow
-            </p>
-            <StaggerContainer className={styles.testimonialsGrid}>
-              {testimonials.map((t) => (
-                <StaggerItem key={t.id} className={styles.testimonialCard}>
-                  <Quote size={28} className={styles.testimonialQuote} />
-                  <p className={styles.testimonialText}>{t.text}</p>
-                  <div className={styles.testimonialStars}>
-                    {Array.from({ length: t.rating }).map((_, j) => (
-                      <Star key={j} size={14} fill="currentColor" />
-                    ))}
-                  </div>
-                  <div className={styles.testimonialAuthor}>
-                    <div className={styles.testimonialAvatar}>{t.avatar_initials}</div>
-                    <div className={styles.testimonialMeta}>
-                      <strong>{t.name}</strong>
-                      <span>{t.role}</span>
+      {testimonials.length > 0 && (
+        <section className={styles.testimonialsSection}>
+          <div className="container">
+            <FadeIn direction="up">
+              <h2 className={styles.sectionTitle}>Khách Hàng Nói Gì?</h2>
+              <p className={styles.sectionSubtitle}>
+                Hàng nghìn khách hàng đã tin tưởng và yêu thích VeganGlow
+              </p>
+              <StaggerContainer className={styles.testimonialsGrid}>
+                {testimonials.map((t) => (
+                  <StaggerItem key={t.id} className={styles.testimonialCard}>
+                    <Quote size={28} className={styles.testimonialQuote} />
+                    <p className={styles.testimonialText}>{t.text}</p>
+                    <div className={styles.testimonialStars}>
+                      {Array.from({ length: t.rating }).map((_, j) => (
+                        <Star key={j} size={14} fill="currentColor" />
+                      ))}
                     </div>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </FadeIn>
-        </div>
-      </section>
+                    <div className={styles.testimonialAuthor}>
+                      <div className={styles.testimonialAvatar}>{t.avatar_initials}</div>
+                      <div className={styles.testimonialMeta}>
+                        <strong>{t.name}</strong>
+                        <span>{t.role}</span>
+                      </div>
+                    </div>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </FadeIn>
+          </div>
+        </section>
+      )}
 
       {/* Brand Story Section */}
       <section className={styles.storySection}>

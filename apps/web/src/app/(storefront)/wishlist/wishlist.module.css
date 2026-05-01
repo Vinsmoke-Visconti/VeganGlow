@@ -31,9 +31,9 @@
 .emptyState {
   text-align: center;
   padding: 6rem 2rem;
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-3xl);
-  border: 1px dashed var(--color-border);
+  background: #f9fafb;
+  border-radius: 16px;
+  border: 1px dashed #d1d5db;
 }
 
 .emptyIcon {
@@ -69,19 +69,60 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 3rem;
-  background: var(--color-primary-dark);
+  background: var(--color-primary-dark, #111827);
   color: white;
-  border-radius: var(--radius-lg);
-  font-weight: 800;
-  transition: all var(--transition-base);
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .shopBtn:hover {
-  background: var(--color-primary);
+  background: black;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.removeWishlistBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: white;
+  color: #ef4444;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.removeWishlistBtn:hover {
+  background: #fef2f2;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
 }
 
 @media (max-width: 640px) {
+  .page { padding: 1.5rem 1rem; }
+  .header { margin-bottom: 2rem; }
+  .title { font-size: 1.8rem; }
+  .subtitle { font-size: 0.95rem; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .emptyState { padding: 3rem 1.5rem; }
+  .emptyIcon { width: 72px; height: 72px; }
+  .emptyTitle { font-size: 1.2rem; }
+  .shopBtn { padding: 0.8rem 2rem; font-size: 0.9rem; }
+}
+
+@media (max-width: 400px) {
   .grid { grid-template-columns: 1fr; }
 }
