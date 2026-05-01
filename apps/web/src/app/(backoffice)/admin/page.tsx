@@ -40,9 +40,14 @@ export default async function AdminDashboard({ searchParams }: Props) {
 
   return (
     <div className={shared.page}>
-      <div className={shared.toolbar}>
-        <div style={{ flex: 1 }} />
-        <RangeSwitch current={range} />
+      <div className={shared.pageHeader}>
+        <div>
+          <h1 className={shared.pageTitle}>Tổng quan</h1>
+          <p className={shared.pageSubtitle}>Theo dõi hoạt động kinh doanh và hiệu suất cửa hàng</p>
+        </div>
+        <div className={shared.pageActions}>
+          <RangeSwitch current={range} />
+        </div>
       </div>
 
       <div className={shared.kpiGrid}>
