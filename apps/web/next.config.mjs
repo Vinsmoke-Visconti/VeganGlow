@@ -45,11 +45,9 @@ const cspHeaderName =
 
 const nextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: ['192.168.56.1'],
   devIndicators: {
     appIsrStatus: false,
-  },
-  experimental: {
-    allowedDevOrigins: ['192.168.56.1'],
   },
 
   images: {
