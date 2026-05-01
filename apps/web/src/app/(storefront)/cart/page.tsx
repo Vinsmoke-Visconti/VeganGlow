@@ -11,30 +11,36 @@ import {
   ShoppingBag,
   ShieldCheck,
   Truck,
+  ArrowRight,
 } from 'lucide-react';
-import styles from './cart.module.css';
-import { motion, AnimatePresence } from 'framer-motion';
 import { normalizeProductImage } from '@/lib/imageUrl';
+
+const formatVND = (n: number) =>
+  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, totalAmount, totalCount, clearCart } = useCart();
 
   if (cartItems.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={styles.emptyContainer}
-      >
-        <div className={styles.emptyIcon}>
-          <ShoppingBag size={64} />
+      <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-16 lg:py-24 text-center">
+        <div className="inline-grid place-items-center w-20 h-20 rounded-full bg-primary-50 text-primary mb-6">
+          <ShoppingBag size={32} />
         </div>
-        <h1>Giỏ hàng của bạn đang trống</h1>
-        <p>Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ hàng.</p>
-        <Link href="/products" className={styles.continueBtn}>
+        <h1 className="font-serif text-3xl lg:text-5xl font-medium tracking-tight text-text mb-3">
+          Giỏ hàng đang trống
+        </h1>
+        <p className="text-text-secondary max-w-md mx-auto mb-8 leading-relaxed">
+          Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ hàng.
+        </p>
+        <Link
+          href="/products"
+          className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-text text-white text-sm font-medium hover:bg-primary-dark transition"
+        >
           Tiếp tục mua sắm
+          <ArrowRight size={16} className="ml-1.5" />
         </Link>
-      </motion.div>
+      </div>
     );
   }
 
@@ -45,150 +51,181 @@ export default function CartPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={styles.header}
-      >
-        <h1 className={styles.title}>Giỏ hàng của bạn ({totalCount} sản phẩm)</h1>
-        <button type="button" className={styles.clearBtn} onClick={handleClearCart}>
-          <Trash2 size={16} /> Xóa giỏ hàng
+    <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-12 lg:py-20">
+      <header className="flex flex-wrap items-end justify-between gap-4 mb-10">
+        <div>
+          <span className="text-xs uppercase tracking-[0.2em] text-primary mb-2 block">Giỏ hàng</span>
+          <h1 className="font-serif text-3xl lg:text-5xl font-medium tracking-tight text-text">
+            Giỏ hàng của bạn
+          </h1>
+          <p className="mt-2 text-text-secondary">{totalCount} sản phẩm đang chờ thanh toán.</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleClearCart}
+          className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-border bg-white text-sm text-text-secondary hover:border-error hover:text-error transition"
+        >
+          <Trash2 size={14} /> Xóa tất cả
         </button>
-      </motion.header>
+      </header>
 
-      <div className={styles.content}>
-        {/* Cart Items List */}
-        <div className={styles.itemsSection}>
-          <AnimatePresence>
-            {cartItems.map((item, index) => {
-              const img = normalizeProductImage(item.image);
-              return (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                  transition={{ delay: index * 0.05 }}
-                  className={styles.cartItem}
-                >
-                  <div className={styles.itemImage}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 lg:gap-12 items-start">
+        {/* Items column */}
+        <section className="flex flex-col gap-3">
+          <div className="hidden lg:grid grid-cols-[1fr_120px_120px_40px] gap-4 px-4 pb-3 text-[11px] uppercase tracking-[0.18em] text-text-muted border-b border-border-light">
+            <span>Sản phẩm</span>
+            <span className="text-center">Số lượng</span>
+            <span className="text-right">Tạm tính</span>
+            <span />
+          </div>
+
+          {cartItems.map((item) => {
+            const img = normalizeProductImage(item.image);
+            const subtotal = item.price * item.quantity;
+            return (
+              <article
+                key={item.id}
+                className="grid grid-cols-[88px_1fr] lg:grid-cols-[1fr_120px_120px_40px] gap-4 lg:gap-6 items-center p-4 rounded-2xl bg-bg-card border border-border-light"
+              >
+                {/* Product (image + name + price) */}
+                <div className="flex items-center gap-4 col-span-1 lg:col-span-1 row-span-2 lg:row-span-1 lg:contents">
+                  <Link
+                    href={`/products/${item.slug || item.id}`}
+                    className="block shrink-0 w-22 h-22 lg:w-24 lg:h-24 rounded-xl overflow-hidden bg-primary-50"
+                    style={{ width: 88, height: 88 }}
+                  >
                     {img ? (
                       <Image
                         src={img}
                         alt={item.name}
                         width={120}
                         height={120}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        className="w-full h-full object-cover"
                         unoptimized
                       />
                     ) : (
-                      <div className={styles.itemImagePlaceholder}>
+                      <div className="grid place-items-center h-full font-serif text-3xl text-primary">
                         {item.name.charAt(0)}
                       </div>
                     )}
-                  </div>
-                  <div className={styles.itemInfo}>
-                    <Link href={`/products/${item.slug || item.id}`} className={styles.itemName}>
+                  </Link>
+                  <div className="flex flex-col gap-1 lg:py-2 min-w-0">
+                    <Link
+                      href={`/products/${item.slug || item.id}`}
+                      className="font-serif text-base lg:text-lg leading-snug text-text line-clamp-2 hover:text-primary transition"
+                    >
                       {item.name}
                     </Link>
-                    <div className={styles.itemPrice}>
-                      {item.price.toLocaleString('vi-VN')}đ
-                    </div>
+                    <span className="text-sm text-text-muted">{formatVND(item.price)}</span>
                   </div>
-                  <div className={styles.itemActions}>
-                    <div className={styles.quantityControls}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (item.quantity === 1) {
-                            if (window.confirm(`Bạn có chắc chắn muốn xóa "${item.name}" khỏi giỏ hàng?`)) {
-                              removeFromCart(item.id);
-                            }
-                          } else {
-                            updateQuantity(item.id, item.quantity - 1);
-                          }
-                        }}
-                        className={styles.qtyBtn}
-                        aria-label="Giảm số lượng"
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className={styles.quantity}>{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className={styles.qtyBtn}
-                        aria-label="Tăng số lượng"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
+                </div>
+
+                {/* Quantity */}
+                <div className="flex items-center justify-center">
+                  <div className="inline-flex items-center h-10 rounded-full border border-border bg-white">
                     <button
                       type="button"
                       onClick={() => {
-                        if (window.confirm(`Xóa "${item.name}" khỏi giỏ hàng?`)) {
-                          removeFromCart(item.id);
+                        if (item.quantity === 1) {
+                          if (window.confirm(`Xóa "${item.name}" khỏi giỏ hàng?`)) {
+                            removeFromCart(item.id);
+                          }
+                        } else {
+                          updateQuantity(item.id, item.quantity - 1);
                         }
                       }}
-                      className={styles.removeBtn}
-                      aria-label="Xóa sản phẩm"
+                      className="w-10 h-10 grid place-items-center rounded-l-full hover:bg-primary-50"
+                      aria-label="Giảm số lượng"
                     >
-                      <Trash2 size={20} />
+                      <Minus size={14} />
+                    </button>
+                    <span className="min-w-[2.5rem] text-center font-serif text-sm tabular-nums">
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="w-10 h-10 grid place-items-center rounded-r-full hover:bg-primary-50"
+                      aria-label="Tăng số lượng"
+                    >
+                      <Plus size={14} />
                     </button>
                   </div>
-                  <div className={styles.itemTotal}>
-                    {(item.price * item.quantity).toLocaleString('vi-VN')}đ
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                </div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-            <Link href="/products" className={styles.backLink}>
-              <ArrowLeft size={18} /> Tiếp tục mua sắm
-            </Link>
-          </motion.div>
-        </div>
+                {/* Subtotal */}
+                <div className="font-serif text-base lg:text-lg font-semibold text-text text-right">
+                  {formatVND(subtotal)}
+                </div>
 
-        {/* Order Summary */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className={styles.summarySection}
-        >
-          <div className={styles.summaryCard}>
-            <h2>Tóm tắt đơn hàng</h2>
-            <div className={styles.summaryRow}>
-              <span>Tạm tính ({totalCount} sản phẩm)</span>
-              <span>{totalAmount.toLocaleString('vi-VN')}đ</span>
-            </div>
-            <div className={styles.summaryRow}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Truck size={14} /> Phí vận chuyển
-              </span>
-              <span>Miễn phí</span>
-            </div>
-            <div className={styles.summaryDivider}></div>
-            <div className={styles.totalRow}>
-              <span>Tổng cộng</span>
-              <span className={styles.totalPrice}>{totalAmount.toLocaleString('vi-VN')}đ</span>
-            </div>
-            <p className={styles.taxNote}>(Đã bao gồm VAT nếu có)</p>
+                {/* Remove */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Xóa "${item.name}" khỏi giỏ hàng?`)) {
+                      removeFromCart(item.id);
+                    }
+                  }}
+                  className="grid place-items-center w-10 h-10 rounded-full text-text-muted hover:text-error hover:bg-primary-50 transition justify-self-end"
+                  aria-label="Xóa sản phẩm"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </article>
+            );
+          })}
 
-            <Link href="/checkout" className={styles.checkoutBtn}>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 mt-4 text-sm text-text-secondary hover:text-text"
+          >
+            <ArrowLeft size={16} /> Tiếp tục mua sắm
+          </Link>
+        </section>
+
+        {/* Summary column */}
+        <aside className="lg:sticky lg:top-24">
+          <div className="rounded-2xl bg-bg-card border border-border-light p-6 lg:p-8 flex flex-col gap-5">
+            <h2 className="font-serif text-2xl font-medium tracking-tight text-text">
+              Tóm tắt đơn hàng
+            </h2>
+
+            <div className="flex flex-col gap-3 text-sm">
+              <div className="flex items-center justify-between text-text-secondary">
+                <span>Tạm tính ({totalCount} sản phẩm)</span>
+                <span className="text-text font-medium">{formatVND(totalAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between text-text-secondary">
+                <span className="inline-flex items-center gap-1.5">
+                  <Truck size={14} /> Phí vận chuyển
+                </span>
+                <span className="text-success font-medium">Miễn phí</span>
+              </div>
+            </div>
+
+            <div className="border-t border-border-light pt-4 flex items-center justify-between">
+              <span className="font-serif text-lg text-text">Tổng cộng</span>
+              <div className="text-right">
+                <div className="font-serif text-2xl lg:text-3xl font-semibold text-text">
+                  {formatVND(totalAmount)}
+                </div>
+                <div className="text-[11px] text-text-muted">Đã bao gồm VAT</div>
+              </div>
+            </div>
+
+            <Link
+              href="/checkout"
+              className="inline-flex items-center justify-center h-12 rounded-full bg-text text-white font-medium tracking-tight hover:bg-primary-dark transition"
+            >
               Thanh toán ngay
             </Link>
 
-            <div className={styles.assurance}>
-              <ShieldCheck size={16} />
+            <div className="flex items-center gap-2 text-xs text-text-muted">
+              <ShieldCheck size={14} className="text-primary" />
               <span>Mua sắm an toàn — đổi trả trong 7 ngày</span>
             </div>
           </div>
-        </motion.div>
+        </aside>
       </div>
     </div>
   );

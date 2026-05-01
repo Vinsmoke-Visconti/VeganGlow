@@ -2,30 +2,35 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { Lock, Eye, EyeOff, ShieldCheck, Loader2, Info, Send, CheckCircle2, AlertCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Loader2,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+} from 'lucide-react';
+import Link from 'next/link';
 import { requestPasswordOtp, updatePasswordWithOtp } from '@/app/actions/auth';
 import OtpInput from '@/components/shared/OtpInput';
-import styles from './password.module.css';
 
 export default function ChangePasswordPage() {
   const supabase = createBrowserClient();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [isOAuthOnly, setIsOAuthOnly] = useState(false);
-  
-  // Form states
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
-  
-  // UI states
+
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
-  
-  // OTP states
+
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [cooldown, setCooldown] = useState(0);
@@ -33,10 +38,12 @@ export default function ChangePasswordPage() {
 
   useEffect(() => {
     async function checkUserType() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const identities = user.identities || [];
-        const hasPasswordIdentity = identities.some(id => id.provider === 'email');
+        const hasPasswordIdentity = identities.some((id) => id.provider === 'email');
         setIsOAuthOnly(!hasPasswordIdentity);
       }
       setLoading(false);
@@ -44,7 +51,6 @@ export default function ChangePasswordPage() {
     checkUserType();
   }, [supabase]);
 
-  // Cooldown timer
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
@@ -58,7 +64,7 @@ export default function ChangePasswordPage() {
     setFeedback(null);
 
     const res = await requestPasswordOtp(isOAuthOnly ? 'set_password' : 'change_password');
-    
+
     setSendingOtp(false);
     if (res.error) {
       setFeedback({ kind: 'error', message: res.error });
@@ -66,8 +72,7 @@ export default function ChangePasswordPage() {
       setOtpSent(true);
       setCooldown(60);
       setFeedback({ kind: 'success', message: 'Mã xác nhận đã được gửi đến email của bạn.' });
-      
-      // Auto focus OTP field (Wait for animation/render)
+
       setTimeout(() => {
         const firstInput = otpRef.current?.querySelector('input');
         firstInput?.focus();
@@ -95,7 +100,7 @@ export default function ChangePasswordPage() {
     }
 
     setUpdating(true);
-    
+
     const formData = new FormData();
     formData.append('purpose', isOAuthOnly ? 'set_password' : 'change_password');
     formData.append('currentPassword', currentPassword);
@@ -103,17 +108,17 @@ export default function ChangePasswordPage() {
     formData.append('otpCode', otpCode);
 
     const res = await updatePasswordWithOtp(formData);
-    
+
     setUpdating(false);
 
     if (res.error) {
       setFeedback({ kind: 'error', message: res.error });
     } else {
-      setFeedback({ 
-        kind: 'success', 
-        message: isOAuthOnly 
-          ? 'Đã thiết lập mật khẩu thành công! Bây giờ bạn có thể đăng nhập bằng Email/Username.' 
-          : 'Mật khẩu đã được cập nhật thành công!' 
+      setFeedback({
+        kind: 'success',
+        message: isOAuthOnly
+          ? 'Đã thiết lập mật khẩu thành công! Bây giờ bạn có thể đăng nhập bằng Email/Username.'
+          : 'Mật khẩu đã được cập nhật thành công!',
       });
       setCurrentPassword('');
       setNewPassword('');
@@ -126,127 +131,169 @@ export default function ChangePasswordPage() {
 
   if (loading) {
     return (
-      <div className={styles.loadingState}>
-        <Loader2 className={styles.spin} size={32} />
+      <div className="min-h-[60vh] grid place-items-center">
+        <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className={styles.passwordWrapper}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{isOAuthOnly ? 'Thiết lập mật khẩu' : 'Thay đổi mật khẩu'}</h1>
-        <p className={styles.subtitle}>
-          {isOAuthOnly 
-            ? 'Tài khoản của bạn đang đăng nhập bằng Google. Hãy thiết lập mật khẩu để có thể đăng nhập bằng Email/Username trong tương lai.' 
-            : 'Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác'}
+    <div className="max-w-xl mx-auto px-4 lg:px-8 py-10 lg:py-16">
+      <Link
+        href="/profile"
+        className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text mb-6"
+      >
+        <ArrowLeft size={14} /> Quay lại hồ sơ
+      </Link>
+
+      <header className="mb-10">
+        <span className="text-xs uppercase tracking-[0.2em] text-primary">Bảo mật tài khoản</span>
+        <h1 className="font-serif text-3xl lg:text-4xl font-medium tracking-tight text-text mt-1">
+          {isOAuthOnly ? 'Thiết lập mật khẩu' : 'Thay đổi mật khẩu'}
+        </h1>
+        <p className="mt-3 text-text-secondary text-sm leading-relaxed">
+          {isOAuthOnly
+            ? 'Tài khoản của bạn đang đăng nhập bằng Google. Hãy thiết lập mật khẩu để có thể đăng nhập bằng Email/Username trong tương lai.'
+            : 'Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác.'}
         </p>
       </header>
 
-      <div className={styles.mainContent}>
-        <form className={styles.passwordForm} onSubmit={handleSubmit}>
-          {/* Luồng 2: Mật khẩu hiện tại */}
-          {!isOAuthOnly && (
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabel}>Mật khẩu hiện tại</div>
-              <div className={styles.fieldValue}>
-                <div className={styles.inputWrap}>
-                  <input 
-                    type={showCurrent ? "text" : "password"} 
-                    className={styles.input} 
-                    value={currentPassword}
-                    onChange={e => setCurrentPassword(e.target.value)}
-                    required
-                    placeholder="Nhập mật khẩu cũ"
-                  />
-                  <button type="button" onClick={() => setShowCurrent(!showCurrent)} className={styles.eyeBtn}>
-                    {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+      <form
+        className="rounded-2xl bg-bg-card border border-border-light p-6 lg:p-8 flex flex-col gap-5"
+        onSubmit={handleSubmit}
+      >
+        {!isOAuthOnly && (
+          <PasswordField
+            label="Mật khẩu hiện tại"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            placeholder="Nhập mật khẩu cũ"
+            visible={showCurrent}
+            onToggle={() => setShowCurrent(!showCurrent)}
+            required
+          />
+        )}
 
-          {/* Mật khẩu mới */}
-          <div className={styles.fieldRow}>
-            <div className={styles.fieldLabel}>{isOAuthOnly ? 'Mật khẩu mới' : 'Mật khẩu mới'}</div>
-            <div className={styles.fieldValue}>
-              <div className={styles.inputWrap}>
-                <input 
-                  type={showNew ? "text" : "password"} 
-                  className={styles.input} 
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  required
-                  placeholder="Ít nhất 6 ký tự"
-                />
-                <button type="button" onClick={() => setShowNew(!showNew)} className={styles.eyeBtn}>
-                  {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-          </div>
+        <PasswordField
+          label="Mật khẩu mới"
+          value={newPassword}
+          onChange={setNewPassword}
+          placeholder="Ít nhất 6 ký tự"
+          visible={showNew}
+          onToggle={() => setShowNew(!showNew)}
+          required
+        />
 
-          {/* Xác nhận mật khẩu */}
-          <div className={styles.fieldRow}>
-            <div className={styles.fieldLabel}>Xác nhận mật khẩu</div>
-            <div className={styles.fieldValue}>
-              <div className={styles.inputWrap}>
-                <input 
-                  type="password" 
-                  className={styles.input} 
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  required
-                  placeholder="Nhập lại mật khẩu mới"
-                />
-              </div>
-            </div>
-          </div>
+        <PasswordField
+          label="Xác nhận mật khẩu"
+          value={confirmPassword}
+          onChange={setConfirmPassword}
+          placeholder="Nhập lại mật khẩu mới"
+          required
+        />
 
-          <div className={styles.divider} />
-
-          {/* OTP Section */}
-          <div className={styles.otpSection}>
-            <div className={styles.otpHeader}>
-              <div className={styles.fieldLabel}>Mã xác nhận (OTP)</div>
-              <button 
-                type="button" 
-                className={styles.otpSendBtn} 
-                onClick={handleSendOtp}
-                disabled={sendingOtp || cooldown > 0}
-              >
-                {sendingOtp ? <Loader2 size={16} className={styles.spin} /> : <Send size={16} />}
-                {cooldown > 0 ? `Gửi lại sau ${cooldown}s` : (otpSent ? 'Gửi lại mã' : 'Gửi mã qua Email')}
-              </button>
+        <div className="border-t border-border-light pt-5 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <span className="text-[11px] uppercase tracking-[0.12em] text-text-muted block">
+                Mã xác nhận (OTP)
+              </span>
+              <span className="text-xs text-text-muted">Mã 6 số gửi qua email</span>
             </div>
-            
-            <div ref={otpRef} className={styles.otpContainer}>
-              <OtpInput value={otpCode} onChange={setOtpCode} disabled={updating} />
-            </div>
-          </div>
-
-          <div className={styles.actions}>
-            <button type="submit" className={styles.saveBtn} disabled={updating || !otpSent}>
-              {updating ? <Loader2 className={styles.spin} size={18} /> : (isOAuthOnly ? 'Lưu thiết lập' : 'Cập nhật mật khẩu')}
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={sendingOtp || cooldown > 0}
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-border bg-white text-sm text-text hover:border-text transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {sendingOtp ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Send size={14} />
+              )}
+              {cooldown > 0 ? `Gửi lại sau ${cooldown}s` : otpSent ? 'Gửi lại mã' : 'Gửi mã qua Email'}
             </button>
           </div>
-        </form>
 
-        <AnimatePresence>
-          {feedback && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className={`${styles.feedback} ${feedback.kind === 'success' ? styles.success : styles.error}`}
-            >
-              {feedback.kind === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-              <span>{feedback.message}</span>
-            </motion.div>
+          <div ref={otpRef}>
+            <OtpInput value={otpCode} onChange={setOtpCode} disabled={updating} />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={updating || !otpSent}
+          className="h-12 rounded-full bg-text text-white font-medium tracking-tight inline-flex items-center justify-center gap-2 hover:bg-primary-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {updating ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <>
+              <ShieldCheck size={16} />
+              {isOAuthOnly ? 'Lưu thiết lập' : 'Cập nhật mật khẩu'}
+            </>
           )}
-        </AnimatePresence>
-      </div>
+        </button>
+
+        {feedback && (
+          <div
+            className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm ${
+              feedback.kind === 'success'
+                ? 'bg-success/10 text-success'
+                : 'bg-error/10 text-error'
+            }`}
+          >
+            {feedback.kind === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+            <span>{feedback.message}</span>
+          </div>
+        )}
+      </form>
     </div>
+  );
+}
+
+interface PasswordFieldProps {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  visible?: boolean;
+  onToggle?: () => void;
+  required?: boolean;
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  visible,
+  onToggle,
+  required,
+}: PasswordFieldProps) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-[11px] uppercase tracking-[0.12em] text-text-muted">{label}</span>
+      <div className="relative">
+        <input
+          type={visible ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          required={required}
+          className="w-full h-11 pl-4 pr-11 rounded-lg border border-border bg-white text-sm text-text focus:border-text focus:outline-none"
+        />
+        {onToggle && (
+          <button
+            type="button"
+            onClick={onToggle}
+            className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center w-8 h-8 rounded-full text-text-muted hover:text-text hover:bg-primary-50 transition"
+            aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+          >
+            {visible ? <EyeOff size={14} /> : <Eye size={14} />}
+          </button>
+        )}
+      </div>
+    </label>
   );
 }

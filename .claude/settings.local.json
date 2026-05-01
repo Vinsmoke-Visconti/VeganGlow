@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(grep -E \"\\(ProductCard|ProductGallery|VariantSelector|RichTextViewer|ProductTabs|QuantityStepper|MobileBuyBar|FilterDrawer|DetailActions|products[\\\\\\\\\\\\\\\\/]page|\\\\\\\\[slug\\\\\\\\][\\\\\\\\\\\\\\\\/]page\\)\")",
+      "Bash(grep -E \"\\(wishlist|cart|profile|orders|vouchers|address|bank|password\\)[\\\\\\\\\\\\\\\\/]page\")"
+    ]
+  }
+}

@@ -35,11 +35,20 @@ type DBVariant = {
   is_active: boolean;
 };
 
-type ProductWithExtras = ProductRow & {
-  categories?: { id: string; name: string; slug: string } | null;
-  product_images?: DBImage[] | null;
-  product_variants?: DBVariant[] | null;
+// Schema fields not yet reflected in generated Database types — added explicitly.
+type ProductExtraColumns = {
+  description_html?: string | null;
+  short_description?: string | null;
+  sku?: string | null;
+  has_variants?: boolean | null;
 };
+
+type ProductWithExtras = ProductRow &
+  ProductExtraColumns & {
+    categories?: { id: string; name: string; slug: string } | null;
+    product_images?: DBImage[] | null;
+    product_variants?: DBVariant[] | null;
+  };
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient();
