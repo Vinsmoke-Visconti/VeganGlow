@@ -2,11 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Upload, Trash2, Info, DollarSign, Package, Tag, FileText, FlaskConical, CheckCircle2 } from 'lucide-react';
+import { Loader2, Upload, Trash2, DollarSign, Package, Tag, FlaskConical, CheckCircle2, X } from 'lucide-react';
 import { upsertProduct, deleteProduct } from '@/app/actions/admin/products';
 import { uploadAdminImage } from '@/lib/admin/storage';
 import { slugify } from '@/lib/admin/format';
 import { SafeImage } from '@/components/ui/SafeImage';
+import type { ProductTag } from '@/lib/types/tag';
 import shared from '../../admin-shared.module.css';
 
 type Category = { id: string; name: string; slug?: string };
@@ -22,6 +23,7 @@ type ProductFormValue = {
   ingredients: string;
   stock: number;
   is_active: boolean;
+  tag_ids?: string[];
 };
 
 const EMPTY: ProductFormValue = {
@@ -34,14 +36,17 @@ const EMPTY: ProductFormValue = {
   ingredients: '',
   stock: 0,
   is_active: true,
+  tag_ids: [],
 };
 
 export function ProductForm({
   product,
   categories,
+  availableTags = [],
 }: {
   product?: ProductFormValue;
   categories: Category[];
+  availableTags?: ProductTag[];
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -50,6 +55,17 @@ export function ProductForm({
     product ?? { ...EMPTY, category_id: categories[0]?.id ?? null },
   );
   const [uploading, setUploading] = useState(false);
+
+  const selectedTagIds = new Set(form.tag_ids ?? []);
+
+  function toggleTag(tagId: string) {
+    setForm((f) => {
+      const current = new Set(f.tag_ids ?? []);
+      if (current.has(tagId)) current.delete(tagId);
+      else current.add(tagId);
+      return { ...f, tag_ids: Array.from(current) };
+    });
+  }
 
   async function handleImage(file: File | null) {
     if (!file) return;
@@ -71,6 +87,7 @@ export function ProductForm({
       ...form,
       slug: form.slug || slugify(form.name),
       category_id: form.category_id || null,
+      tag_ids: form.tag_ids ?? [],
     };
     start(async () => {
       const res = await upsertProduct({
@@ -213,6 +230,56 @@ export function ProductForm({
                   placeholder="VD: Aqua, Glycerin, Centella Asiatica Extract..."
                 />
              </div>
+          </section>
+
+          {/* Tags Section */}
+          <section style={{ marginTop: 24 }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 900, marginBottom: 8, color: 'var(--vg-ink-900)', textTransform: 'uppercase' }}>
+              <Tag size={14} /> Nhãn / Tag
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--vg-ink-500)', marginBottom: 12, lineHeight: 1.5 }}>
+              Một sản phẩm có thể gắn nhiều nhãn (Bán chạy, Mới về, Thuần chay…). Click để chọn/bỏ chọn.
+            </p>
+            {availableTags.length === 0 ? (
+              <p style={{ fontSize: 12, color: 'var(--vg-ink-500)', fontStyle: 'italic' }}>
+                Chưa có nhãn nào. Hãy thêm nhãn trong bảng <code>tags</code>.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {availableTags.map((tag) => {
+                  const isSelected = selectedTagIds.has(tag.id);
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => toggleTag(tag.id)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: 999,
+                        border: isSelected ? `2px solid ${tag.color}` : '2px solid var(--vg-parchment-200)',
+                        background: isSelected ? tag.color : '#fff',
+                        color: isSelected ? tag.text_color : 'var(--vg-ink-700)',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {tag.name}
+                      {isSelected && <X size={12} />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {selectedTagIds.size > 0 && (
+              <p style={{ fontSize: 11, color: 'var(--vg-ink-500)', marginTop: 8 }}>
+                Đã chọn {selectedTagIds.size} nhãn
+              </p>
+            )}
           </section>
         </div>
 

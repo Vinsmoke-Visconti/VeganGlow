@@ -35,15 +35,15 @@ type StaffProfileWriteClient = {
   };
 };
 
+import { sendStaffInvitationEmail } from '@/lib/email';
+
 /**
- * Super Admin invites a staff member by email. The user does NOT need to exist
- * in auth.users yet — they'll be auto-promoted on first login (Google or
- * email/password) by the on_auth_user_created trigger.
+ * Super Admin invites a staff member by email.
  */
 export async function inviteStaff(prevState: unknown, formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase();
   const fullName = (formData.get('fullName') as string)?.trim();
-  const roleName = (formData.get('roleName') as string) || 'customer_support';
+  const roleName = (formData.get('roleName') as string) || 'staff';
 
   if (!email || !fullName) {
     return { error: 'Vui lòng nhập đầy đủ email và họ tên.' };
@@ -53,13 +53,12 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
 
   const { data: isSuperAdmin, error: authError } = await supabase.rpc('is_super_admin');
   if (authError || !isSuperAdmin) {
-    console.error('Staff Action Authorization Error:', authError);
     return { error: 'Quyền truy cập bị từ chối. Chỉ Super Admin mới có quyền mời nhân sự.' };
   }
 
   const { data: role, error: roleErr } = await supabase
     .from('roles')
-    .select('id')
+    .select('id, display_name')
     .eq('name', roleName)
     .single();
 
@@ -67,19 +66,21 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
     return { error: `Vai trò "${roleName}" không tồn tại.` };
   }
 
+  const token = crypto.randomUUID();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { error } = await (
-    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
-  ).upsert(
+  // Save to database
+  const { error } = await supabase.from('staff_invitations').upsert(
     {
       email,
-      role_id: (role as { id: string }).id,
+      role_id: role.id,
       full_name: fullName,
       status: 'pending',
       invited_by: user?.id ?? null,
+      token,
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     },
-    { onConflict: 'email' },
+    { onConflict: 'email' }
   );
 
   if (error) {
@@ -87,9 +88,15 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
     return { error: 'Không thể tạo lời mời: ' + error.message };
   }
 
-  // If the invitee already has an auth.users row (e.g. signed up earlier as a
-  // customer), promote them right away so they don't have to log out/in.
-  await supabase.rpc('sweep_pending_invitations');
+  // Send the email
+  try {
+    await sendStaffInvitationEmail(email, fullName, role.display_name, token);
+  } catch (emailErr) {
+    console.error('Failed to send invitation email:', emailErr);
+    // We don't return error here because the DB entry is created, 
+    // but we might want to warn the user.
+    return { success: `Đã tạo lời mời cho ${email} nhưng không thể gửi email tự động. Vui lòng gửi link thủ công cho họ.` };
+  }
 
   revalidatePath('/admin/users');
   await audit(
@@ -102,7 +109,8 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
     },
     await auditCtx()
   );
-  return { success: `Đã mời ${email} với vai trò ${roleName}.` };
+
+  return { success: `Đã mời ${email} với vai trò ${role.display_name}. Một email thông báo đã được gửi đi.` };
 }
 
 export async function revokeStaffInvitation(invitationId: string) {

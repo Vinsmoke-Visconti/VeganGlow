@@ -112,10 +112,10 @@ export function PermissionMatrix({
   }, [permissions, searchTerm]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 1, background: 'var(--vg-parchment-200)', border: '1px solid var(--vg-parchment-200)', borderRadius: 8, overflow: 'hidden', height: 'calc(100vh - 160px)', minHeight: 650, marginTop: 20 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 1, background: 'var(--vg-border)', border: '1px solid var(--vg-border)', borderRadius: 8, overflow: 'hidden', height: 'calc(100vh - 160px)', minHeight: 650, marginTop: 20 }}>
       {/* Sidebar: Role > Account Hierarchy */}
-      <div style={{ background: '#fff', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--vg-parchment-200)' }}>
-        <div style={{ padding: '16px', background: '#f8f9f8', borderBottom: '1px solid var(--vg-parchment-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'var(--vg-surface-0)', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--vg-border)' }}>
+        <div style={{ padding: '16px', background: 'var(--vg-surface-50)', borderBottom: '1px solid var(--vg-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
            <h3 style={{ fontSize: 11, fontWeight: 900, color: 'var(--vg-ink-400)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CẤU TRÚC PHÂN QUYỀN</h3>
            <Plus size={14} style={{ cursor: 'pointer', color: 'var(--vg-leaf-700)' }} />
         </div>
@@ -148,7 +148,7 @@ export function PermissionMatrix({
 
                   {/* Account Rows (Drill-down) */}
                   {isExpanded && (
-                    <div style={{ background: '#fafafa' }}>
+                    <div style={{ background: 'var(--vg-surface-50)' }}>
                        {roleStaff.map(s => {
                          const isAccSelected = selectedTarget.type === 'account' && selectedTarget.id === s.id;
                          return (
@@ -157,7 +157,7 @@ export function PermissionMatrix({
                              onClick={() => setSelectedTarget({ type: 'account', id: s.id })}
                              style={{ 
                                padding: '8px 16px 8px 48px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-                               background: isAccSelected ? '#fff' : 'transparent',
+                               background: isAccSelected ? 'var(--vg-surface-0)' : 'transparent',
                                borderLeft: isAccSelected ? '4px solid var(--vg-leaf-600)' : '4px solid transparent',
                                boxShadow: isAccSelected ? 'inset 0 0 10px rgba(0,0,0,0.02)' : 'none'
                              }}
@@ -181,9 +181,9 @@ export function PermissionMatrix({
       </div>
 
       {/* Main Area: Permissions Grid */}
-      <div style={{ background: '#fff', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: 'var(--vg-surface-0)', display: 'flex', flexDirection: 'column' }}>
         {/* Top Header */}
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--vg-parchment-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--vg-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--vg-surface-50)' }}>
            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--vg-parchment-100)', display: 'grid', placeItems: 'center' }}>
                  {selectedTarget.type === 'role' ? <Users size={20} /> : <User size={20} />}
@@ -234,10 +234,10 @@ export function PermissionMatrix({
                                 onClick={() => allowed && togglePerm(p.id)}
                                 style={{ 
                                   padding: '10px 14px', borderRadius: 8, border: '1px solid',
-                                  borderColor: !allowed ? 'var(--vg-parchment-100)' : active ? 'var(--vg-leaf-200)' : 'var(--vg-parchment-200)',
-                                  background: !allowed ? '#fdfdfd' : active ? 'var(--vg-leaf-50)' : '#fff',
+                                  borderColor: !allowed ? 'var(--vg-border)' : active ? 'var(--vg-leaf-200)' : 'var(--vg-border)',
+                                  background: !allowed ? 'var(--vg-surface-50)' : active ? 'var(--vg-leaf-50)' : 'var(--vg-surface-0)',
                                   display: 'flex', alignItems: 'center', gap: 12, cursor: allowed ? 'pointer' : 'not-allowed',
-                                  transition: 'all 0.1s', opacity: allowed ? 1 : 0.6
+                                  transition: 'all 0.1s', opacity: allowed ? 1 : 0.8
                                 }}
                               >
                                  <div style={{ 

@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { listAllCategories } from '@/lib/admin/queries/products';
+import { listAllTags } from '@/lib/admin/queries/tags';
 import { ProductForm } from '../_components/ProductForm';
 import shared from '../../admin-shared.module.css';
 
 export default async function NewProductPage() {
-  const categories = await listAllCategories();
+  const [categories, availableTags] = await Promise.all([
+    listAllCategories(),
+    listAllTags(),
+  ]);
 
   return (
     <div className={shared.page}>
@@ -13,7 +17,7 @@ export default async function NewProductPage() {
         <ChevronLeft size={14} /> Danh sách sản phẩm
       </Link>
 
-      <ProductForm categories={categories} />
+      <ProductForm categories={categories} availableTags={availableTags} />
     </div>
   );
 }

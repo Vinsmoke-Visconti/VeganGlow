@@ -10,6 +10,7 @@ import { AdminProfileMenu } from './AdminProfileMenu';
 import { AdminBreadcrumb } from './AdminBreadcrumb';
 import { AdminNotifications } from './AdminNotifications';
 import { IdleTimeoutGuard } from '@/components/admin/IdleTimeoutGuard';
+import { ThemeToggle } from './_components/ThemeToggle';
 
 type StaffRoleRow = {
   full_name: string | null;
@@ -97,6 +98,7 @@ export default async function BackofficeLayout({
           </div>
 
           <div className={styles.topbarRight}>
+            <ThemeToggle />
             <AdminNotifications
               pendingOrders={pendingOrders}
               lowStockProducts={lowStockProducts}

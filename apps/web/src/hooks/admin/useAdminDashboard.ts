@@ -86,7 +86,7 @@ export async function fetchAdminDashboardSnapshot(
   range: DashboardRange,
 ): Promise<DashboardSnapshot> {
   const supabase = createBrowserClient();
-  const rpc = supabase.rpc as unknown as RpcFn;
+  const rpc = supabase.rpc.bind(supabase) as unknown as RpcFn;
   const sparkDays = range === '30d' ? 30 : 7;
   const since = new Date();
   since.setDate(since.getDate() - 30);

@@ -1,10 +1,35 @@
 'use client';
-
-import { Sparkles, Github, Server, Database, Cloud, Shield, Mail, GraduationCap } from 'lucide-react';
-import shared from '../../admin-shared.module.css';
+ 
+import { Sparkles, Github, Server, Database, Cloud, Shield, Mail, GraduationCap, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 import styles from './team.module.css';
 
 export function TeamMembersClient() {
+  const SERVICE_URLS: Record<string, string> = {
+    github: 'github.com/',
+    supabase: 'supabase.com/dashboard/project/',
+    vercel: 'vercel.com/',
+    redis: 'upstash.com/',
+    docker: 'hub.docker.com/u/',
+    snyk: 'app.snyk.io/org/',
+  };
+
+  const handleCopy = (text: string, label: string, service?: string) => {
+    if (!text || text === 'Đang cập nhật') return;
+    
+    let copyText = text;
+    let toastLabel = `${label} ${text}`;
+
+    if (service && SERVICE_URLS[service]) {
+      copyText = `${SERVICE_URLS[service]}${text}`;
+      const serviceName = service.charAt(0).toUpperCase() + service.slice(1);
+      toastLabel = `${serviceName} ${text}`;
+    }
+
+    navigator.clipboard.writeText(copyText);
+    toast.success(`Đã sao chép ${toastLabel}`);
+  };
+
   const AUTHORS = [
     {
       id: 'author-1',
@@ -18,7 +43,6 @@ export function TeamMembersClient() {
       redis: '22 .Trần Thảo',
       docker: 'tranthaomy901',
       snyk: 'tranthaomy901',
-      role_label: 'Hệ thống & Vận hành',
     },
     {
       id: 'author-2',
@@ -32,7 +56,6 @@ export function TeamMembersClient() {
       redis: 'viet quoc',
       docker: 'viscontivinsmoke',
       snyk: 'Vinsmoke-Visconti',
-      role_label: 'Kiến trúc & Bảo mật',
     },
     {
       id: 'author-3',
@@ -46,7 +69,6 @@ export function TeamMembersClient() {
       redis: 'Terrykozte',
       docker: 'Terrykozte',
       snyk: 'Terrykozte',
-      role_label: 'Phát triển Sản phẩm',
     },
     {
       id: 'author-4',
@@ -60,7 +82,6 @@ export function TeamMembersClient() {
       redis: 'Đang cập nhật',
       docker: 'Đang cập nhật',
       snyk: 'Đang cập nhật',
-      role_label: 'Cố vấn / QA',
     }
   ];
 
@@ -76,7 +97,6 @@ export function TeamMembersClient() {
 
   return (
     <>
-      {/* Header Banner */}
       <div className={styles.banner}>
         <div className={styles.bannerContent}>
           <div className={styles.bannerBadge}>
@@ -89,46 +109,63 @@ export function TeamMembersClient() {
         </div>
       </div>
 
-      {/* 4 Member Cards — 2x2 grid, no scroll */}
       <div className={styles.grid}>
         {AUTHORS.map((m) => (
           <div key={m.id} className={styles.card}>
-            {/* Header */}
             <div className={styles.cardHead}>
               <div className={styles.avatar}>{m.full_name.charAt(0)}</div>
               <div className={styles.cardHeadText}>
                 <h4 className={styles.cardName}>{m.full_name}</h4>
-                <span className={styles.cardRole}>{m.role_label}</span>
               </div>
             </div>
 
-            {/* Info rows — compact */}
             <div className={styles.infoGrid}>
-              <div className={styles.infoRow}>
+              <button 
+                className={styles.infoRow}
+                onClick={() => handleCopy(m.mssv, 'MSSV')}
+              >
                 <GraduationCap size={12} />
                 <span className={styles.infoLabel}>MSSV</span>
                 <span className={styles.infoValue}>{m.mssv}</span>
-              </div>
-              <div className={styles.infoRow}>
+                <Copy size={12} className={styles.copyIcon} />
+              </button>
+              <button 
+                className={styles.infoRow}
+                onClick={() => handleCopy(m.mail_truong, 'Email trường')}
+              >
                 <Mail size={12} />
                 <span className={styles.infoLabel}>Email trường</span>
                 <span className={styles.infoValue}>{m.mail_truong}</span>
-              </div>
-              <div className={styles.infoRow}>
+                <Copy size={12} className={styles.copyIcon} />
+              </button>
+              <button 
+                className={styles.infoRow}
+                onClick={() => handleCopy(m.mail_can_han, 'Email cá nhân')}
+              >
                 <Mail size={12} />
                 <span className={styles.infoLabel}>Email cá nhân</span>
                 <span className={styles.infoValue}>{m.mail_can_han}</span>
-              </div>
+                <Copy size={12} className={styles.copyIcon} />
+              </button>
             </div>
 
-            {/* Service tags — compact row */}
             <div className={styles.serviceTags}>
-              {SERVICES.map((svc) => (
-                <span key={svc} className={styles.serviceTag}>
-                  {SERVICE_ICON[svc]}
-                  <span>{(m as Record<string, string>)[svc]}</span>
-                </span>
-              ))}
+              {SERVICES.map((svc) => {
+                const username = (m as Record<string, string>)[svc];
+                if (!username || username === 'Đang cập nhật') return null;
+
+                return (
+                  <button 
+                    key={svc} 
+                    className={styles.serviceTag}
+                    onClick={() => handleCopy(username, svc.toUpperCase(), svc)}
+                  >
+                    {SERVICE_ICON[svc]}
+                    <span>{username}</span>
+                    <Copy size={10} className={styles.copyIconMini} />
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}

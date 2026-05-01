@@ -16,8 +16,19 @@ const TABS: { key: TabKey; icon: React.ReactNode; label: string; desc: string }[
   { key: 'security', icon: <Shield size={18} />, label: 'Bảo mật', desc: 'Mật khẩu & 2FA' },
 ];
 
+import { useTheme } from 'next-themes';
+import { useEffect, useState as useReactState } from 'react';
+
 export function SettingsClient({ brand }: { brand: BrandInfo }) {
   const [active, setActive] = useState<TabKey>('brand');
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useReactState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   return (
     <div className={styles.layout}>
@@ -50,15 +61,19 @@ export function SettingsClient({ brand }: { brand: BrandInfo }) {
               <p className={styles.cardDesc}>Tùy chỉnh giao diện hiển thị cho Storefront và Admin Dashboard.</p>
             </div>
             <div className={styles.cardBody}>
-              <div className={styles.toggleRow}>
-                <div className={styles.toggleText}>
-                  <div className={styles.toggleTitle}><Palette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Chế độ tối (Dark Mode)</div>
-                  <div className={styles.toggleDesc}>Bật giao diện tối cho Admin Dashboard. Không ảnh hưởng Storefront.</div>
-                </div>
-                <button type="button" className={styles.toggle} disabled>
-                  <span className={styles.toggleThumb} />
-                </button>
-              </div>
+               <div className={styles.toggleRow}>
+                 <div className={styles.toggleText}>
+                   <div className={styles.toggleTitle}><Palette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Chế độ tối (Dark Mode)</div>
+                   <div className={styles.toggleDesc}>Bật giao diện tối cho Admin Dashboard. Không ảnh hưởng Storefront.</div>
+                 </div>
+                 <button 
+                   type="button" 
+                   className={`${styles.toggle} ${mounted && isDark ? styles.toggleOn : ''}`}
+                   onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                 >
+                   <span className={styles.toggleThumb} />
+                 </button>
+               </div>
               <div className={styles.toggleRow}>
                 <div className={styles.toggleText}>
                   <div className={styles.toggleTitle}><Globe size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Hiển thị banner khuyến mãi</div>

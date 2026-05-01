@@ -199,9 +199,9 @@ export default async function Home() {
             <p className={styles.sectionSubtitle}>Những sản phẩm được yêu thích nhất</p>
             <StaggerContainer className={styles.productsGrid}>
               {products && products.length > 0 ? (
-                products.map((p) => (
+                products.map((p, index) => (
                   <StaggerItem key={p.id}>
-                    <ProductCard product={p} />
+                    <ProductCard product={p} priority={index < 4} />
                   </StaggerItem>
                 ))
               ) : (

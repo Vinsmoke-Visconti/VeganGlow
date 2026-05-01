@@ -59,19 +59,24 @@
 }
 
 .kpiCard {
-  background: var(--vg-surface-0);
-  border: 1px solid var(--vg-border);
+  background: var(--vg-glass-bg);
+  backdrop-filter: blur(var(--vg-glass-blur));
+  -webkit-backdrop-filter: blur(var(--vg-glass-blur));
+  border: 1px solid var(--vg-glass-border);
   border-radius: var(--vg-radius-lg);
   padding: var(--vg-space-5);
   display: flex;
   flex-direction: column;
   gap: var(--vg-space-2);
-  transition: all var(--vg-duration-fast);
+  transition: all var(--vg-duration-base) var(--vg-ease-out);
+  box-shadow: var(--vg-shadow-1);
 }
 
 .kpiCard:hover {
-  border-color: var(--vg-border-hover);
-  box-shadow: var(--vg-shadow-2);
+  transform: translateY(-2px);
+  border-color: var(--vg-border-active);
+  box-shadow: var(--vg-shadow-3);
+  background: var(--vg-surface-0);
 }
 
 .kpiLabel {
@@ -229,30 +234,31 @@
   top: 0;
   z-index: 10;
   text-align: left;
-  padding: 10px var(--vg-space-4);
+  padding: 12px var(--vg-space-4);
   font-size: var(--vg-text-xs);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--vg-ink-400);
-  background: var(--vg-surface-50);
+  letter-spacing: 0.08em;
+  color: var(--vg-ink-500);
+  background: var(--vg-surface-100);
   border-bottom: 1px solid var(--vg-border);
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .table tbody td {
-  padding: 10px var(--vg-space-4);
-  border-bottom: 1px solid var(--vg-surface-200);
+  padding: 12px var(--vg-space-4);
+  border-bottom: 1px solid var(--vg-surface-100);
   color: var(--vg-ink-700);
   vertical-align: middle;
 }
 
 .table tbody tr {
-  transition: background var(--vg-duration-fast);
+  transition: all var(--vg-duration-fast) var(--vg-ease-out);
 }
 
 .table tbody tr:hover {
-  background: var(--vg-surface-50);
+  background: var(--vg-leaf-50);
+  color: var(--vg-ink-900);
 }
 
 .table tbody tr:last-child td {
@@ -539,24 +545,27 @@
   background: var(--vg-gradient-leaf-vivid);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 2px 8px rgba(46,150,73,0.2);
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
 }
 
 .btnPrimary:hover {
-  background: var(--vg-gradient-leaf);
+  background: var(--vg-leaf-600);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(46,150,73,0.3);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.23);
+  transform: translateY(-1px);
 }
 
 .btnSecondary {
   background: var(--vg-surface-0);
   color: var(--vg-ink-800);
   border-color: var(--vg-border);
+  box-shadow: var(--vg-shadow-1);
 }
 
 .btnSecondary:hover {
-  background: var(--vg-surface-100);
+  background: var(--vg-surface-50);
   border-color: var(--vg-border-hover);
+  box-shadow: var(--vg-shadow-2);
 }
 
 .btnGhost {

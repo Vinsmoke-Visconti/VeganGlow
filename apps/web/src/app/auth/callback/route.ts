@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { audit, getAuditContext } from '@/lib/security/auditLog';
 
 function safeRedirectPath(value: string | null, fallback = '/') {
   if (!value || !value.startsWith('/') || value.startsWith('//')) {
@@ -47,6 +48,14 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
 
+  // ============== AUDIT LOG SUCCESS ==============
+  const ctx = await getAuditContext();
+  await audit({ 
+    action: 'auth.login_success', 
+    severity: 'info', 
+    details: { method: (user.app_metadata.provider || 'oauth') as 'oauth' | 'password' | 'magic_link' } 
+  }, ctx);
+
   // ============== CUSTOMER FLOW ==============
   if (!isAdminFlow) {
     return NextResponse.redirect(`${origin}${next}`);
@@ -54,6 +63,7 @@ export async function GET(request: Request) {
 
   // ============== ADMIN FLOW ==============
   const provider = user.app_metadata.provider;
+// ... rest remains same ...
 
   if (provider === 'github') {
     const promoted = await promoteGithubCollaboratorIfEligible(supabase, user);

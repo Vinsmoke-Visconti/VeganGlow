@@ -37,11 +37,18 @@ interface StatusTooltipProps {
 function StatusTooltip({ active, payload, label }: StatusTooltipProps) {
   if (!active || !payload?.length) return null;
   const total = payload[0]?.value ?? 0;
-
+ 
   return (
-    <div className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs shadow-lg">
-      <div className="font-medium text-zinc-900">{ORDER_STATUS_LABEL[String(label)] ?? label}</div>
-      <div className="mt-1 tabular-nums text-zinc-700">{total} đơn hàng</div>
+    <div 
+      className="rounded-lg border px-3 py-2 text-xs shadow-xl"
+      style={{ 
+        backgroundColor: 'var(--vg-surface-0)',
+        border: '1px solid var(--vg-border)',
+        boxShadow: 'var(--vg-shadow-3)'
+      }}
+    >
+      <div className="font-bold" style={{ color: 'var(--vg-ink-900)' }}>{ORDER_STATUS_LABEL[String(label)] ?? label}</div>
+      <div className="mt-1 tabular-nums font-medium" style={{ color: 'var(--vg-ink-700)' }}>{total} đơn hàng</div>
     </div>
   );
 }
@@ -65,7 +72,7 @@ export function StatusBreakdown({ data }: { data: Bucket[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div style={{ width: '100%', height: 190 }}>
+      <div style={{ width: '100%', height: 190, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 12, left: 12, bottom: 4 }}>
             <XAxis type="number" hide domain={[0, 'dataMax']} />
@@ -76,9 +83,9 @@ export function StatusBreakdown({ data }: { data: Bucket[] }) {
               tickFormatter={(value) => ORDER_STATUS_LABEL[String(value)] ?? String(value)}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: '#3f3f46', fontSize: 12 }}
+              tick={{ fill: 'var(--vg-ink-500)', fontSize: 12, fontWeight: 500 }}
             />
-            <Tooltip content={<StatusTooltip />} cursor={{ fill: '#f4f4f5' }} />
+            <Tooltip content={<StatusTooltip />} cursor={{ fill: 'var(--vg-surface-100)', opacity: 0.5 }} />
             <Bar dataKey="total" radius={[0, 999, 999, 0]} barSize={10}>
               {chartData.map((bucket) => (
                 <Cell key={bucket.status} fill={STATUS_COLOR[bucket.status] ?? '#71717a'} />
@@ -94,13 +101,13 @@ export function StatusBreakdown({ data }: { data: Bucket[] }) {
             <span className="flex min-w-0 items-center gap-2.5">
               <span
                 className="h-2 w-2 rounded-full"
-                style={{ background: STATUS_COLOR[bucket.status] ?? '#71717a' }}
+                style={{ background: STATUS_COLOR[bucket.status] ?? 'var(--vg-ink-400)' }}
               />
-              <span className="truncate text-zinc-700">{bucket.label}</span>
+              <span className="truncate" style={{ color: 'var(--vg-ink-700)' }}>{bucket.label}</span>
             </span>
             <span className="flex items-baseline gap-1.5 tabular-nums">
-              <span className="font-medium text-zinc-900">{bucket.total}</span>
-              <span className="text-xs text-zinc-400">{bucket.percent}%</span>
+              <span className="font-bold" style={{ color: 'var(--vg-ink-900)' }}>{bucket.total}</span>
+              <span className="text-xs" style={{ color: 'var(--vg-ink-400)' }}>{bucket.percent}%</span>
             </span>
           </li>
         ))}

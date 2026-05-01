@@ -27,8 +27,18 @@ export function KpiCard({ label, value, delta, deltaSuffix, icon: Icon, hint }: 
           {label}
         </span>
         {Icon && (
-          <span style={{ display: 'flex', height: '32px', width: '32px', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--vg-radius-sm)', background: 'var(--vg-parchment-100)', color: 'var(--vg-ink-500)' }}>
-            <Icon size={15} strokeWidth={1.75} />
+          <span style={{ 
+            display: 'flex', 
+            height: '32px', 
+            width: '32px', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            borderRadius: 'var(--vg-radius-md)', 
+            background: 'var(--vg-surface-100)', 
+            color: 'var(--vg-leaf-600)',
+            border: '1px solid var(--vg-border)'
+          }}>
+            <Icon size={16} strokeWidth={2} />
           </span>
         )}
       </div>
