@@ -207,6 +207,7 @@ export function useAdminDashboard(
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, queueRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'stock_movements' }, queueRefresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'analytics_events' }, queueRefresh)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       .subscribe((status) => {
         setIsRealtimeConnected(status === 'SUBSCRIBED');
       });

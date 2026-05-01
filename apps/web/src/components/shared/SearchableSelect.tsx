@@ -34,7 +34,7 @@ export function SearchableSelect({
 
   const selectedOption = useMemo(() => options.find((opt) => opt.value === value), [options, value]);
 
-  // Sync internal input value with selected option
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (selectedOption) {
       setInputValue(selectedOption.label);

@@ -64,7 +64,7 @@ export function ProductsClient({ products, filters, categories }: Props) {
     return `/admin/products?${next.toString()}`;
   }
 
-  const SortHeader = ({ sortKey, children }: { sortKey: string; children: React.ReactNode }) => {
+  function renderSortHeader(sortKey: string, children: React.ReactNode) {
     const active = (filters.sort ?? 'created_at') === sortKey;
     const dir = filters.dir === 'asc' ? 'asc' : 'desc';
     const Icon = active ? (dir === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
@@ -79,7 +79,7 @@ export function ProductsClient({ products, filters, categories }: Props) {
         <Icon size={13} />
       </Link>
     );
-  };
+  }
 
   function stockBadge(stock: number) {
     if (stock === 0) return { cls: 'badgeDanger', label: 'Hết hàng' };
@@ -125,24 +125,12 @@ export function ProductsClient({ products, filters, categories }: Props) {
             <thead>
               <tr>
                 <th>Ảnh</th>
-                <th>
-                  <SortHeader sortKey="name">Tên sản phẩm</SortHeader>
-                </th>
-                <th>
-                  <SortHeader sortKey="sku">SKU</SortHeader>
-                </th>
-                <th>
-                  <SortHeader sortKey="category">Danh mục</SortHeader>
-                </th>
-                <th>
-                  <SortHeader sortKey="price">Giá bán</SortHeader>
-                </th>
-                <th>
-                  <SortHeader sortKey="stock">Tồn kho</SortHeader>
-                </th>
-                <th>
-                  <SortHeader sortKey="status">Trạng thái</SortHeader>
-                </th>
+                <th>{renderSortHeader('name', 'Tên sản phẩm')}</th>
+                <th>{renderSortHeader('sku', 'SKU')}</th>
+                <th>{renderSortHeader('category', 'Danh mục')}</th>
+                <th>{renderSortHeader('price', 'Giá bán')}</th>
+                <th>{renderSortHeader('stock', 'Tồn kho')}</th>
+                <th>{renderSortHeader('status', 'Trạng thái')}</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
