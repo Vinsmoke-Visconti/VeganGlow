@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SORT_OPTIONS } from '@/app/(storefront)/products/constants';
+import styles from '@/app/(storefront)/products/products.module.css';
 
 /**
  * SortSelect Component
@@ -26,7 +27,7 @@ export default function SortSelect({ defaultValue }: { defaultValue: string }) {
       name="sort"
       defaultValue={defaultValue}
       onChange={(e) => handleSortChange(e.target.value)}
-      className="h-11 px-4 pr-8 rounded-full border border-border bg-white text-sm focus:border-text focus:outline-none appearance-none cursor-pointer"
+      className={styles.sortSelect}
       aria-label="Sắp xếp sản phẩm"
     >
       {SORT_OPTIONS.map((opt) => (
