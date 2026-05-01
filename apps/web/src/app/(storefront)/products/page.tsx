@@ -291,7 +291,10 @@ export default async function ProductsPage({
               </div>
             </FadeIn>
           ) : (
-            <StaggerContainer className={styles.grid}>
+            <StaggerContainer
+              key={`grid-${categorySlug}-${query}-${sortValue}-${isNaN(minPrice) ? '' : minPrice}-${isNaN(maxPrice) ? '' : maxPrice}`}
+              className={styles.grid}
+            >
               {list.map((p) => (
                 <StaggerItem key={p.id}>
                   <ProductCard product={p} />

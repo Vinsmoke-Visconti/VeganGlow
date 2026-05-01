@@ -271,6 +271,16 @@ export default function ProfilePage() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, segment: 'day' | 'month' | 'year') => {
+    if (e.key === 'Backspace') {
+      if (segment === 'month' && !month) {
+        dayRef.current?.focus();
+      } else if (segment === 'year' && !year) {
+        monthRef.current?.focus();
+      }
+    }
+  };
+
   const lifetimeSpend = profile?.lifetime_spend ?? 0;
   const loyaltyPoints = profile?.loyalty_points ?? 0;
   const progressPercent = nextTier
@@ -459,11 +469,35 @@ export default function ProfilePage() {
               <div className={styles.cleanRow}>
                 <Field label="Ngày sinh">
                   <div className={styles.segmentedInput}>
-                    <input ref={dayRef} className={styles.segment} value={day} placeholder="DD" maxLength={2} onChange={(e) => handleSegmentChange(e.target.value, 'day')} />
+                    <input 
+                      ref={dayRef} 
+                      className={styles.segment} 
+                      value={day} 
+                      placeholder="DD" 
+                      maxLength={2} 
+                      onChange={(e) => handleSegmentChange(e.target.value, 'day')} 
+                      onKeyDown={(e) => handleKeyDown(e, 'day')}
+                    />
                     <span className={styles.divider}>/</span>
-                    <input ref={monthRef} className={styles.segment} value={month} placeholder="MM" maxLength={2} onChange={(e) => handleSegmentChange(e.target.value, 'month')} />
+                    <input 
+                      ref={monthRef} 
+                      className={styles.segment} 
+                      value={month} 
+                      placeholder="MM" 
+                      maxLength={2} 
+                      onChange={(e) => handleSegmentChange(e.target.value, 'month')} 
+                      onKeyDown={(e) => handleKeyDown(e, 'month')}
+                    />
                     <span className={styles.divider}>/</span>
-                    <input ref={yearRef} className={`${styles.segment} ${styles.segmentYear}`} value={year} placeholder="YYYY" maxLength={4} onChange={(e) => handleSegmentChange(e.target.value, 'year')} />
+                    <input 
+                      ref={yearRef} 
+                      className={`${styles.segment} ${styles.segmentYear}`} 
+                      value={year} 
+                      placeholder="YYYY" 
+                      maxLength={4} 
+                      onChange={(e) => handleSegmentChange(e.target.value, 'year')} 
+                      onKeyDown={(e) => handleKeyDown(e, 'year')}
+                    />
                   </div>
                 </Field>
                 <Field label="Email (Cố định)">
