@@ -7,7 +7,7 @@ name: Deploy Functions
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, feature/*, feature/storefront-redesign-ui]
     paths:
       - 'apps/backend/supabase/functions/**'
       - 'apps/web/supabase/functions/**'
