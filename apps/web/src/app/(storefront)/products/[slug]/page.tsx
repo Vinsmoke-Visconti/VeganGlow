@@ -1,12 +1,12 @@
-import { createClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
 import AddToCartButton from '@/components/products/AddToCartButton';
 import ProductCard from '@/components/products/ProductCard';
-import Link from 'next/link';
-import styles from './product-detail.module.css';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
-import { Leaf, ShieldCheck, Sparkles, Star, ArrowRight, Truck, RefreshCw, Heart } from 'lucide-react';
 import { cacheGet, cacheSet } from '@/lib/redis';
+import { createClient } from '@/lib/supabase/server';
+import { Beaker, CheckCircle2, Clock, Heart, Info, Leaf, RefreshCw, ShieldCheck, Sparkles, Star, Truck } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import styles from './product-detail.module.css';
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient();
@@ -43,7 +43,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       .eq('category_id', typedProduct.category_id)
       .neq('id', typedProduct.id)
       .limit(4);
-    
+
     relatedProducts = dbRelated || [];
     await cacheSet(relatedCacheKey, relatedProducts, 3600);
   }
@@ -70,13 +70,23 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         {/* Left: Image Gallery */}
         <FadeIn direction="right" delay={0.2} className={styles.imageGallery}>
           <div className={styles.mainImageWrap}>
-            <img 
-              src={typedProduct.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(typedProduct.name)}&background=B7E4C7&color=1B4332&size=800`} 
-              alt={typedProduct.name} 
+            <img
+              src={typedProduct.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(typedProduct.name)}&background=B7E4C7&color=1B4332&size=800`}
+              alt={typedProduct.name}
               className={styles.mainImage}
             />
           </div>
-          {/* Placeholder for small thumbnails if needed later */}
+          <div className={styles.trustBadges}>
+            <div className={styles.trustBadge}>
+              <Leaf size={16} /> 100% Thuần Chay
+            </div>
+            <div className={styles.trustBadge}>
+              <ShieldCheck size={16} /> Kiểm nghiệm y khoa
+            </div>
+            <div className={styles.trustBadge}>
+              <Sparkles size={16} /> Không hóa chất độc hại
+            </div>
+          </div>
         </FadeIn>
 
         {/* Right: Info Panel */}
@@ -84,7 +94,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className={styles.categoryBadge}>{typedProduct.categories?.name || 'Skincare'}</div>
           <h1 className={styles.productTitle}>{typedProduct.name}</h1>
           <div className={styles.sku}>SKU: VG-{typedProduct.id.substring(0, 6).toUpperCase()}</div>
-          
+
           <div className={styles.ratingRow}>
             <div className={styles.stars}>
               {[...Array(5)].map((_, i) => (
@@ -100,20 +110,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <span className={styles.price}>
                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(typedProduct.price))}
                 </span>
-                {typedProduct.old_price && (
+                {typedProduct.original_price && (
                   <>
-                    <span className={styles.oldPrice}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(typedProduct.old_price))}</span>
-                    <span className={styles.discount}>-{Math.round(((typedProduct.old_price - typedProduct.price) / typedProduct.old_price) * 100)}%</span>
+                    <span className={styles.oldPrice}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(typedProduct.original_price))}</span>
+                    <span className={styles.discount}>-{Math.round(((typedProduct.original_price - typedProduct.price) / typedProduct.original_price) * 100)}%</span>
                   </>
                 )}
               </div>
             </div>
-            
+
             <div className={styles.stockStatus}>
               {typedProduct.stock > 10 ? (
                 <><CheckCircle2 size={16} /> Còn hàng</>
               ) : typedProduct.stock > 0 ? (
-                <span className={styles.lowStock}><Sparkles size={16} /> Sắp hết hàng</span>
+                <span className={styles.lowStock}><Clock size={16} /> Sắp hết hàng</span>
               ) : (
                 <span className={styles.outOfStock}>Hết hàng</span>
               )}
@@ -129,38 +139,63 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <Link href="/checkout" className={styles.buyNowBtn}>Mua ngay</Link>
           </div>
 
+          <div className={styles.benefits}>
+            <h4 className={styles.benefitTitle}>Lợi ích nổi bật:</h4>
+            <ul className={styles.benefitList}>
+              <li><CheckCircle2 size={16} color="var(--color-primary)" /> Thành phần 100% thảo mộc tự nhiên Việt Nam</li>
+              <li><CheckCircle2 size={16} color="var(--color-primary)" /> Không chứa Paraben, Sulfate và Silicone</li>
+              <li><CheckCircle2 size={16} color="var(--color-primary)" /> An toàn cho phụ nữ mang thai và da nhạy cảm</li>
+            </ul>
+          </div>
+
           <div className={styles.features}>
             <div className={styles.featureItem}>
               <div className={styles.featureIcon}><Truck size={20} /></div>
-              Giao hàng hỏa tốc
+              Giao hỏa tốc
             </div>
             <div className={styles.featureItem}>
               <div className={styles.featureIcon}><RefreshCw size={20} /></div>
               7 Ngày đổi trả
             </div>
             <div className={styles.featureItem}>
-              <div className={styles.featureIcon}><ShieldCheck size={20} /></div>
-              Kiểm nghiệm an toàn
+              <div className={styles.featureIcon}><Heart size={20} /></div>
+              Yêu thích
             </div>
           </div>
         </FadeIn>
       </div>
 
-      {/* Product Details Sections (Accordion style placeholders) */}
+      {/* Detailed Content Sections */}
       <FadeIn direction="up" delay={0.4}>
         <section className={styles.tabsSection}>
           <div className={styles.tabHeaders}>
-            <button className={styles.tabHeaderActive}>Mô tả chi tiết</button>
+            <button className={styles.tabHeaderActive}>Thông tin chi tiết</button>
             <button className={styles.tabHeader}>Thành phần</button>
-            <button className={styles.tabHeader}>HD sử dụng</button>
+            <button className={styles.tabHeader}>Cách sử dụng</button>
           </div>
           <div className={styles.tabContent}>
-            <div style={{ marginBottom: '2rem' }}>
-              <p>{typedProduct.description}</p>
-            </div>
-            <div style={{ padding: '2rem', background: 'var(--color-bg-secondary)', borderRadius: '1.5rem', border: '1px solid var(--color-border-light)' }}>
-              <h4 style={{ color: 'var(--color-primary-dark)', marginBottom: '1rem', fontWeight: 800 }}>Thành phần nổi bật:</h4>
-              <p style={{ fontStyle: 'italic' }}>{typedProduct.ingredients || 'Rau má rừng, Diếp cá hữu cơ, Vitamin B5, HA thủy phân.'}</p>
+            <div className={styles.detailGrid}>
+              <div className={styles.detailCard}>
+                <div className={styles.detailIcon}><Info size={24} /></div>
+                <div>
+                  <h4>Về sản phẩm</h4>
+                  <p>{typedProduct.description}</p>
+                </div>
+              </div>
+              <div className={styles.detailCard}>
+                <div className={styles.detailIcon}><Beaker size={24} /></div>
+                <div>
+                  <h4>Thành phần chính</h4>
+                  <p>{typedProduct.ingredients || 'Thành phần thiên nhiên lành tính, tinh khiết.'}</p>
+                </div>
+              </div>
+              <div className={styles.detailCard}>
+                <div className={styles.detailIcon}><Clock size={24} /></div>
+                <div>
+                  <h4>Hướng dẫn sử dụng</h4>
+                  <p>Làm sạch da, lấy một lượng vừa đủ thoa đều lên vùng da cần chăm sóc. Sử dụng 2 lần mỗi ngày (sáng và tối) để đạt hiệu quả tốt nhất.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -188,7 +223,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   );
 }
 
-// Sub-components as defined before (ReviewsSection)
+// Sub-components
 async function ReviewsSection({ productId, productRating, reviewsCount }: { productId: string, productRating: number, reviewsCount: number }) {
   const supabase = await createClient();
   const { data: reviews } = await supabase
@@ -245,26 +280,5 @@ async function ReviewsSection({ productId, productRating, reviewsCount }: { prod
         )}
       </div>
     </section>
-  );
-}
-
-// Re-using local SVG for CheckCircle2
-function CheckCircle2({ size = 20, ...props }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      {...props}
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
   );
 }
