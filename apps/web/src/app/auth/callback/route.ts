@@ -74,6 +74,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/admin/login?error=not_whitelisted`);
   }
 
+  // Force refresh session to pick up new app_metadata claims from triggers
+  await supabase.auth.refreshSession();
+
   return NextResponse.redirect(`${origin}${next}`);
 }
 

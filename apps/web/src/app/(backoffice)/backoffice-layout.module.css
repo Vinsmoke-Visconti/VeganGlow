@@ -291,8 +291,10 @@
   position: relative;
   z-index: 100;
   height: 48px;
-  background: var(--vg-surface-0);
-  border-bottom: 1px solid var(--vg-border);
+  background: var(--vg-glass-bg);
+  backdrop-filter: blur(var(--vg-glass-blur));
+  -webkit-backdrop-filter: blur(var(--vg-glass-blur));
+  border-bottom: 1px solid var(--vg-glass-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -683,8 +685,10 @@
 .adminFooter {
   height: 40px;
   padding: 0 var(--vg-space-6);
-  border-top: 1px solid var(--vg-border);
-  background: var(--vg-surface-0);
+  border-top: 1px solid var(--vg-glass-border);
+  background: var(--vg-glass-bg);
+  backdrop-filter: blur(var(--vg-glass-blur));
+  -webkit-backdrop-filter: blur(var(--vg-glass-blur));
   color: var(--vg-ink-400);
   display: flex;
   align-items: center;
