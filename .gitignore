@@ -70,9 +70,36 @@ apps/mobile/ios/DerivedData/
 *.pem
 *.p12
 
-# Misc
-*.log
+# Security & Secrets
+.env
+.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+*.token
+credentials.json
+.npmrc
+.yarnrc
 pass_word_supadase.txt
 
-.vercel
-.env*.local
+# AI, Agents & Documentation
+.agents/
+.claude/
+.kiro/
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+docs/
+figma_design/
+scratch/
+*.txt
+*.log
+!README.md
+!LICENSE
+!package.json
+!package-lock.json
+lint_output_original.txt
+motadoanhnghiepveganglowdemo.txt
