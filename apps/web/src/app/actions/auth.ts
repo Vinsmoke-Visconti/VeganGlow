@@ -233,6 +233,12 @@ export async function signup(_prevState: AuthFormState, formData: FormData) {
   if (error) {
     // Never expose Supabase internals — log server-side only
     console.error('[signup] Supabase error:', error.message);
+    
+    // Provide a more helpful message for rate limits
+    if (error.message.includes('rate limit')) {
+      return { error: 'Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng thử lại sau một thời gian.' };
+    }
+    
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
     return { error: GENERIC_SIGNUP_ERROR };
   }
