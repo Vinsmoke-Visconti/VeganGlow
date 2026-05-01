@@ -27,11 +27,16 @@ export function usePaymentStatus({
   pollIntervalMs = 10_000,
 }: UsePaymentStatusOptions): PaymentStatusValue {
   const [status, setStatus] = useState<PaymentStatusValue>(initial);
-  const supabaseRef = useRef(createBrowserClient());
+  const [prevInitial, setPrevInitial] = useState(initial);
+  const [prevOrderId, setPrevOrderId] = useState(orderId);
 
-  useEffect(() => {
+  if (initial !== prevInitial || orderId !== prevOrderId) {
+    setPrevInitial(initial);
+    setPrevOrderId(orderId);
     setStatus(initial);
-  }, [initial, orderId]);
+  }
+
+  const supabaseRef = useRef(createBrowserClient());
 
   // Realtime subscription — primary signal.
   useEffect(() => {

@@ -1,7 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { formatVND } from '@/lib/admin/format';
+import { formatNumber, formatVND } from '@/lib/admin/format';
+import { useId } from 'react';
+import type { TooltipProps } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 type Point = { date: string; total: number; orders?: number };
 
@@ -10,24 +20,36 @@ type Props = {
   height?: number;
 };
 
-const W = 1000;
+function formatDay(value: string): string {
+  return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit' }).format(
+    new Date(value),
+  );
+}
 
-export function RevenueChart({ data, height = 220 }: Props) {
-  const [hover, setHover] = useState<number | null>(null);
+interface RevenueTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: Point;
+    value: number;
+  }>;
+  label?: string | number;
+}
 
-  const { stepX, points, areaPath, max } = useMemo(() => {
-    if (data.length === 0) {
-      return { stepX: 0, points: '', areaPath: '', max: 0 };
-    }
-    const max = Math.max(...data.map((d) => d.total), 1);
-    const stepX = W / Math.max(data.length - 1, 1);
-    const pad = 8;
-    const innerH = height - pad * 2;
-    const ys = data.map((d) => height - pad - (d.total / max) * innerH);
-    const points = data.map((d, i) => `${i * stepX},${ys[i]}`).join(' ');
-    const areaPath = `M0,${height} L${points} L${(data.length - 1) * stepX},${height} Z`;
-    return { stepX, points, areaPath, max };
-  }, [data, height]);
+function RevenueTooltip({ active, payload, label }: RevenueTooltipProps) {
+  if (!active || !payload?.length) return null;
+  const row = payload[0]?.payload;
+
+  return (
+    <div className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs shadow-lg">
+      <div className="font-medium text-zinc-900">{formatDay(String(label))}</div>
+      <div className="mt-1 tabular-nums text-emerald-700">{formatVND(row?.total ?? 0)}</div>
+      <div className="mt-0.5 text-zinc-500">{formatNumber(row?.orders ?? 0)} đơn hàng</div>
+    </div>
+  );
+}
+
+export function RevenueChart({ data, height = 260 }: Props) {
+  const gradientId = useId().replace(/:/g, '');
 
   if (data.length === 0) {
     return (
@@ -37,100 +59,43 @@ export function RevenueChart({ data, height = 220 }: Props) {
     );
   }
 
-  const totalRevenue = data.reduce((s, d) => s + d.total, 0);
-  const totalOrders = data.reduce((s, d) => s + (d.orders ?? 0), 0);
-  const hovered = hover != null ? data[hover] : null;
-
   return (
-    <div className="relative">
-      <div className="mb-4 flex items-end justify-between">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-medium text-zinc-500">
-            {hovered ? new Date(hovered.date).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }) : 'Tổng'}
-          </span>
-          <span className="text-2xl font-semibold tracking-tight text-zinc-900 tabular-nums">
-            {formatVND(hovered ? hovered.total : totalRevenue)}
-          </span>
-        </div>
-        <div className="flex flex-col items-end gap-0.5 text-xs">
-          <span className="text-zinc-500">{hovered ? 'Đơn trong ngày' : 'Tổng đơn'}</span>
-          <span className="font-medium tabular-nums text-zinc-700">
-            {hovered ? hovered.orders ?? 0 : totalOrders}
-          </span>
-        </div>
-      </div>
-
-      <svg
-        viewBox={`0 0 ${W} ${height}`}
-        width="100%"
-        height={height}
-        preserveAspectRatio="none"
-        className="overflow-visible"
-        onMouseLeave={() => setHover(null)}
-      >
-        <defs>
-          <linearGradient id="vgChartGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(16 185 129)" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="rgb(16 185 129)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {[0.25, 0.5, 0.75].map((p) => (
-          <line
-            key={p}
-            x1={0}
-            x2={W}
-            y1={height * p}
-            y2={height * p}
-            stroke="rgb(244 244 245)"
-            strokeWidth={1}
+    <div style={{ width: '100%', height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity={0.22} />
+              <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke="#f4f4f5" vertical={false} />
+          <XAxis
+            dataKey="date"
+            tickFormatter={formatDay}
+            tickLine={false}
+            axisLine={false}
+            minTickGap={20}
+            tick={{ fill: '#71717a', fontSize: 11 }}
           />
-        ))}
-
-        <path d={areaPath} fill="url(#vgChartGrad)" />
-        <polyline
-          fill="none"
-          stroke="rgb(16 185 129)"
-          strokeWidth={2}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          points={points}
-        />
-
-        {data.map((d, i) => {
-          const x = i * stepX;
-          const y = height - 8 - (d.total / max) * (height - 16);
-          return (
-            <g key={d.date}>
-              <rect
-                x={Math.max(0, x - stepX / 2)}
-                y={0}
-                width={stepX}
-                height={height}
-                fill="transparent"
-                onMouseEnter={() => setHover(i)}
-              />
-              <circle
-                cx={x}
-                cy={y}
-                r={hover === i ? 5 : 0}
-                fill="white"
-                stroke="rgb(16 185 129)"
-                strokeWidth={2.5}
-                className="transition-all"
-              />
-            </g>
-          );
-        })}
-      </svg>
-
-      <div className="mt-2 flex justify-between text-[10px] tabular-nums text-zinc-400">
-        {data.map((d, i) => (
-          <span key={d.date} className={i === 0 || i === data.length - 1 || i % Math.ceil(data.length / 7) === 0 ? '' : 'opacity-0'}>
-            {new Date(d.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
-          </span>
-        ))}
-      </div>
+          <YAxis
+            width={72}
+            tickFormatter={(value) => formatNumber(Number(value))}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: '#71717a', fontSize: 11 }}
+          />
+          <Tooltip content={<RevenueTooltip />} cursor={{ stroke: '#10b981', strokeWidth: 1 }} />
+          <Area
+            type="monotone"
+            dataKey="total"
+            stroke="#10b981"
+            strokeWidth={2}
+            fill={`url(#${gradientId})`}
+            activeDot={{ r: 4, strokeWidth: 2, stroke: '#10b981', fill: '#fff' }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 }

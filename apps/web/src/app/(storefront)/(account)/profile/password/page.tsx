@@ -11,10 +11,12 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowLeft,
+  KeyRound,
 } from 'lucide-react';
 import Link from 'next/link';
 import { requestPasswordOtp, updatePasswordWithOtp } from '@/app/actions/auth';
 import OtpInput from '@/components/shared/OtpInput';
+import styles from './password.module.css';
 
 export default function ChangePasswordPage() {
   const supabase = createBrowserClient();
@@ -80,6 +82,9 @@ export default function ChangePasswordPage() {
     }
   };
 
+  const passwordMatchesAndValid =
+    newPassword.length >= 6 && newPassword === confirmPassword && confirmPassword.length > 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
@@ -131,169 +136,229 @@ export default function ChangePasswordPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] grid place-items-center">
-        <Loader2 size={32} className="animate-spin text-primary" />
+      <div className={styles.loadingState}>
+        <Loader2 size={32} className={styles.spin} style={{ color: 'var(--color-primary)' }} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-xl mx-auto px-4 lg:px-8 py-10 lg:py-16">
-      <Link
-        href="/profile"
-        className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text mb-6"
-      >
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: 'var(--space-4)' }}>
+      <Link href="/profile" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <ArrowLeft size={14} /> Quay lại hồ sơ
       </Link>
 
-      <header className="mb-10">
-        <span className="text-xs uppercase tracking-[0.2em] text-primary">Bảo mật tài khoản</span>
-        <h1 className="font-serif text-3xl lg:text-4xl font-medium tracking-tight text-text mt-1">
-          {isOAuthOnly ? 'Thiết lập mật khẩu' : 'Thay đổi mật khẩu'}
-        </h1>
-        <p className="mt-3 text-text-secondary text-sm leading-relaxed">
-          {isOAuthOnly
-            ? 'Tài khoản của bạn đang đăng nhập bằng Google. Hãy thiết lập mật khẩu để có thể đăng nhập bằng Email/Username trong tương lai.'
-            : 'Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác.'}
-        </p>
-      </header>
+      <div className={styles.passwordWrapper} style={{ padding: 'var(--space-8)' }}>
+        <header className={styles.header}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <span style={{ display: 'grid', placeItems: 'center', width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-primary-50)', color: 'var(--color-primary)' }}>
+              <KeyRound size={18} />
+            </span>
+            <h1 className={styles.title}>
+              {isOAuthOnly ? 'Thiết lập mật khẩu' : 'Thay đổi mật khẩu'}
+            </h1>
+          </div>
+          <p className={styles.subtitle} style={{ marginLeft: '48px' }}>
+            {isOAuthOnly
+              ? 'Tài khoản của bạn đang đăng nhập bằng Google. Hãy thiết lập mật khẩu để có thể đăng nhập bằng Email/Username trong tương lai.'
+              : 'Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác.'}
+          </p>
+        </header>
 
-      <form
-        className="rounded-2xl bg-bg-card border border-border-light p-6 lg:p-8 flex flex-col gap-5"
-        onSubmit={handleSubmit}
-      >
-        {!isOAuthOnly && (
-          <PasswordField
-            label="Mật khẩu hiện tại"
-            value={currentPassword}
-            onChange={setCurrentPassword}
-            placeholder="Nhập mật khẩu cũ"
-            visible={showCurrent}
-            onToggle={() => setShowCurrent(!showCurrent)}
-            required
-          />
-        )}
-
-        <PasswordField
-          label="Mật khẩu mới"
-          value={newPassword}
-          onChange={setNewPassword}
-          placeholder="Ít nhất 6 ký tự"
-          visible={showNew}
-          onToggle={() => setShowNew(!showNew)}
-          required
-        />
-
-        <PasswordField
-          label="Xác nhận mật khẩu"
-          value={confirmPassword}
-          onChange={setConfirmPassword}
-          placeholder="Nhập lại mật khẩu mới"
-          required
-        />
-
-        <div className="border-t border-border-light pt-5 flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <span className="text-[11px] uppercase tracking-[0.12em] text-text-muted block">
-                Mã xác nhận (OTP)
-              </span>
-              <span className="text-xs text-text-muted">Mã 6 số gửi qua email</span>
+        <form className={styles.passwordForm} onSubmit={handleSubmit} style={{ marginLeft: '48px' }}>
+          {!isOAuthOnly && (
+            <div className={styles.fieldRow}>
+              <div className={styles.fieldLabel}>Mật khẩu hiện tại</div>
+              <div className={styles.fieldValue}>
+                <PasswordField
+                  value={currentPassword}
+                  onChange={setCurrentPassword}
+                  placeholder="Nhập mật khẩu cũ"
+                  visible={showCurrent}
+                  onToggle={() => setShowCurrent(!showCurrent)}
+                  required
+                />
+              </div>
             </div>
+          )}
+
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabel}>Mật khẩu mới</div>
+            <div className={styles.fieldValue}>
+              <PasswordField
+                value={newPassword}
+                onChange={setNewPassword}
+                placeholder="Ít nhất 6 ký tự"
+                visible={showNew}
+                onToggle={() => setShowNew(!showNew)}
+                required
+                showStrength
+              />
+            </div>
+          </div>
+
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabel}>Xác nhận mật khẩu</div>
+            <div className={styles.fieldValue}>
+              <PasswordField
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder="Nhập lại mật khẩu mới"
+                required
+                matchHint={
+                  confirmPassword.length === 0
+                    ? null
+                    : passwordMatchesAndValid
+                    ? 'match'
+                    : confirmPassword === newPassword
+                    ? null
+                    : 'mismatch'
+                }
+              />
+            </div>
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* OTP section */}
+          <div className={styles.otpSection}>
+            <div className={styles.otpHeader}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Mã xác nhận (OTP)</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>{otpSent ? 'Mã đã được gửi đến email' : 'Mã 6 số gửi qua email'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={sendingOtp || cooldown > 0}
+                className={styles.otpSendBtn}
+              >
+                {sendingOtp ? <Loader2 size={14} className={styles.spin} /> : <Send size={14} />}
+                {cooldown > 0 ? `Gửi lại sau ${cooldown}s` : otpSent ? 'Gửi lại mã' : 'Gửi mã qua Email'}
+              </button>
+            </div>
+
+            <div className={styles.otpContainer} ref={otpRef}>
+              <OtpInput value={otpCode} onChange={setOtpCode} disabled={updating || !otpSent} />
+            </div>
+          </div>
+
+          <div className={styles.actions}>
             <button
-              type="button"
-              onClick={handleSendOtp}
-              disabled={sendingOtp || cooldown > 0}
-              className="inline-flex items-center gap-2 h-10 px-4 rounded-full border border-border bg-white text-sm text-text hover:border-text transition disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+              disabled={updating || !otpSent}
+              className={styles.saveBtn}
             >
-              {sendingOtp ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <Send size={14} />
-              )}
-              {cooldown > 0 ? `Gửi lại sau ${cooldown}s` : otpSent ? 'Gửi lại mã' : 'Gửi mã qua Email'}
+              {updating ? <Loader2 size={16} className={styles.spin} style={{ marginRight: '0.5rem' }} /> : <ShieldCheck size={16} style={{ marginRight: '0.5rem' }} />}
+              {isOAuthOnly ? 'Lưu thiết lập' : 'Cập nhật mật khẩu'}
             </button>
           </div>
 
-          <div ref={otpRef}>
-            <OtpInput value={otpCode} onChange={setOtpCode} disabled={updating} />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={updating || !otpSent}
-          className="h-12 rounded-full bg-text text-white font-medium tracking-tight inline-flex items-center justify-center gap-2 hover:bg-primary-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {updating ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <>
-              <ShieldCheck size={16} />
-              {isOAuthOnly ? 'Lưu thiết lập' : 'Cập nhật mật khẩu'}
-            </>
+          {feedback && (
+            <div className={`${styles.feedback} ${feedback.kind === 'success' ? styles.success : styles.error}`}>
+              {feedback.kind === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+              <span>{feedback.message}</span>
+            </div>
           )}
-        </button>
-
-        {feedback && (
-          <div
-            className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm ${
-              feedback.kind === 'success'
-                ? 'bg-success/10 text-success'
-                : 'bg-error/10 text-error'
-            }`}
-          >
-            {feedback.kind === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-            <span>{feedback.message}</span>
-          </div>
-        )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
 
 interface PasswordFieldProps {
-  label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   visible?: boolean;
   onToggle?: () => void;
   required?: boolean;
+  showStrength?: boolean;
+  matchHint?: 'match' | 'mismatch' | null;
 }
 
 function PasswordField({
-  label,
   value,
   onChange,
   placeholder,
   visible,
   onToggle,
   required,
+  showStrength,
+  matchHint,
 }: PasswordFieldProps) {
+  const strength = scoreStrength(value);
+
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-[11px] uppercase tracking-[0.12em] text-text-muted">{label}</span>
-      <div className="relative">
+    <div style={{ width: '100%' }}>
+      <div className={styles.inputWrap}>
         <input
           type={visible ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required={required}
-          className="w-full h-11 pl-4 pr-11 rounded-lg border border-border bg-white text-sm text-text focus:border-text focus:outline-none"
+          className={styles.input}
+          style={{
+            borderColor: matchHint === 'mismatch' ? 'var(--color-error)' : matchHint === 'match' ? 'var(--color-success)' : undefined
+          }}
         />
         {onToggle && (
           <button
             type="button"
             onClick={onToggle}
-            className="absolute right-2 top-1/2 -translate-y-1/2 grid place-items-center w-8 h-8 rounded-full text-text-muted hover:text-text hover:bg-primary-50 transition"
-            aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+            className={styles.eyeBtn}
+            title={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
           >
-            {visible ? <EyeOff size={14} /> : <Eye size={14} />}
+            {visible ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         )}
       </div>
-    </label>
+
+      {showStrength && value.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.375rem' }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.25rem' }}>
+            {[0, 1, 2, 3].map((i) => (
+              <span
+                key={i}
+                style={{
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: i < strength.level ? strength.color : 'var(--color-border-light)',
+                  transition: 'background 0.2s ease'
+                }}
+              />
+            ))}
+          </div>
+          <span style={{ fontSize: '0.625rem', textTransform: 'uppercase', fontWeight: 600, color: strength.color }}>
+            {strength.label}
+          </span>
+        </div>
+      )}
+
+      {matchHint === 'mismatch' && (
+        <span style={{ fontSize: '0.6875rem', color: 'var(--color-error)', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+          <AlertCircle size={12} /> Mật khẩu không khớp
+        </span>
+      )}
+      {matchHint === 'match' && (
+        <span style={{ fontSize: '0.6875rem', color: 'var(--color-success)', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+          <CheckCircle2 size={12} /> Mật khẩu khớp
+        </span>
+      )}
+    </div>
   );
+}
+
+function scoreStrength(pw: string): { level: number; label: string; color: string } {
+  if (pw.length === 0) return { level: 0, label: '', color: 'transparent' };
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 1) return { level: 1, label: 'Yếu', color: 'var(--color-error)' };
+  if (score === 2) return { level: 2, label: 'Khá', color: 'var(--color-warning)' };
+  if (score === 3) return { level: 3, label: 'Tốt', color: 'var(--color-info)' };
+  return { level: 4, label: 'Mạnh', color: 'var(--color-success)' };
 }

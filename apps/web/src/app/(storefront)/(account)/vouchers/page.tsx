@@ -1,9 +1,20 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { Ticket, Clock, Tag, Loader2, ArrowLeft, Search } from 'lucide-react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
+import {
+  Ticket,
+  Clock,
+  Tag,
+  Loader2,
+  ArrowLeft,
+  Search,
+  Truck,
+  Percent,
+  Calendar,
+} from 'lucide-react';
 import Link from 'next/link';
 import { createBrowserClient } from '@/lib/supabase/client';
+import styles from './vouchers.module.css';
 
 interface Voucher {
   id: string;
@@ -86,6 +97,15 @@ function VouchersContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const counts = useMemo(() => {
+    const map: Record<string, number> = { all: vouchers.length, shipping: 0, discount: 0 };
+    for (const v of vouchers) {
+      if (v.discount_type === 'shipping') map.shipping++;
+      else if (v.discount_type === 'percentage' || v.discount_type === 'fixed') map.discount++;
+    }
+    return map;
+  }, [vouchers]);
+
   const filteredVouchers = vouchers.filter((v) => {
     if (filter === 'all') return true;
     if (filter === 'shipping') return v.discount_type === 'shipping';
@@ -94,166 +114,133 @@ function VouchersContent() {
   });
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-10 lg:py-16">
-      <Link
-        href="/profile"
-        className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text mb-6"
-      >
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: 'var(--space-4)' }}>
+      <Link href="/profile" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem', textDecoration: 'none' }}>
         <ArrowLeft size={14} /> Quay lại hồ sơ
       </Link>
 
-      <header className="mb-10">
-        <span className="text-xs uppercase tracking-[0.2em] text-primary">Ưu đãi của bạn</span>
-        <h1 className="font-serif text-3xl lg:text-4xl font-medium tracking-tight text-text mt-1">
-          Kho voucher
-        </h1>
-        <p className="mt-2 text-text-secondary text-sm">
-          Sử dụng voucher để được giảm giá khi thanh toán.
-        </p>
-      </header>
-
-      {/* Code input */}
-      <div className="rounded-2xl bg-bg-card border border-border-light p-4 lg:p-5 mb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
-            />
-            <input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="Nhập mã voucher tại đây"
-              className="w-full h-11 pl-11 pr-4 rounded-full border border-border bg-white text-sm uppercase tracking-wide focus:border-text focus:outline-none"
-            />
+      <div className={styles.wrapper} style={{ padding: '0' }}>
+        <header className={styles.header}>
+          <div className={styles.headerTop}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <span style={{ display: 'grid', placeItems: 'center', width: '36px', height: '36px', borderRadius: '50%', background: 'var(--color-primary-50)', color: 'var(--color-primary)' }}>
+                  <Ticket size={18} />
+                </span>
+                <h1 className={styles.title} style={{ margin: 0, fontSize: '1.75rem' }}>Kho voucher</h1>
+              </div>
+              <p className={styles.subtitle} style={{ marginLeft: '48px' }}>
+                Sử dụng voucher để được giảm giá khi thanh toán cho các sản phẩm mỹ phẩm thuần chay yêu thích.
+              </p>
+            </div>
+            
+            <div className={styles.addVoucherBox}>
+              <div className={styles.inputWrapper}>
+                <Search size={16} className={styles.inputIcon} />
+                <input
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  placeholder="Nhập mã voucher tại đây..."
+                  className={styles.voucherInput}
+                />
+              </div>
+              <button className={styles.applyBtn} disabled={!code.trim()} style={{ opacity: !code.trim() ? 0.5 : 1 }}>Lưu mã</button>
+            </div>
           </div>
-          <button
-            type="button"
-            className="h-11 px-6 rounded-full bg-text text-white text-sm font-medium hover:bg-primary-dark transition disabled:opacity-50"
-            disabled={!code.trim()}
-          >
-            Lưu mã
-          </button>
-        </div>
+
+          <div className={styles.tabs} style={{ marginLeft: '48px' }}>
+            {FILTERS.map((f) => {
+              const isActive = filter === f.value;
+              const count = counts[f.value] ?? 0;
+              return (
+                <button
+                  key={f.value}
+                  onClick={() => setFilter(f.value)}
+                  className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
+                >
+                  {f.label} {count > 0 && `(${count})`}
+                </button>
+              );
+            })}
+          </div>
+        </header>
+
+        {loading ? (
+          <div className={styles.loaderContainer}>
+            <Loader2 size={32} className={styles.spin} style={{ color: 'var(--color-primary)' }} />
+            <span>Đang tải voucher...</span>
+          </div>
+        ) : filteredVouchers.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon} style={{ background: 'var(--color-bg-secondary)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
+              <Ticket size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', margin: '0' }}>Chưa có voucher</h3>
+            <p className={styles.emptyHint}>
+              Bạn chưa có voucher nào trong danh mục này. Hãy quay lại sau, chúng tôi sẽ có ưu đãi mới cho bạn.
+            </p>
+          </div>
+        ) : (
+          <div className={styles.voucherGrid}>
+            {filteredVouchers.map((v) => (
+              <VoucherTicket key={v.id} voucher={v} />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Tabs */}
-      <nav
-        role="tablist"
-        aria-label="Lọc loại voucher"
-        className="flex gap-2 overflow-x-auto pb-3 mb-6 border-b border-border-light"
-      >
-        {FILTERS.map((f) => {
-          const isActive = filter === f.value;
-          return (
-            <button
-              key={f.value}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setFilter(f.value)}
-              className={`shrink-0 -mb-px px-4 py-2.5 text-sm font-medium tracking-tight border-b-2 transition ${
-                isActive
-                  ? 'border-text text-text'
-                  : 'border-transparent text-text-muted hover:text-text'
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      {loading ? (
-        <div className="text-center py-16 text-text-muted">
-          <Loader2 size={24} className="inline animate-spin mr-2" /> Đang tải voucher...
-        </div>
-      ) : filteredVouchers.length === 0 ? (
-        <div className="text-center py-16 lg:py-24 rounded-2xl bg-bg-card border border-border-light">
-          <div className="inline-grid place-items-center w-20 h-20 rounded-full bg-primary-50 text-primary mb-4">
-            <Ticket size={32} />
-          </div>
-          <h3 className="font-serif text-xl font-medium text-text mb-2">Chưa có voucher</h3>
-          <p className="text-text-secondary text-sm">
-            Bạn chưa có voucher nào trong danh mục này.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-          {filteredVouchers.map((v) => (
-            <VoucherTicket key={v.id} voucher={v} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
 
 function VoucherTicket({ voucher }: { voucher: Voucher }) {
   const isShipping = voucher.discount_type === 'shipping';
-  const expired =
-    voucher.end_date !== null && new Date(voucher.end_date) < new Date();
+  const expired = voucher.end_date !== null && new Date(voucher.end_date) < new Date();
   const usable = !voucher.is_used && !expired;
-  const Icon = isShipping ? Clock : Tag;
-
-  const accentBg = isShipping ? 'bg-primary' : 'bg-text';
-  const accentText = isShipping ? 'text-primary' : 'text-text';
+  const TypeIcon = isShipping ? Truck : Percent;
 
   return (
-    <article className="relative flex rounded-2xl overflow-hidden bg-bg-card border border-border-light shadow-sm">
-      {/* Left punch */}
-      <div className={`relative ${accentBg} text-white w-28 lg:w-32 shrink-0 flex flex-col items-center justify-center gap-2 px-3 py-6`}>
-        <Icon size={28} />
-        <span className="text-[11px] uppercase tracking-[0.18em] font-medium text-center">
-          {isShipping ? 'Vận chuyển' : 'Giảm giá'}
-        </span>
-      </div>
-
-      {/* Perforation */}
-      <div className="relative w-px bg-transparent">
-        {/* dashed line */}
-        <div className="absolute inset-y-3 left-0 w-px border-l border-dashed border-border" />
-        {/* top notch */}
-        <div className="absolute -top-3 -left-3 w-6 h-6 rounded-full bg-bg" />
-        {/* bottom notch */}
-        <div className="absolute -bottom-3 -left-3 w-6 h-6 rounded-full bg-bg" />
-      </div>
-
-      {/* Right content */}
-      <div className="flex-1 p-5 flex flex-col gap-3">
-        <div>
-          <h3 className="font-serif text-lg font-medium text-text leading-snug line-clamp-2">
-            {voucher.title}
-          </h3>
-          {voucher.description && (
-            <p className="text-xs text-text-muted mt-1 line-clamp-2">{voucher.description}</p>
-          )}
+    <article className={`${styles.voucherCard} ${!usable ? styles.cardUsed : ''}`}>
+      <div className={`${styles.cardLeft} ${isShipping ? styles.typeShipping : styles.typeDiscount}`}>
+        <div className={styles.typeIconBg}>
+          <TypeIcon size={24} />
         </div>
+        <span className={styles.typeLabel}>{isShipping ? 'VẬN CHUYỂN' : 'GIẢM GIÁ'}</span>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <span className={`font-mono text-xs px-2 py-1 rounded bg-bg-secondary ${accentText}`}>
+      <div className={styles.decorCircles}>
+        <div className={styles.circleTop} />
+        <div className={styles.circleBottom} />
+      </div>
+
+      <div className={styles.cardRight}>
+        <div className={styles.cardInfoTop}>
+          <h3 className={styles.voucherTitle}>{voucher.title}</h3>
+          <span className={styles.tagLimited} style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-light)' }}>
             {voucher.code}
           </span>
-          {voucher.is_used && (
-            <span className="text-[10px] uppercase tracking-wide text-text-muted">Đã dùng</span>
-          )}
-          {expired && !voucher.is_used && (
-            <span className="text-[10px] uppercase tracking-wide text-error">Hết hạn</span>
-          )}
         </div>
+        
+        {voucher.description && (
+          <p className={styles.voucherDesc}>{voucher.description}</p>
+        )}
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-3 border-t border-border-light">
-          <span className="text-xs text-text-muted">
-            HSD:{' '}
-            {voucher.end_date
-              ? new Date(voucher.end_date).toLocaleDateString('vi-VN')
-              : 'Không giới hạn'}
-          </span>
-          <button
-            type="button"
-            disabled={!usable}
-            className="inline-flex items-center justify-center h-9 px-4 rounded-full bg-text text-white text-xs font-medium hover:bg-primary-dark transition disabled:opacity-40 disabled:cursor-not-allowed"
-          >
+        <div className={styles.voucherFooter}>
+          <div className={styles.expiryBox}>
+            <Calendar size={14} />
+            HSD: {voucher.end_date ? new Date(voucher.end_date).toLocaleDateString('vi-VN') : 'Không giới hạn'}
+            {voucher.is_used && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'var(--color-bg-secondary)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', color: 'var(--color-text-muted)' }}>
+                <Tag size={10} /> Đã dùng
+              </span>
+            )}
+            {expired && !voucher.is_used && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fee2e2', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', color: '#991b1b' }}>
+                <Clock size={10} /> Hết hạn
+              </span>
+            )}
+          </div>
+          <button className={styles.useBtn} disabled={!usable}>
             {voucher.is_used ? 'Đã dùng' : 'Dùng ngay'}
           </button>
         </div>
@@ -264,7 +251,13 @@ function VoucherTicket({ voucher }: { voucher: Voucher }) {
 
 export default function VouchersPage() {
   return (
-    <Suspense fallback={<div className="text-center py-16 text-text-muted">Đang chuẩn bị voucher...</div>}>
+    <Suspense
+      fallback={
+        <div className="text-center py-16 text-text-muted">
+          <Loader2 size={24} className="inline animate-spin mr-2" /> Đang chuẩn bị voucher...
+        </div>
+      }
+    >
       <VouchersContent />
     </Suspense>
   );
