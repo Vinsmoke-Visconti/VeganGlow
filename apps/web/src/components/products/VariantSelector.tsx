@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import styles from './VariantSelector.module.css';
 
 export type Variant = {
   id: string;
@@ -69,49 +70,48 @@ export default function VariantSelector({ variants, onVariantChange }: VariantSe
     onVariantChange(matched);
   }, [matched, onVariantChange]);
 
-  // Determine if a (key, value) combo has any in-stock active variant
-  const isValueAvailable = (key: string, value: string): boolean => {
-    return activeVariants.some((v) => {
+  // Stock for a specific (key, value) combo, considering other selected attributes
+  const stockFor = (key: string, value: string): number => {
+    const candidate = activeVariants.find((v) => {
       const attrs = v.attributes ?? {};
       if (String(attrs[key] ?? '') !== value) return false;
-      // Match other selected attributes (where set), excluding current key
-      const compatible = groupKeys.every((k) => {
+      return groupKeys.every((k) => {
         if (k === key) return true;
         if (!selected[k]) return true;
         return String(attrs[k] ?? '') === selected[k];
       });
-      return compatible && v.stock > 0;
     });
+    return candidate?.stock ?? 0;
   };
 
   if (activeVariants.length === 0 || groupKeys.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className={styles.wrap}>
       {groupKeys.map((key) => (
-        <div key={key} className="flex flex-col gap-2">
-          <span className="text-[11px] uppercase tracking-[0.12em] text-text-muted">{key}</span>
-          <div className="flex flex-wrap gap-2">
+        <div key={key} className={styles.group}>
+          <div className={styles.label}>
+            <span className={styles.labelText}>{key}</span>
+            {selected[key] && <span className={styles.labelValue}>: {selected[key]}</span>}
+          </div>
+          <div className={styles.options}>
             {groups[key].map((value) => {
               const isSelected = selected[key] === value;
-              const available = isValueAvailable(key, value);
+              const stock = stockFor(key, value);
+              const outOfStock = stock <= 0;
+              const lowStock = stock > 0 && stock < 5;
               return (
                 <button
                   key={value}
                   type="button"
-                  onClick={() => setSelected((prev) => ({ ...prev, [key]: value }))}
-                  disabled={!available}
-                  className={[
-                    'inline-flex items-center px-4 h-10 rounded-full text-sm transition border',
-                    isSelected
-                      ? 'border-text bg-text text-white'
-                      : available
-                        ? 'border-border bg-white text-text hover:border-text'
-                        : 'border-border-light text-text-muted line-through cursor-not-allowed opacity-50',
-                  ].join(' ')}
+                  onClick={() => !outOfStock && setSelected((prev) => ({ ...prev, [key]: value }))}
+                  disabled={outOfStock}
+                  className={`${styles.option} ${isSelected ? styles.optionSelected : ''} ${outOfStock ? styles.optionOut : ''}`}
                   aria-pressed={isSelected}
                 >
-                  {value}
+                  <span className={styles.optionValue}>{value}</span>
+                  {outOfStock && <span className={styles.optionStatus}>Hết hàng</span>}
+                  {lowStock && <span className={styles.optionStatusLow}>Còn {stock}</span>}
                 </button>
               );
             })}

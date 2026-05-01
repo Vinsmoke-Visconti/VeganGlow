@@ -1,0 +1,137 @@
+.container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vg-surface-50);
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--vg-surface-0);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-xl);
+  padding: 48px 32px;
+  box-shadow: var(--vg-shadow-3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--vg-leaf-50);
+  color: var(--vg-leaf-700);
+  border-radius: var(--vg-radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: var(--vg-font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--vg-ink-900);
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.description {
+  font-size: 15px;
+  color: var(--vg-ink-500);
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+
+.errorIcon {
+  color: var(--vg-danger-fg);
+  margin-bottom: 24px;
+}
+
+.successIcon {
+  color: var(--vg-success-fg);
+  margin-bottom: 24px;
+}
+
+.roleHighlight {
+  background: var(--vg-surface-100);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  padding: 20px 32px;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.roleName {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--vg-leaf-600);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.infoBox {
+  font-size: 14px;
+  color: var(--vg-ink-600);
+  background: var(--vg-surface-50);
+  padding: 16px;
+  border-radius: var(--vg-radius-md);
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--vg-gradient-leaf-vivid);
+  color: white;
+  padding: 16px 32px;
+  border-radius: var(--vg-radius-pill);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  transition: all 0.2s var(--vg-ease-out);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+}
+
+.btnPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35);
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-700);
+  padding: 12px 24px;
+  border-radius: var(--vg-radius-pill);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btnSecondary:hover {
+  background: var(--vg-surface-200);
+  color: var(--vg-ink-900);
+}

@@ -24,7 +24,7 @@ export function PieChart({ data, size = 200 }: Props) {
   const total = data.reduce((s, d) => s + d.revenue, 0);
   if (total === 0) {
     return (
-      <div style={{ padding: 24, textAlign: 'center', color: '#888' }}>
+      <div style={{ padding: 24, textAlign: 'center', color: 'var(--vg-ink-400)', fontSize: '13px' }}>
         Chưa có doanh thu để hiển thị
       </div>
     );
@@ -65,26 +65,36 @@ export function PieChart({ data, size = 200 }: Props) {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ filter: 'drop-shadow(var(--vg-shadow-1))' }}>
         {slices.map((s, i) => (
-          <path key={i} d={s.path} fill={s.color} stroke="#fff" strokeWidth={1} />
+          <path 
+            key={i} 
+            d={s.path} 
+            fill={s.color} 
+            stroke="var(--vg-surface-0)" 
+            strokeWidth={1.5} 
+            style={{ transition: 'all 0.3s' }}
+          />
         ))}
       </svg>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 13 }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: 13, color: 'var(--vg-ink-700)' }}>
         {slices.map((s, i) => (
-          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span
               style={{
                 display: 'inline-block',
-                width: 12,
-                height: 12,
+                width: 10,
+                height: 10,
                 background: s.color,
-                borderRadius: 2,
+                borderRadius: 3,
+                boxShadow: '0 0 4px rgba(0,0,0,0.1)'
               }}
             />
-            <span style={{ minWidth: 100 }}>{s.label}</span>
-            <strong>{formatVND(s.value)}</strong>
-            <span style={{ color: '#888' }}>({s.pct.toFixed(1)}%)</span>
+            <span style={{ minWidth: 100, fontWeight: 500 }}>{s.label}</span>
+            <strong style={{ color: 'var(--vg-ink-900)' }}>{formatVND(s.value)}</strong>
+            <span style={{ color: 'var(--vg-ink-400)', fontSize: '11px', marginLeft: 'auto' }}>
+              {s.pct.toFixed(1)}%
+            </span>
           </li>
         ))}
       </ul>

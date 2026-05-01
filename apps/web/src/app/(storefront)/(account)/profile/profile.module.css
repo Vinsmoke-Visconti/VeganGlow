@@ -42,9 +42,23 @@
   font-weight: 700;
 }
 
-.unverifiedTag { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
-.pendingTag    { background: #fffbeb; color: #f59e0b; border: 1px solid #fef3c7; }
-.verifiedTag   { background: #f0fdf4; color: #22c55e; border: 1px solid #dcfce7; }
+.unverifiedTag {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+}
+
+.pendingTag {
+  background: #fffbeb;
+  color: #f59e0b;
+  border: 1px solid #fef3c7;
+}
+
+.verifiedTag {
+  background: #f0fdf4;
+  color: #22c55e;
+  border: 1px solid #dcfce7;
+}
 
 .quickVerifyBtn {
   background: var(--color-primary-dark);
@@ -172,8 +186,13 @@
   transition: transform 0.2s ease;
 }
 
-.roleBadge:hover { transform: scale(1.03); }
-.roleBadge svg { flex-shrink: 0; }
+.roleBadge:hover {
+  transform: scale(1.03);
+}
+
+.roleBadge svg {
+  flex-shrink: 0;
+}
 
 /* ============================================
    Loyalty Stats Row
@@ -380,8 +399,14 @@
   transition: transform 0.2s ease;
 }
 
-.perkItem:hover { transform: translateY(-1px); }
-.perkItem svg { flex-shrink: 0; color: var(--color-primary); }
+.perkItem:hover {
+  transform: translateY(-1px);
+}
+
+.perkItem svg {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
 
 /* ============================================
    Form Section
@@ -466,7 +491,7 @@
 }
 
 .segment {
-  width: 3rem;
+  width: 2.25rem;
   height: 100%;
   border: none;
   background: transparent;
@@ -480,11 +505,20 @@
 .segment::placeholder {
   color: var(--color-text-muted);
   font-weight: 500;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
-.segmentYear { width: 5rem; }
-.divider { color: var(--color-border); font-weight: 400; font-size: 1.125rem; opacity: 0.5; padding: 0 2px; }
+.segmentYear {
+  width: 3.5rem;
+}
+
+.divider {
+  color: var(--color-border);
+  font-weight: 400;
+  font-size: 1rem;
+  opacity: 0.6;
+  padding-top: 2px;
+}
 
 .readonlyField {
   display: flex;
@@ -588,7 +622,10 @@
   color: var(--color-primary-dark);
 }
 
-.navItem span { flex: 1; text-align: left; }
+.navItem span {
+  flex: 1;
+  text-align: left;
+}
 
 /* ============================================
    Save Button
@@ -647,7 +684,9 @@
   margin-bottom: var(--space-6);
 }
 
-.modalHeader h3 { font-weight: 800; }
+.modalHeader h3 {
+  font-weight: 800;
+}
 
 .closeModal {
   background: var(--color-bg-secondary);
@@ -673,8 +712,15 @@
   text-align: center;
 }
 
-.kycContent h4 { font-weight: 800; margin-bottom: 0.5rem; }
-.kycContent p { color: var(--color-text-muted); font-size: var(--text-sm); }
+.kycContent h4 {
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.kycContent p {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
 
 .nfcPulse {
   width: 88px;
@@ -689,9 +735,17 @@
 }
 
 @keyframes pulse {
-  0%  { box-shadow: 0 0 0 0 hsla(142, 71%, 45%, 0.35); }
-  70% { box-shadow: 0 0 0 18px hsla(142, 71%, 45%, 0); }
-  100% { box-shadow: 0 0 0 0 hsla(142, 71%, 45%, 0); }
+  0% {
+    box-shadow: 0 0 0 0 hsla(142, 71%, 45%, 0.35);
+  }
+
+  70% {
+    box-shadow: 0 0 0 18px hsla(142, 71%, 45%, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 hsla(142, 71%, 45%, 0);
+  }
 }
 
 /* Toast */
@@ -711,12 +765,30 @@
   z-index: 10000;
 }
 
-.success { background: var(--color-primary-dark); color: white; }
-.error { background: #ef4444; color: white; }
+.success {
+  background: var(--color-primary-dark);
+  color: white;
+}
+
+.error {
+  background: #ef4444;
+  color: white;
+}
 
 /* Spinner */
-.spin { animation: spin 0.8s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .loaderContainer {
   height: 80vh;

@@ -1,13 +1,21 @@
 import { Redis } from '@upstash/redis'
 
-if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-  console.warn('Warning: Upstash Redis environment variables are missing. Caching will be disabled.')
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+if (!redisUrl || !redisToken) {
+  console.warn('Warning: Upstash Redis environment variables are missing. Caching will be disabled.');
 }
 
-export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-})
+// Create client only if variables exist, otherwise create a proxy that logs errors but doesn't crash
+export const redis = (redisUrl && redisToken) 
+  ? new Redis({ url: redisUrl, token: redisToken })
+  : new Proxy({} as Redis, {
+      get: () => () => {
+        console.warn('Redis command called but client is not configured.');
+        return null;
+      }
+    });
 
 // Helper functions for common patterns
 export const cacheSet = async <T>(key: string, value: T, exSeconds: number = 3600) => {

@@ -5,9 +5,12 @@
 .section {
   margin-bottom: var(--vg-space-5);
   padding: var(--vg-space-5);
-  border: 1px solid var(--vg-border);
+  background: var(--vg-glass-bg);
+  backdrop-filter: blur(var(--vg-glass-blur));
+  -webkit-backdrop-filter: blur(var(--vg-glass-blur));
+  border: 1px solid var(--vg-glass-border);
   border-radius: var(--vg-radius-lg);
-  background: var(--vg-surface-0);
+  box-shadow: var(--vg-shadow-1);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;

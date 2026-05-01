@@ -365,3 +365,78 @@ export async function sendOrderShippedEmail(email: string, orderId: string, trac
     throw error;
   }
 }
+
+/**
+ * Gửi email mời nhân sự tham gia hệ thống quản trị
+ */
+export async function sendStaffInvitationEmail(
+  email: string, 
+  fullName: string, 
+  roleName: string, 
+  token: string
+) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      logger.warn('RESEND_API_KEY not set. Mocking staff invitation email.');
+      console.log(`[MOCK EMAIL] Invitation to ${email} as ${roleName}. Token: ${token}`);
+      return { id: 'mock-id-' + Date.now() };
+    }
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn';
+    const acceptUrl = `${siteUrl}/admin/invite/accept?token=${token}`;
+    const safeName = escapeHtml(fullName);
+    const safeRole = escapeHtml(roleName);
+
+    const { data, error } = await resend.emails.send({
+      from: 'VeganGlow Admin <onboarding@resend.dev>',
+      to: [email],
+      subject: `[VeganGlow] Lời mời tham gia quản trị hệ thống`,
+      html: `
+        <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+          <div style="background-color: #065e46; padding: 40px; text-align: center; color: white;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800;">Chào mừng đến với Đội ngũ VeganGlow!</h1>
+            <p style="margin-top: 10px; opacity: 0.9; font-size: 16px;">Lời mời cộng tác chính thức</p>
+          </div>
+          
+          <div style="padding: 40px; color: #1e293b; line-height: 1.6;">
+            <p style="font-size: 16px; margin-top: 0;">Xin chào <strong>${safeName}</strong>,</p>
+            <p style="font-size: 15px; color: #475569;">
+              Bạn đã được mời tham gia vào hệ thống quản trị của <strong>VeganGlow</strong> với vai trò:
+            </p>
+            
+            <div style="background-color: #f1f5f9; border-radius: 12px; padding: 16px; margin: 24px 0; text-align: center;">
+              <span style="font-size: 18px; font-weight: 800; color: #065e46; text-transform: uppercase; letter-spacing: 0.05em;">${safeRole}</span>
+            </div>
+            
+            <p style="font-size: 15px; color: #475569;">
+              Với vai trò này, bạn sẽ có quyền truy cập vào các công cụ quản lý đơn hàng, sản phẩm và dữ liệu vận hành tương ứng để cùng chúng tôi phát triển VeganGlow.
+            </p>
+            
+            <div style="margin: 40px 0; text-align: center;">
+              <a href="${acceptUrl}" style="background-color: #065e46; color: white; padding: 16px 40px; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(6, 94, 70, 0.2);">Chấp nhận lời mời & Đăng nhập</a>
+            </div>
+            
+            <p style="font-size: 13px; color: #94a3b8; text-align: center;">
+              Link này sẽ hết hạn sau 7 ngày. <br/>
+              Nếu bạn không mong đợi lời mời này, vui lòng bỏ qua email.
+            </p>
+            
+            <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+            <p style="font-size: 14px; color: #64748b; margin: 0;">Trân trọng,<br>Hệ thống quản trị VeganGlow</p>
+          </div>
+          
+          <div style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #f1f5f9;">
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">© 2026 VeganGlow Admin Console. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    if (error) throw error;
+    logger.info({ action: 'send_invitation_email_success', email }, 'Staff invitation email sent');
+    return data;
+  } catch (error) {
+    logger.error({ action: 'send_invitation_email_error', error }, 'Failed to send staff invitation email');
+    throw error;
+  }
+}

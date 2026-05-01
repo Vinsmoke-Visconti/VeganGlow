@@ -8,12 +8,12 @@ import { redirect } from 'next/navigation';
 import crypto from 'node:crypto';
 
 import { audit } from '@/lib/security/auditLog';
-import {
-  checkLoginIpRate,
-  checkLoginEmailRate,
-  checkAdminLoginIpRate,
-} from '@/lib/security/rateLimit';
 import { constantDelay } from '@/lib/security/constantDelay';
+import {
+  checkAdminLoginIpRate,
+  checkLoginEmailRate,
+  checkLoginIpRate,
+} from '@/lib/security/rateLimit';
 import { verifyTurnstile } from '@/lib/security/turnstile';
 
 export type AuthFormState = { error?: string; requiresCaptcha?: boolean } | null;
@@ -233,12 +233,6 @@ export async function signup(_prevState: AuthFormState, formData: FormData) {
   if (error) {
     // Never expose Supabase internals — log server-side only
     console.error('[signup] Supabase error:', error.message);
-    
-    // Provide a more helpful message for rate limits
-    if (error.message.includes('rate limit')) {
-      return { error: 'Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng thử lại sau một thời gian.' };
-    }
-    
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
     return { error: GENERIC_SIGNUP_ERROR };
   }
@@ -250,6 +244,10 @@ export async function signup(_prevState: AuthFormState, formData: FormData) {
 
 export async function logout() {
   const supabase = await createClient();
+  
+  // Log before signing out to capture actor info
+  await audit({ action: 'auth.logout', severity: 'info' });
+  
   await supabase.auth.signOut();
 
   revalidatePath('/', 'layout');
@@ -258,6 +256,10 @@ export async function logout() {
 
 export async function adminLogout() {
   const supabase = await createClient();
+  
+  // Log before signing out to capture actor info
+  await audit({ action: 'auth.logout', severity: 'info' });
+
   await supabase.auth.signOut();
 
   revalidatePath('/admin', 'layout');

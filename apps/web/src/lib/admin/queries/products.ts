@@ -101,3 +101,28 @@ export async function listAllCategories() {
   const { data } = await supabase.from('categories').select('id, name, slug').order('name');
   return data ?? [];
 }
+
+export type AdminVariantRow = {
+  id: string;
+  product_id: string;
+  sku: string;
+  name: string;
+  attributes: Record<string, string>;
+  price: number;
+  compare_at_price: number | null;
+  stock: number;
+  image_url: string | null;
+  position: number;
+  is_active: boolean;
+};
+
+export async function listProductVariants(productId: string): Promise<AdminVariantRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('product_variants')
+    .select('id, product_id, sku, name, attributes, price, compare_at_price, stock, image_url, position, is_active')
+    .eq('product_id', productId)
+    .order('position', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as AdminVariantRow[];
+}

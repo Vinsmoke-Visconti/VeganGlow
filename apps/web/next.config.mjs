@@ -27,7 +27,7 @@ const storefrontCSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com",
+  "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://ui-avatars.com https://img.vietqr.io",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com",
   "frame-src https://challenges.cloudflare.com",
@@ -50,6 +50,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: 'ui-avatars.com' },
+      { protocol: 'https', hostname: 'img.vietqr.io' },
     ],
   },
 

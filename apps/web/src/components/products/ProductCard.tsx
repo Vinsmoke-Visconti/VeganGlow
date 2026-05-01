@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
-import { Star, ShoppingBag, Heart, Tag, Check } from 'lucide-react';
+import { Star, ShoppingBag, Heart, Check } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { setBuyNow } from '@/lib/buyNow';
 import { normalizeProductImage } from '@/lib/imageUrl';
+import type { ProductTag } from '@/lib/types/tag';
 import styles from './Product.module.css';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -26,9 +26,16 @@ export interface ProductCardProduct {
     name: string;
     slug: string;
   } | null;
+  tags?: ProductTag[] | null;
 }
 
-export default function ProductCard({ product }: { product: ProductCardProduct }) {
+export default function ProductCard({ 
+  product, 
+  priority = false 
+}: { 
+  product: ProductCardProduct;
+  priority?: boolean;
+}) {
   const { addToCart } = useCart();
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
@@ -75,13 +82,15 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     addToCart(product);
     setJustAdded(true);
     window.setTimeout(() => setJustAdded(false), 1500);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setBuyNow({
       id: product.id,
       slug: product.slug,
@@ -132,74 +141,86 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
   };
 
   return (
-    <div className={styles.premiumCard}>
+    <div
+      className={styles.premiumCard}
+      onClick={() => router.push(`/products/${product.slug}`)}
+      role="article"
+      aria-label={product.name}
+    >
       <div className={styles.imageWrap}>
-        <Link href={`/products/${product.slug}`}>
-          {productImage ? (
-            <Image
-              src={productImage}
-              alt={product.name}
-              width={400}
-              height={400}
-              className={styles.image}
-              priority={product.id === 'lcp-1' || product.id === 'lcp-2'} 
-              unoptimized
-            />
-          ) : (
-            <div className={styles.placeholder}>{product.name.charAt(0)}</div>
-          )}
-        </Link>
+        {productImage ? (
+          <Image
+            src={productImage}
+            alt={product.name}
+            width={400}
+            height={400}
+            className={styles.image}
+            priority={priority}
+            unoptimized
+          />
+        ) : (
+          <div className={styles.placeholder}>{product.name.charAt(0)}</div>
+        )}
 
-        {/* Badges */}
+        {/* Hover overlay with action buttons */}
+        <div className={styles.imageOverlay}>
+          <button
+            className={`${styles.overlayCartBtn} ${justAdded ? styles.overlayCartBtnActive : ''}`}
+            onClick={handleAddToCart}
+            aria-label={justAdded ? 'Đã thêm vào giỏ' : 'Thêm vào giỏ hàng'}
+          >
+            {justAdded ? <Check size={20} /> : <ShoppingBag size={20} />}
+          </button>
+          <button className={styles.overlayBuyBtn} onClick={handleBuyNow}>
+            Mua ngay
+          </button>
+        </div>
+
+        {/* Badges: discount (auto-computed) + dynamic tags from DB */}
         <div className={styles.badgeContainer}>
           {discountPercent > 0 && (
             <span className={`${styles.badge} ${styles.badgeSale}`}>
               -{discountPercent}%
             </span>
           )}
-          {product.rating && product.rating >= 4.7 && (
-            <span className={styles.badge}>Yêu thích</span>
-          )}
-          {discountPercent >= 20 && (
-            <span className={`${styles.badge} ${styles.badgeCoupon}`}>
-              <Tag size={10} style={{marginRight: 4}} /> Có mã giảm giá
+          {product.tags?.map((tag) => (
+            <span
+              key={tag.id}
+              className={styles.badge}
+              style={{ background: tag.color, color: tag.text_color }}
+            >
+              {tag.name}
             </span>
-          )}
+          ))}
         </div>
 
         {/* Wishlist Action */}
-        <button 
+        <button
           className={styles.wishlistBtn}
           onClick={handleWishlistToggle}
           disabled={favoritePending}
           aria-label={isLiked ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
         >
-          <Heart 
-            size={18} 
-            fill={isLiked ? "#ef4444" : "none"} 
-            color={isLiked ? "#ef4444" : "currentColor"} 
+          <Heart
+            size={18}
+            fill={isLiked ? "#ef4444" : "none"}
+            color={isLiked ? "#ef4444" : "currentColor"}
           />
         </button>
       </div>
 
       <div className={styles.info}>
         <span className={styles.category}>{product.categories?.name || 'Mỹ phẩm'}</span>
-        
-        <Link href={`/products/${product.slug}`}>
-          <h3 className={styles.name}>{product.name}</h3>
-        </Link>
-        
-        <p className={styles.description}>
-          {product.description || 'Sản phẩm thuần chay từ thảo dược thiên nhiên Việt Nam.'}
-        </p>
-        
+
+        <h3 className={styles.name}>{product.name}</h3>
+
         <div className={styles.ratingRow}>
           <div className={styles.stars}>
             {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                size={14} 
-                fill={i < Math.floor(product.rating || 5) ? "currentColor" : "none"} 
+              <Star
+                key={i}
+                size={14}
+                fill={i < Math.floor(product.rating || 5) ? "currentColor" : "none"}
               />
             ))}
           </div>
@@ -214,6 +235,7 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
           )}
         </div>
 
+        {/* Mobile-only buttons (touch devices) */}
         <div className={styles.buttonGroup}>
           <button
             className={`${styles.cartBtn} ${justAdded ? styles.cartBtnActive : ''}`}
@@ -222,17 +244,10 @@ export default function ProductCard({ product }: { product: ProductCardProduct }
           >
             {justAdded ? <Check size={18} /> : <ShoppingBag size={18} />}
           </button>
-          <button
-            className={styles.buyBtn}
-            onClick={handleBuyNow}
-          >
+          <button className={styles.buyBtn} onClick={handleBuyNow}>
             Mua ngay
           </button>
         </div>
-
-        <Link href="/cart" className={styles.viewCartLink}>
-          <ShoppingBag size={14} /> Xem giỏ hàng
-        </Link>
       </div>
     </div>
   );

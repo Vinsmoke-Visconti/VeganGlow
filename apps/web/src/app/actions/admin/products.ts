@@ -27,6 +27,7 @@ export type ProductInput = {
   ingredients: string;
   stock: number;
   is_active: boolean;
+  tag_ids?: string[];
 };
 
 type ProductCacheRow = {
@@ -57,17 +58,33 @@ async function invalidateProductCache(
   await cacheDelete([...keys]);
 }
 
+async function syncProductTags(productId: string, tagIds: string[]): Promise<string | null> {
+  const supabase = await createClient();
+  // Delete existing junction rows then insert fresh — simpler than diffing.
+  const { error: delErr } = await supabase.from('product_tags').delete().eq('product_id', productId);
+  if (delErr) return delErr.message;
+  if (tagIds.length === 0) return null;
+  const rows = tagIds.map((tag_id) => ({ product_id: productId, tag_id }));
+  const { error: insErr } = await supabase.from('product_tags').insert(rows as never);
+  return insErr?.message ?? null;
+}
+
 export async function upsertProduct(input: ProductInput): Promise<Result> {
   const supabase = await createClient();
-  if (input.id) {
-    const { id, ...rest } = input;
+  const { tag_ids = [], ...productFields } = input;
+
+  if (productFields.id) {
+    const { id, ...rest } = productFields;
     const before = await getProductCacheRow(id);
     const { error } = await supabase.from('products').update(rest as never).eq('id', id);
     if (error) return { ok: false, error: error.message };
+    const tagErr = await syncProductTags(id, tag_ids);
+    if (tagErr) return { ok: false, error: `Tags: ${tagErr}` };
     await invalidateProductCache(id, before, rest);
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
     revalidatePath(`/products/${input.slug}`);
+    revalidatePath('/products');
     await audit(
       {
         action: 'product.updated',
@@ -75,13 +92,13 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
         entity: 'product',
         entity_id: id,
         summary: `Updated product "${input.name}"`,
-        details: { slug: input.slug, price: input.price, stock: input.stock },
+        details: { slug: input.slug, price: input.price, stock: input.stock, tag_count: tag_ids.length },
       },
       await auditCtx()
     );
     return { ok: true, id };
   } else {
-    const { id: _ignored, ...rest } = input;
+    const { id: _ignored, ...rest } = productFields;
     void _ignored;
     const { data, error } = await supabase
       .from('products')
@@ -90,8 +107,11 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
       .single();
     if (error) return { ok: false, error: error.message };
     const newId = (data as { id: string }).id;
+    const tagErr = await syncProductTags(newId, tag_ids);
+    if (tagErr) return { ok: false, error: `Tags: ${tagErr}` };
     await invalidateProductCache(newId, null, rest);
     revalidatePath('/admin/products');
+    revalidatePath('/products');
     await audit(
       {
         action: 'product.created',
@@ -99,7 +119,7 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
         entity: 'product',
         entity_id: newId,
         summary: `Created product "${input.name}"`,
-        details: { slug: input.slug, price: input.price, stock: input.stock },
+        details: { slug: input.slug, price: input.price, stock: input.stock, tag_count: tag_ids.length },
       },
       await auditCtx()
     );

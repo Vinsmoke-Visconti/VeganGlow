@@ -1,209 +1,191 @@
-/* ============================================
-   VeganGlow Admin — Team Cards (Compact 2×2)
-   ============================================ */
-
-/* Banner */
 .banner {
-  padding: var(--vg-space-5);
   background: var(--vg-gradient-leaf);
+  padding: 24px;
   border-radius: var(--vg-radius-lg);
+  margin-bottom: 24px;
   color: #fff;
-  margin-bottom: var(--vg-space-4);
-  position: relative;
-  overflow: hidden;
-}
-
-.banner::after {
-  content: '';
-  position: absolute;
-  top: -40%;
-  right: -8%;
-  width: 260px;
-  height: 260px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.bannerContent {
-  position: relative;
-  z-index: 1;
-}
-
-.bannerBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  background: rgba(255,255,255,0.15);
-  border-radius: var(--vg-radius-pill);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  margin-bottom: var(--vg-space-2);
-}
-
-.bannerTitle {
-  font-size: var(--vg-text-lg);
-  font-weight: 700;
-  margin: 0 0 4px;
-}
-
-.bannerText {
-  font-size: var(--vg-text-xs);
-  opacity: 0.8;
-  max-width: 600px;
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* 2×2 Grid — fills viewport without scroll */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--vg-space-3);
-  flex: 1;
-  min-height: 0;
-}
-
-/* Individual card */
-.card {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--vg-border);
-  border-radius: var(--vg-radius-lg);
-  background: var(--vg-surface-0);
-  padding: var(--vg-space-4);
-  overflow: hidden;
-  transition: border-color var(--vg-duration-fast);
-}
-
-.card:hover {
-  border-color: var(--vg-border-hover);
   box-shadow: var(--vg-shadow-2);
 }
 
-/* Card header */
+.bannerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bannerBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.bannerTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.bannerText {
+  color: #fff;
+  font-size: 11px;
+  opacity: 0.8;
+  max-width: 800px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.card {
+  background: var(--vg-surface-0);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all var(--vg-duration-fast);
+}
+
+.card:hover {
+  border-color: var(--vg-leaf-300);
+  box-shadow: var(--vg-shadow-2);
+}
+
 .cardHead {
   display: flex;
   align-items: center;
-  gap: var(--vg-space-3);
-  margin-bottom: var(--vg-space-3);
-  padding-bottom: var(--vg-space-3);
-  border-bottom: 1px solid var(--vg-surface-200);
+  gap: 12px;
 }
 
 .avatar {
   width: 40px;
   height: 40px;
-  border-radius: 999px;
-  background: var(--vg-gradient-leaf-vivid);
-  color: #fff;
+  background: var(--vg-leaf-100);
+  color: var(--vg-leaf-700);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--vg-text-base);
-  font-weight: 700;
-  flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(46,150,73,0.2);
+  font-weight: 800;
+  font-size: 18px;
 }
 
 .cardHeadText {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  justify-content: center;
 }
 
 .cardName {
   margin: 0;
-  font-size: var(--vg-text-base);
-  font-weight: 700;
   color: var(--vg-ink-900);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.cardRole {
-  display: inline-block;
-  width: fit-content;
-  padding: 1px 8px;
-  border-radius: var(--vg-radius-pill);
-  background: var(--vg-leaf-50);
-  color: var(--vg-leaf-800);
-  font-size: 10px;
-  font-weight: 600;
-}
-
-/* Info rows */
 .infoGrid {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: var(--vg-space-3);
-  flex: 1;
 }
 
 .infoRow {
-  display: grid;
-  grid-template-columns: 16px 90px 1fr;
-  gap: 6px;
+  display: flex;
   align-items: center;
-  padding: 3px 0;
-  color: var(--vg-ink-500);
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--vg-ink-600);
+  padding: 8px 10px;
+  border-radius: var(--vg-radius-md);
+  cursor: pointer;
+  transition: all var(--vg-duration-fast);
+  font-family: inherit;
+  text-align: left;
 }
 
-.infoRow svg {
+.infoRow:hover {
+  background: var(--vg-surface-50);
   color: var(--vg-leaf-600);
 }
 
 .infoLabel {
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--vg-ink-400);
+  width: 80px;
 }
 
 .infoValue {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--vg-ink-800);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-/* Service tags — compact row */
+.copyIcon {
+  margin-left: auto;
+  opacity: 0;
+  color: var(--vg-leaf-500);
+  transition: opacity var(--vg-duration-fast);
+}
+
+.infoRow:hover .copyIcon {
+  opacity: 1;
+}
+
 .serviceTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  padding-top: var(--vg-space-2);
-  border-top: 1px solid var(--vg-surface-200);
+  gap: 8px;
 }
 
 .serviceTag {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
-  border-radius: var(--vg-radius-sm);
-  background: var(--vg-surface-100);
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--vg-surface-50);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-md);
   color: var(--vg-ink-600);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  white-space: nowrap;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all var(--vg-duration-fast);
+  font-family: inherit;
 }
 
-.serviceTag svg {
-  color: var(--vg-leaf-600);
-  flex-shrink: 0;
+.serviceTag:hover {
+  background: var(--vg-leaf-50);
+  border-color: var(--vg-leaf-300);
+  color: var(--vg-leaf-700);
 }
 
-@media (max-width: 900px) {
+.copyIconMini {
+  opacity: 0;
+  margin-left: 2px;
+  transition: opacity var(--vg-duration-fast);
+}
+
+.serviceTag:hover .copyIconMini {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
   .grid {
     grid-template-columns: 1fr;
   }

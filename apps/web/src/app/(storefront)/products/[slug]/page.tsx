@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import AddToCartButton from '@/components/products/AddToCartButton';
-import BuyNowButton from '@/components/products/BuyNowButton';
 import ProductCard from '@/components/products/ProductCard';
+import ProductPurchasePanel from '@/components/products/ProductPurchasePanel';
+import ReviewSubmitForm from '@/components/products/ReviewSubmitForm';
+import type { Variant } from '@/components/products/VariantSelector';
 import Link from 'next/link';
 import Image from 'next/image';
 import styles from './product-detail.module.css';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
-import { ShieldCheck, Sparkles, Star, Truck, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Star, Truck, RefreshCw } from 'lucide-react';
 import { cacheGet, cacheSet } from '@/lib/redis';
 import { normalizeProductImage } from '@/lib/imageUrl';
 import type { Database } from '@/types/database';
@@ -16,6 +17,15 @@ type ProductRow = Database['public']['Tables']['products']['Row'];
 type ProductWithCategory = ProductRow & {
   old_price?: number | null;
   categories?: { id: string; name: string; slug: string } | null;
+  tags?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    color: string;
+    text_color: string;
+    icon?: string | null;
+    sort_order?: number;
+  }> | null;
 };
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -34,7 +44,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       .from('products')
       .select(`
         *,
-        categories:category_id (id, name, slug)
+        categories:category_id (id, name, slug),
+        tags(id, name, slug, color, text_color, icon, sort_order)
       `)
       .eq('slug', slug)
       .eq('is_active', true)
@@ -46,6 +57,25 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   const typedProduct: ProductWithCategory = product;
+
+  // Fetch product variants (if any) and the freeship threshold in parallel.
+  // RPC `get_freeship_threshold` is from migration 20260502000002 — types may
+  // be stale until `npm run db:types` is run, so we cast.
+  const [variantsRes, freeshipRes] = await Promise.all([
+    supabase
+      .from('product_variants')
+      .select('id, sku, name, attributes, price, compare_at_price, stock, image_url, position, is_active')
+      .eq('product_id', typedProduct.id)
+      .eq('is_active', true)
+      .order('position', { ascending: true }),
+    (supabase.rpc as unknown as (fn: string) => Promise<{ data: number | null }>)(
+      'get_freeship_threshold',
+    ),
+  ]);
+
+  const variants = (variantsRes.data ?? []) as unknown as Variant[];
+  const freeshipThreshold =
+    typeof freeshipRes.data === 'number' ? freeshipRes.data : 500000;
 
   const relatedCacheKey = `related:${typedProduct.category_id}:${typedProduct.id}`;
   let relatedProducts = await cacheGet<ProductWithCategory[]>(relatedCacheKey);
@@ -112,42 +142,23 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <span className={styles.reviewsCount}>{typedProduct.reviews_count || 0} Đánh giá từ khách hàng</span>
           </div>
 
-          <div className={styles.priceRow}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
-                <span className={styles.price}>
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(typedProduct.price))}
-                </span>
-                {typedProduct.old_price && (
-                  <>
-                    <span className={styles.oldPrice}>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(typedProduct.old_price))}</span>
-                    <span className={styles.discount}>-{Math.round(((typedProduct.old_price - typedProduct.price) / typedProduct.old_price) * 100)}%</span>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            <div className={styles.stockStatus}>
-              {typedProduct.stock > 10 ? (
-                <><CheckCircle2 size={16} /> Còn hàng</>
-              ) : typedProduct.stock > 0 ? (
-                <span className={styles.lowStock}><Sparkles size={16} /> Sắp hết hàng</span>
-              ) : (
-                <span className={styles.outOfStock}>Hết hàng</span>
-              )}
-            </div>
-          </div>
-
           <p className={styles.description}>
             {typedProduct.description || 'Sản phẩm tuyệt vời từ VeganGlow mang lại trải nghiệm làm đẹp thuần chay an toàn và hiệu quả. Được chiết xuất 100% từ thực vật địa phương.'}
           </p>
 
-          <div className={styles.actions}>
-            <AddToCartButton product={typedProduct} className={styles.fullWidthBtn} />
-            <BuyNowButton product={typedProduct} className={styles.buyNowBtn}>
-              Mua ngay
-            </BuyNowButton>
-          </div>
+          <ProductPurchasePanel
+            product={{
+              id: typedProduct.id,
+              slug: typedProduct.slug,
+              name: typedProduct.name,
+              price: Number(typedProduct.price),
+              old_price: typedProduct.old_price ?? null,
+              image: typedProduct.image,
+              stock: typedProduct.stock,
+            }}
+            variants={variants}
+            freeshipThreshold={freeshipThreshold}
+          />
 
           <div className={styles.features}>
             <div className={styles.featureItem}>
@@ -187,7 +198,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </FadeIn>
 
       {/* Reviews Section */}
-      <ReviewsSection productId={typedProduct.id} productRating={typedProduct.rating} reviewsCount={typedProduct.reviews_count} />
+      <ReviewsSection
+        productId={typedProduct.id}
+        productSlug={typedProduct.slug}
+        productRating={typedProduct.rating}
+        reviewsCount={typedProduct.reviews_count}
+      />
 
       {/* Related Products Section */}
       {typedRelated.length > 0 && (
@@ -208,21 +224,39 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   );
 }
 
+type ReviewImage = { url: string; alt?: string | null };
 type ReviewWithProfile = {
   id: string;
   rating: number;
   comment: string;
   created_at: string;
+  images?: ReviewImage[] | null;
+  is_verified_purchase?: boolean | null;
   profiles?: { full_name: string | null; avatar_url: string | null } | null;
 };
 
-async function ReviewsSection({ productId, productRating, reviewsCount }: { productId: string, productRating: number, reviewsCount: number }) {
+async function ReviewsSection({
+  productId,
+  productSlug,
+  productRating,
+  reviewsCount,
+}: {
+  productId: string;
+  productSlug: string;
+  productRating: number;
+  reviewsCount: number;
+}) {
   const supabase = await createClient();
-  const { data: reviews } = await supabase
-    .from('reviews')
-    .select('*, profiles(full_name, avatar_url)')
-    .eq('product_id', productId)
-    .order('created_at', { ascending: false });
+  const [reviewsRes, userRes] = await Promise.all([
+    supabase
+      .from('reviews')
+      .select('*, profiles(full_name, avatar_url)')
+      .eq('product_id', productId)
+      .order('created_at', { ascending: false }),
+    supabase.auth.getUser(),
+  ]);
+  const reviews = reviewsRes.data;
+  const isLoggedIn = !!userRes.data.user;
 
   return (
     <section className={styles.reviewsSection}>
@@ -244,6 +278,17 @@ async function ReviewsSection({ productId, productRating, reviewsCount }: { prod
         </div>
       </div>
 
+      {isLoggedIn ? (
+        <ReviewSubmitForm productId={productId} productSlug={productSlug} />
+      ) : (
+        <div className={styles.loginPrompt}>
+          <span>Bạn muốn đánh giá sản phẩm này?</span>
+          <Link href={`/login?redirectTo=${encodeURIComponent(`/products/${productSlug}`)}`} className={styles.loginLink}>
+            Đăng nhập để viết đánh giá
+          </Link>
+        </div>
+      )}
+
       <div className={styles.reviewsList}>
         {reviews && reviews.length > 0 ? (
           reviews.map((review: ReviewWithProfile) => (
@@ -262,12 +307,39 @@ async function ReviewsSection({ productId, productRating, reviewsCount }: { prod
                 </div>
               </div>
               <div className={styles.reviewContent}>
-                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem', color: '#fbbf24' }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
-                  ))}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', gap: '0.25rem', color: '#fbbf24' }}>
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
+                    ))}
+                  </div>
+                  {review.is_verified_purchase && (
+                    <span className={styles.verifiedBadge}>✓ Đã mua hàng</span>
+                  )}
                 </div>
                 <p>{review.comment}</p>
+                {review.images && review.images.length > 0 && (
+                  <div className={styles.reviewImages}>
+                    {review.images.map((img, idx) => (
+                      <a
+                        key={`${review.id}-img-${idx}`}
+                        href={img.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.reviewImageLink}
+                      >
+                        <Image
+                          src={img.url}
+                          alt={img.alt || `Hình từ đánh giá ${idx + 1}`}
+                          width={120}
+                          height={120}
+                          className={styles.reviewImage}
+                          unoptimized
+                        />
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))
@@ -278,26 +350,5 @@ async function ReviewsSection({ productId, productRating, reviewsCount }: { prod
         )}
       </div>
     </section>
-  );
-}
-
-// Re-using local SVG for CheckCircle2
-function CheckCircle2({ size = 20, ...props }) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      {...props}
-    >
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
   );
 }
