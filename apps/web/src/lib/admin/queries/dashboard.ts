@@ -115,6 +115,122 @@ export async function getRevenueSparkline(days = 7): Promise<{ date: string; tot
   return Object.entries(buckets).map(([date, total]) => ({ date, total }));
 }
 
+/**
+ * Compare current period vs previous period of same length.
+ * Returns { current, previous, deltaPercent }.
+ */
+export async function getDashboardStatsWithCompare(range: DashboardRange) {
+  const current = await getDashboardStats(range);
+
+  // Previous period (same length, ending at current start)
+  const supabase = await createClient();
+  const start = rangeStart(range);
+  const previousStart = new Date(start);
+  const lengthMs = Date.now() - start.getTime();
+  previousStart.setTime(start.getTime() - lengthMs);
+
+  const { data: prevOrders } = await supabase
+    .from('orders')
+    .select('total_amount, status, payment_method, payment_status')
+    .gte('created_at', previousStart.toISOString())
+    .lt('created_at', start.toISOString());
+
+  type OrderAgg = {
+    status: string;
+    payment_status?: string | null;
+    payment_method?: string | null;
+    total_amount: number | string;
+  };
+  const prev = (prevOrders ?? []) as OrderAgg[];
+  const prevRevenue = prev.filter(countsAsRevenue).reduce((s, o) => s + Number(o.total_amount ?? 0), 0);
+
+  const pct = (now: number, before: number) => {
+    if (before === 0) return now > 0 ? 100 : 0;
+    return ((now - before) / before) * 100;
+  };
+
+  return {
+    current,
+    previous: { revenue: prevRevenue, orders: prev.length },
+    delta: {
+      revenuePct: pct(current.revenue, prevRevenue),
+      ordersPct: pct(current.orders, prev.length),
+    },
+  };
+}
+
+/**
+ * Conversion rate = orders that became paid / unique customers who placed orders.
+ * Approximation since we don't track session/visitor count without analytics.
+ */
+export async function getConversionRate(range: DashboardRange): Promise<{
+  totalOrders: number;
+  paidOrders: number;
+  conversionPct: number;
+}> {
+  const supabase = await createClient();
+  const since = rangeStart(range).toISOString();
+  const { data } = await supabase
+    .from('orders')
+    .select('status, payment_status, payment_method')
+    .gte('created_at', since);
+
+  type OrderAgg = {
+    status: string;
+    payment_status?: string | null;
+    payment_method?: string | null;
+  };
+  const orders = (data ?? []) as OrderAgg[];
+  const total = orders.length;
+  const paid = orders.filter(countsAsRevenue).length;
+  return {
+    totalOrders: total,
+    paidOrders: paid,
+    conversionPct: total === 0 ? 0 : (paid / total) * 100,
+  };
+}
+
+/**
+ * Revenue breakdown by category — for pie chart.
+ */
+export async function getRevenueByCategory(
+  range: DashboardRange
+): Promise<{ category: string; revenue: number }[]> {
+  const supabase = await createClient();
+  const since = rangeStart(range).toISOString();
+  const { data } = await supabase
+    .from('order_items')
+    .select(
+      'quantity, unit_price, order:orders!inner(created_at, status, payment_method, payment_status), product:products(category:categories(name))'
+    )
+    .gte('orders.created_at', since)
+    .neq('orders.status', 'cancelled');
+
+  type Row = {
+    quantity: number;
+    unit_price: number | string;
+    order?: {
+      status: string;
+      payment_status?: string | null;
+      payment_method?: string | null;
+    };
+    product?: { category?: { name: string } | { name: string }[] | null } | null;
+  };
+
+  const totals = new Map<string, number>();
+  for (const row of (data ?? []) as Row[]) {
+    if (row.order && !countsAsRevenue(row.order)) continue;
+    const cat = Array.isArray(row.product?.category)
+      ? row.product?.category[0]?.name
+      : row.product?.category?.name;
+    const key = cat ?? 'Khác';
+    totals.set(key, (totals.get(key) ?? 0) + Number(row.unit_price) * row.quantity);
+  }
+  return Array.from(totals.entries())
+    .map(([category, revenue]) => ({ category, revenue }))
+    .sort((a, b) => b.revenue - a.revenue);
+}
+
 export async function getTopProducts(days = 7, limit = 5) {
   const supabase = await createClient();
   const since = new Date();
