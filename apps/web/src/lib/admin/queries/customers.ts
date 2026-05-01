@@ -93,8 +93,8 @@ export async function listCustomers(filters: CustomerListFilters = {}): Promise<
 
 export async function getCustomerDetail(id: string) {
   const supabase = await createClient();
-  const [profileRes, addressesRes, ordersRes, vouchersRes] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', id).maybeSingle(),
+  const [profileRes, addressesRes, ordersRes, vouchersRes, ledgerRes, cartRes, tierRes] = await Promise.all([
+    supabase.from('profiles').select('*, tier:loyalty_tiers(name, display_name, badge_color, discount_percent, perks)').eq('id', id).maybeSingle(),
     supabase.from('addresses').select('*').eq('user_id', id).order('is_default', { ascending: false }),
     supabase
       .from('orders')
@@ -107,6 +107,18 @@ export async function getCustomerDetail(id: string) {
       .select('id, is_used, used_at, voucher:vouchers(code, title, discount_type, discount_value)')
       .eq('user_id', id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('loyalty_points_ledger')
+      .select('id, delta, reason, reference_type, reference_id, created_at')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    supabase
+      .from('live_carts')
+      .select('id, items, subtotal, abandoned, updated_at')
+      .eq('user_id', id)
+      .maybeSingle(),
+    supabase.from('loyalty_tiers').select('*').order('position'),
   ]);
 
   return {
@@ -114,5 +126,61 @@ export async function getCustomerDetail(id: string) {
     addresses: addressesRes.data ?? [],
     orders: ordersRes.data ?? [],
     vouchers: vouchersRes.data ?? [],
+    pointsLedger: ledgerRes.data ?? [],
+    liveCart: cartRes.data,
+    allTiers: tierRes.data ?? [],
+  };
+}
+
+export async function listAbandonedCarts(limit = 50) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('live_carts')
+    .select('id, user_id, session_id, items, subtotal, updated_at, reminded_at, profile:profiles(full_name, username, customer_code)')
+    .eq('abandoned', true)
+    .order('updated_at', { ascending: false })
+    .limit(limit);
+  return data ?? [];
+}
+
+export type CustomerOverviewKpi = {
+  totalCustomers: number;
+  newThisMonth: number;
+  abandonedCarts: number;
+  topSpender: { name: string; spent: number } | null;
+};
+
+export async function getCustomerOverviewKpi(): Promise<CustomerOverviewKpi> {
+  const supabase = await createClient();
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+
+  const [totalRes, newRes, abandonedRes, topRes] = await Promise.all([
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'customer'),
+    supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'customer')
+      .gte('created_at', monthStart.toISOString()),
+    supabase.from('live_carts').select('*', { count: 'exact', head: true }).eq('abandoned', true),
+    supabase
+      .from('profiles')
+      .select('full_name, username, lifetime_spend')
+      .eq('role', 'customer')
+      .order('lifetime_spend', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const top = topRes.data as { full_name: string | null; username: string | null; lifetime_spend: number } | null;
+
+  return {
+    totalCustomers: totalRes.count ?? 0,
+    newThisMonth: newRes.count ?? 0,
+    abandonedCarts: abandonedRes.count ?? 0,
+    topSpender: top
+      ? { name: top.full_name ?? top.username ?? 'Unknown', spent: top.lifetime_spend }
+      : null,
   };
 }
