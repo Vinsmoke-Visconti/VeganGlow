@@ -1,3 +1,14 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | VeganGlow - Mỹ phẩm Thuần Chay',
+    default: 'VeganGlow | Vẻ Đẹp Thuần Chay Từ Thiên Nhiên Việt Nam',
+  },
+  description: 'VeganGlow cung cấp các sản phẩm mỹ phẩm 100% thuần chay, an toàn và bền vững, được chiết xuất từ những nguyên liệu tự nhiên tinh túy nhất của Việt Nam.',
+  keywords: ['mỹ phẩm thuần chay', 'vegan skincare', 'skincare Việt Nam', 'làm đẹp tự nhiên'],
+};
+
 import styles from './page.module.css';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -61,8 +72,8 @@ export default async function Home() {
 
             <FadeIn direction="up" delay={0.2}>
               <h1 className={styles.heroTitle}>
-                Nuôi Dưỡng Làn Da <br />
-                Từ <span className={styles.heroAccent}>Thiên Nhiên</span>
+                Đánh Thức Vẻ Đẹp <br />
+                Bằng <span className={styles.heroAccent}>Sự Thuần Khiết</span>
               </h1>
             </FadeIn>
 

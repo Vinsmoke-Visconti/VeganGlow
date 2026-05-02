@@ -67,11 +67,18 @@ async function getTrustedAppOrigin() {
   try {
     const { headers: getHeaders } = require('next/headers');
     const h = await getHeaders();
-    const host = h.get('x-forwarded-host') || h.get('host') || '';
     
-    // If it looks like a production/internet domain, use it with https
-    // For local network IPs (e.g. 192.168.x.x), use http.
-    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+    // Vercel and most proxies provide x-forwarded-host
+    const forwardedHost = h.get('x-forwarded-host');
+    const host = forwardedHost || h.get('host') || '';
+    
+    if (host) {
+      // For local development on localhost/127.0.0.1, always use http
+      if (host.includes('localhost') || host.includes('127.0.0.1')) {
+        return `http://${host}`;
+      }
+      
+      // For local network IPs (e.g. 192.168.x.x), default to http unless specified
       const isLocalIp = /^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host);
       const protocol = h.get('x-forwarded-proto') || (isLocalIp ? 'http' : 'https');
       return `${protocol}://${host}`;
@@ -82,7 +89,7 @@ async function getTrustedAppOrigin() {
 
   // Final fallback based on environment
   return process.env.NODE_ENV === 'production' 
-    ? 'https://veganglow.vercel.app' 
+    ? (process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vercel.app')
     : 'http://localhost:3000';
 }
 

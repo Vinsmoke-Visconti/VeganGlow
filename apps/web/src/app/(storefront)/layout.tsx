@@ -7,6 +7,14 @@ import { Facebook, Instagram, Youtube } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './storefront-layout.module.css';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | VeganGlow',
+    default: 'VeganGlow - Mỹ phẩm Thuần Chay',
+  },
+};
 
 export default function StorefrontLayout({
   children,

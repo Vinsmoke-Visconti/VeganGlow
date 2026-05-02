@@ -569,6 +569,7 @@
 }
 
 .storyImageWrap {
+  position: relative;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 16px 48px hsla(0, 0%, 0%, 0.08);
