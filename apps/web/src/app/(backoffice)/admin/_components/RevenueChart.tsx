@@ -71,7 +71,7 @@ export function RevenueChart({ data, height = 260 }: Props) {
   }
 
   return (
-    <div style={{ width: '100%', height, minWidth: 0 }}>
+    <div style={{ width: '100%', height, minHeight: height, minWidth: 0 }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <defs>

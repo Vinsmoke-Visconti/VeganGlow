@@ -72,7 +72,7 @@ export function StatusBreakdown({ data }: { data: Bucket[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div style={{ width: '100%', height: 190, minWidth: 0 }}>
+      <div style={{ width: '100%', height: 190, minHeight: 190, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 12, left: 12, bottom: 4 }}>
             <XAxis type="number" hide domain={[0, 'dataMax']} />
