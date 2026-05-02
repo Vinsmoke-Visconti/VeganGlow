@@ -1,0 +1,41 @@
+# ============================================
+# VeganGlow — Deploy Supabase Database
+# Auto-apply migrations to the remote project
+# ============================================
+
+name: Deploy Database
+
+on:
+  push:
+    branches: [main, develop, feature/storefront-redesign-ui]
+    paths:
+      - 'apps/backend/supabase/migrations/**'
+      - '.github/workflows/deploy-database.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Apply Migrations
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Push Migrations
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/storefront-redesign-ui'
+        working-directory: apps/backend
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
