@@ -191,10 +191,10 @@ export async function updateSession(request: NextRequest) {
 
   // ============================ STOREFRONT AREA ============================
   
-  // Staff trying to enter storefront → STRICT ISOLATION: sign out and force login
+  // Staff trying to enter storefront → Redirect to Admin dashboard instead of signing out
+  // This prevents login loops when OAuth redirects back to the root "/" instead of "/admin"
   if (user && staff) {
-    await supabase.auth.signOut();
-    url.pathname = '/login';
+    url.pathname = '/admin';
     return redirectWithCookies(url);
   }
 
