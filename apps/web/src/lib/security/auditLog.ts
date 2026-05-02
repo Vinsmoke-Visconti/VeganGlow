@@ -40,6 +40,10 @@ export type AuditEvent =
   | { action: 'auth.captcha_challenged'; severity: 'info'; details: { reason: string } }
   | { action: 'auth.magic_link_sent'; severity: 'warn'; details: { email_hash: string } }
   | { action: 'auth.session_revoked'; severity: 'warn'; details: { reason: string } }
+  | { action: 'auth.password_changed'; severity: 'info' }
+  | { action: 'auth.password_change_failed'; severity: 'warn'; details: { reason: string } }
+  | { action: 'auth.mfa_unenrolled'; severity: 'warn' }
+  | { action: 'auth.mfa_unenroll_failed'; severity: 'warn'; details: { reason: string } }
   // ===== Data mutations =====
   | { action: 'product.created' | 'product.updated' | 'product.archived' | 'product.restored' | 'product.price_changed' | 'product.stock_changed';
       severity: 'info'; entity: 'product'; entity_id: string; summary: string; details?: Record<string, unknown> }

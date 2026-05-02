@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { formatDateShort } from '@/lib/admin/format';
 import { CheckCircle2, AlertCircle, ShieldCheck, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { adminGoogleLogin } from '@/app/actions/auth';
 import styles from './accept.module.css';
 
 type InviteRow = {
@@ -120,12 +121,11 @@ export default async function AcceptInvitePage({
             </div>
 
             <div className={styles.actions}>
-              <Link 
-                href={`/login?email=${encodeURIComponent(invite.email)}&redirect=/admin`} 
-                className={styles.btnPrimary}
-              >
-                Đăng nhập để bắt đầu <ArrowRight size={16} />
-              </Link>
+              <form action={adminGoogleLogin}>
+                <button type="submit" className={styles.btnPrimary} style={{ cursor: 'pointer' }}>
+                  Đăng nhập bằng Google <ArrowRight size={16} style={{ display: 'inline', marginLeft: 8 }} />
+                </button>
+              </form>
             </div>
           </>
         )}

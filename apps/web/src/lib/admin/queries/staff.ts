@@ -18,6 +18,7 @@ export type InvitationRow = {
   status: string;
   invited_at: string;
   role: { display_name: string } | null;
+  token: string;
 };
 
 export type RoleRow = { id: string; name: string; display_name: string };
@@ -35,7 +36,7 @@ export async function listInvitations(): Promise<InvitationRow[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('staff_invitations')
-    .select('id, email, full_name, status, invited_at, role:roles(display_name)')
+    .select('id, email, full_name, status, invited_at, token, role:roles(display_name)')
     .order('invited_at', { ascending: false });
   return (data ?? []) as unknown as InvitationRow[];
 }

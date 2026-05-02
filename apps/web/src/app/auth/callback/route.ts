@@ -87,7 +87,16 @@ export async function GET(request: Request) {
   // Force refresh session to pick up new app_metadata claims from triggers
   await supabase.auth.refreshSession();
 
-  return NextResponse.redirect(`${origin}${next}`);
+  const response = NextResponse.redirect(`${origin}${next}`);
+  response.cookies.set('admin_last_activity', Date.now().toString(), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/admin',
+    maxAge: 60 * 60,
+  });
+
+  return response;
 }
 
 type AuthUserLike = {

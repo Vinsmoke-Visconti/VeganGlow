@@ -29,7 +29,8 @@ export function getStaffRole(claims: AccessTokenClaims): string {
 }
 
 export function isSuperAdmin(claims: AccessTokenClaims): boolean {
-  return claims?.app_metadata?.is_super_admin === true;
+  const isSuper = claims?.app_metadata?.is_super_admin;
+  return isSuper === true || String(isSuper) === 'true';
 }
 
 /** True iff user has any non-customer role. */

@@ -6,6 +6,8 @@ import { formatRelative } from '@/lib/admin/format';
 import shared from '../admin-shared.module.css';
 import styles from './profile.module.css';
 import { ProfileForm } from './_components/ProfileForm';
+import { SecuritySettings } from './_components/SecuritySettings';
+import { createClient } from '@/lib/supabase/server';
 
 type StaffData = {
   id: string;
@@ -30,27 +32,36 @@ export default async function AdminProfile() {
   const audit = await listMyAuditEntries(50);
   const initial = profile.full_name.charAt(0).toUpperCase();
 
+  const supabase = await createClient();
+  const { data: factors } = await supabase.auth.mfa.listFactors();
+  const mfaFactorId = factors?.totp?.find((f) => f.status === 'verified')?.id || null;
+
   return (
     <div className={shared.page}>
 
 
       <div className={styles.grid}>
-        <section className={styles.card}>
-          <div className={styles.headRow}>
-            <div className={styles.avatar}>{initial}</div>
-            <div>
-              <h3 className={styles.name}>{profile.full_name}</h3>
-              <p className={styles.email}>{profile.email}</p>
-              {profile.position && (
-                <p className={styles.position}>
-                  {profile.position}
-                  {profile.department ? ` · ${profile.department}` : ''}
-                </p>
-              )}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <section className={styles.card}>
+            <div className={styles.headRow}>
+              <div className={styles.avatar}>{initial}</div>
+              <div>
+                <h3 className={styles.name}>{profile.full_name}</h3>
+                <p className={styles.email}>{profile.email}</p>
+                {profile.position && (
+                  <p className={styles.position}>
+                    {profile.position}
+                    {profile.department ? ` · ${profile.department}` : ''}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-          <ProfileForm profile={profile} />
-        </section>
+            <ProfileForm profile={profile} />
+          </section>
+
+          <SecuritySettings mfaFactorId={mfaFactorId} />
+        </div>
+
 
         <section className={styles.card}>
           <h3 className={styles.cardTitle}>

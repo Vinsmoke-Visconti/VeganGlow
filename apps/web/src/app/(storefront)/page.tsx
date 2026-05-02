@@ -327,11 +327,11 @@ export default async function Home() {
               <div className={styles.storyImageWrap}>
                 <Image
                   src="/images/hero.jpg"
-                  alt="VeganGlow – Câu chuyện thương hiệu"
-                  width={800}
-                  height={800}
-                  className={styles.storyImage}
-                  loading="lazy"
+                  alt="VeganGlow Botanical Skincare"
+                  fill
+                  priority
+                  loading="eager"
+                  className="object-cover scale-105 hover:scale-100 transition-transform duration-[10000ms] ease-out"
                 />
               </div>
             </div>

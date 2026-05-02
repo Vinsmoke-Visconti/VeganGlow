@@ -3,6 +3,7 @@ import { formatDateShort } from '@/lib/admin/format';
 import shared from '../admin-shared.module.css';
 import { InviteStaffForm } from './_components/InviteStaffForm';
 import { UsersClient } from './_components/UsersClient';
+import { CopyInviteLink } from './_components/CopyInviteLink';
 
 export default async function AdminUsers() {
   const [staff, invitations, roles] = await Promise.all([listStaff(), listInvitations(), listRoles()]);
@@ -37,6 +38,7 @@ export default async function AdminUsers() {
                   <th>Vai trò</th>
                   <th>Trạng thái</th>
                   <th>Ngày mời</th>
+                  <th style={{ textAlign: 'right' }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -63,6 +65,9 @@ export default async function AdminUsers() {
                       </span>
                     </td>
                     <td>{formatDateShort(i.invited_at)}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      {i.status === 'pending' && <CopyInviteLink token={i.token} />}
+                    </td>
                   </tr>
                 ))}
               </tbody>

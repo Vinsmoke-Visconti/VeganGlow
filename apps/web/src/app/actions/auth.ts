@@ -70,8 +70,10 @@ async function getTrustedAppOrigin() {
     const host = h.get('x-forwarded-host') || h.get('host') || '';
     
     // If it looks like a production/internet domain, use it with https
+    // For local network IPs (e.g. 192.168.x.x), use http.
     if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
-      const protocol = h.get('x-forwarded-proto') || 'https';
+      const isLocalIp = /^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host);
+      const protocol = h.get('x-forwarded-proto') || (isLocalIp ? 'http' : 'https');
       return `${protocol}://${host}`;
     }
   } catch (err) {
@@ -151,10 +153,9 @@ export async function login(_prevState: AuthFormState, formData: FormData) {
     return { error: GENERIC_LOGIN_ERROR };
   }
 
-  // 3. Cross-realm block: staff (non-super_admin) cannot log in to storefront
+  // 3. Cross-realm block: staff cannot log in to storefront
   const role = data.user.app_metadata?.staff_role as string | undefined;
-  const isSuper = data.user.app_metadata?.is_super_admin === true;
-  if (role && role !== 'customer' && !isSuper) {
+  if (role && role !== 'customer') {
     await supabase.auth.signOut();
     await audit(
       { action: 'auth.cross_realm_blocked', severity: 'warn', details: { realm: 'storefront' } },
@@ -347,7 +348,8 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
 
   // 3. Cross-realm block: customer cannot enter admin
   const role = data.user.app_metadata?.staff_role as string | undefined;
-  if (!role || role === 'customer') {
+  const isSuper = data.user.app_metadata?.is_super_admin === true || String(data.user.app_metadata?.is_super_admin) === 'true';
+  if ((!role || role === 'customer') && !isSuper) {
     await supabase.auth.signOut();
     await audit(
       { action: 'auth.cross_realm_blocked', severity: 'warn', details: { realm: 'admin' } },
@@ -362,6 +364,16 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
     { ip, userAgent }
   );
   await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+
+  // Reset idle timeout cookie on fresh login
+  const c = await import('next/headers').then(m => m.cookies());
+  c.set('admin_last_activity', Date.now().toString(), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/admin',
+    maxAge: 60 * 60,
+  });
 
   // Middleware decides next step (setup-mfa / mfa-challenge / dashboard) based on AAL.
   revalidatePath('/admin', 'layout');

@@ -1,6 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import crypto from 'node:crypto';
 
 import {
   decodeAccessToken,
@@ -178,7 +177,9 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Inject CSP nonce header for admin pages (admin layout already force-dynamic)
-    const nonce = crypto.randomBytes(16).toString('base64');
+    const nonceBuffer = new Uint8Array(16);
+    crypto.getRandomValues(nonceBuffer);
+    const nonce = btoa(String.fromCharCode(...nonceBuffer));
     supabaseResponse.headers.set('Content-Security-Policy', buildAdminCsp(nonce));
     supabaseResponse.headers.set('x-nonce', nonce);
 
@@ -190,8 +191,8 @@ export async function updateSession(request: NextRequest) {
 
   // ============================ STOREFRONT AREA ============================
   
-  // Staff (non-super) trying to enter storefront → STRICT ISOLATION: sign out and force login
-  if (user && staff && !superAdmin) {
+  // Staff trying to enter storefront → STRICT ISOLATION: sign out and force login
+  if (user && staff) {
     await supabase.auth.signOut();
     url.pathname = '/login';
     return redirectWithCookies(url);
