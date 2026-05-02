@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import SearchModal from './SearchModal';
 
 type NavbarProfile = { username: string | null; avatar_url: string | null };
 
@@ -25,6 +26,7 @@ export default function StorefrontNavbar() {
   const { totalCount, lastAdded } = useCart();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<NavbarProfile | null>(null);
@@ -108,9 +110,13 @@ export default function StorefrontNavbar() {
           </nav>
 
           <div className={styles.actions}>
-            <Link href="/search" className={styles.iconBtn} aria-label="Tìm kiếm">
+            <button 
+              className={styles.iconBtn} 
+              onClick={() => setSearchOpen(true)}
+              aria-label="Tìm kiếm"
+            >
               <Search size={20} />
-            </Link>
+            </button>
 
             <Link href="/wishlist" className={styles.iconBtn} aria-label="Yêu thích">
               <Heart size={20} />
@@ -228,6 +234,8 @@ export default function StorefrontNavbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
