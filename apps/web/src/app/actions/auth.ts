@@ -64,41 +64,24 @@ function safeRedirectPath(value: FormDataEntryValue | string | null, fallback = 
 }
 
 async function getTrustedAppOrigin() {
-  // 1. Get headers to detect current environment
-  // We use a safe try-catch because headers() might not be available in all contexts
-  let host: string | null = null;
-  let protocol = 'https';
-
   try {
-    // This is only available in Next.js server context
     const { headers: getHeaders } = require('next/headers');
     const h = await getHeaders();
-    host = h.get('x-forwarded-host') || h.get('host');
-    protocol = h.get('x-forwarded-proto') || 'https';
-  } catch {
-    // Not in a request context
-  }
-
-  if (host) {
-    return `${protocol}://${host}`;
-  }
-
-  // 2. Explicitly configured URL (env vars)
-  const configured = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) {
-    try {
-      return new URL(configured).origin;
-    } catch {
-      // Ignore invalid URLs
+    const host = h.get('x-forwarded-host') || h.get('host') || '';
+    
+    // If it looks like a production/internet domain, use it with https
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+      const protocol = h.get('x-forwarded-proto') || 'https';
+      return `${protocol}://${host}`;
     }
+  } catch (err) {
+    // Fallback to defaults
   }
 
-  // 3. Final Fallback: Hardcoded production URL for this project
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://veganglow.vercel.app';
-  }
-
-  return 'http://localhost:3000';
+  // Final fallback based on environment
+  return process.env.NODE_ENV === 'production' 
+    ? 'https://veganglow.vercel.app' 
+    : 'http://localhost:3000';
 }
 
 export async function login(_prevState: AuthFormState, formData: FormData) {
