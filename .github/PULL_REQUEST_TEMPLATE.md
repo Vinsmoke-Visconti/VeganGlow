@@ -19,7 +19,3 @@
 - [ ] Build thành công (`npm run build`)
 - [ ] Đã test trên mobile viewport
 - [ ] RLS policies đã được kiểm tra (nếu thay đổi DB)
-
-## Screenshots (nếu có)
-
-<!-- Thêm ảnh chụp UI trước/sau -->
