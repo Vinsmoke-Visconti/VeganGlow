@@ -50,6 +50,7 @@ begin
   if exists (select 1 from pg_tables where schemaname = 'public' and tablename = 'contact_submissions') then
     execute 'drop policy if exists anon_contact_submit_limit on public.contact_submissions';
     execute 'drop policy if exists authenticated_contact_submit on public.contact_submissions';
+    execute 'drop policy if exists contact_submissions_insert_safe on public.contact_submissions';
     execute 'create policy contact_submissions_insert_safe on public.contact_submissions for insert to anon, authenticated with check (length(trim(email)) >= 5 and email ~* ''^.+@.+\..+$'')';
   end if;
 end $$;
