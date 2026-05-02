@@ -27,7 +27,12 @@ export const metadata: Metadata = {
     'serum',
     'toner',
   ],
-  authors: [{ name: 'VeganGlow Team' }],
+  authors: [
+    { name: 'Trần Thảo My' },
+    { name: 'Huỳnh Nguyễn Quốc Việt' },
+    { name: 'Phạm Hoài Thương' },
+    { name: 'Trần Quỳnh Trâm' },
+  ],
   creator: 'VeganGlow',
   publisher: 'VeganGlow',
   formatDetection: {

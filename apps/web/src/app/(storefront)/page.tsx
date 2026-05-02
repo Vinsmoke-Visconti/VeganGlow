@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   },
   description: 'VeganGlow cung cấp các sản phẩm mỹ phẩm 100% thuần chay, an toàn và bền vững, được chiết xuất từ những nguyên liệu tự nhiên tinh túy nhất của Việt Nam.',
   keywords: ['mỹ phẩm thuần chay', 'vegan skincare', 'skincare Việt Nam', 'làm đẹp tự nhiên'],
+  authors: [
+    { name: 'Trần Thảo My' },
+    { name: 'Huỳnh Nguyễn Quốc Việt' },
+    { name: 'Phạm Hoài Thương' },
+    { name: 'Trần Quỳnh Trâm' },
+  ],
 };
 
 import styles from './page.module.css';
