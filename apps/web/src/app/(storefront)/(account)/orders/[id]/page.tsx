@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { createBrowserClient } from '@/lib/supabase/client';
 import {
@@ -40,7 +41,9 @@ type Order = {
   province: string | null;
   note: string | null;
   total_amount: number;
-  payment_method: 'cod' | 'card';
+  payment_method: 'cod' | 'card' | 'bank_transfer';
+  payment_status?: 'unpaid' | 'pending' | 'paid' | 'failed' | 'refunded' | null;
+  paid_at?: string | null;
   status: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
   created_at: string;
   order_items: OrderItem[];
@@ -114,6 +117,15 @@ export default function OrderDetailPage() {
 
   const isCancelled = order.status === 'cancelled';
   const currentStepIndex = isCancelled ? -1 : STATUS_STEPS.findIndex(s => s.key === order.status);
+  const isBankTransfer = order.payment_method === 'bank_transfer' || order.payment_method === 'card';
+  const paymentStatusText =
+    order.payment_status === 'paid'
+      ? 'Đã nhận tiền'
+      : order.payment_status === 'pending'
+        ? 'Chờ ngân hàng xác nhận'
+        : order.payment_status === 'failed'
+          ? 'Thanh toán thất bại'
+          : 'Chưa thanh toán';
 
   return (
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '3rem 1.5rem' }}>
@@ -240,10 +252,13 @@ export default function OrderDetailPage() {
                   borderRadius: 12,
                 }}
               >
-                <img
+                <Image
                   src={item.product_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.product_name)}`}
                   alt={item.product_name}
+                  width={64}
+                  height={64}
                   style={{ width: 64, height: 64, borderRadius: 8, objectFit: 'cover' }}
+                  unoptimized
                 />
                 <div>
                   <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: 4 }}>{item.product_name}</div>
@@ -308,6 +323,16 @@ export default function OrderDetailPage() {
                 {order.payment_method === 'cod' ? 'Thanh toán khi nhận hàng (COD)' : 'Chuyển khoản ngân hàng'}
               </span>
             </div>
+            {isBankTransfer && (
+              <div style={{ marginTop: 10, fontSize: '0.88rem', color: order.payment_status === 'paid' ? '#047857' : '#92400e', fontWeight: 600 }}>
+                {paymentStatusText}
+              </div>
+            )}
+            {order.paid_at && (
+              <div style={{ marginTop: 4, fontSize: '0.8rem', color: '#6b7280' }}>
+                Đã ghi nhận lúc {new Date(order.paid_at).toLocaleString('vi-VN')}
+              </div>
+            )}
           </div>
 
           {order.note && (

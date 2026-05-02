@@ -12,6 +12,7 @@ export type RoleWithPermissions = {
   name: string;
   display_name: string;
   description: string;
+  weight: number;
   permissionIds: string[];
 };
 
@@ -19,7 +20,8 @@ export async function listAllRoles() {
   const supabase = await createClient();
   const { data } = await supabase
     .from('roles')
-    .select('id, name, display_name, description')
+    .select('id, name, display_name, description, weight')
+    .order('weight', { ascending: true })
     .order('display_name');
   return data ?? [];
 }
@@ -44,7 +46,7 @@ export async function getRolePermissions(roleId: string): Promise<string[]> {
   return ((data ?? []) as RpRow[]).map((r) => r.permission_id);
 }
 
-export type RoleBasic = { id: string; name: string; display_name: string; description: string };
+export type RoleBasic = { id: string; name: string; display_name: string; description: string; weight: number };
 
 export async function listRolesWithPermissions(): Promise<RoleWithPermissions[]> {
   const roles = (await listAllRoles()) as unknown as RoleBasic[];
@@ -56,6 +58,7 @@ export async function listRolesWithPermissions(): Promise<RoleWithPermissions[]>
       name: r.name,
       display_name: r.display_name,
       description: r.description,
+      weight: r.weight,
       permissionIds: ids,
     });
   }

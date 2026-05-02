@@ -1,55 +1,50 @@
 import styles from './page.module.css';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
-import AddToCartButton from '@/components/products/AddToCartButton';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
-import { ArrowRight, Leaf, Shield, Heart, Sparkles, Star, Users, Award, Recycle, Zap, Droplets, Quote } from 'lucide-react';
-import ProductCard from '@/components/products/ProductCard';
+import { ArrowRight, Leaf, Shield, Heart, Sparkles, Star, Users, Award, Recycle, Quote } from 'lucide-react';
+import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
 import { cacheGet, cacheSet } from '@/lib/redis';
 
-const testimonials = [
-  {
-    name: 'Nguyễn Thị Lan',
-    role: 'Khách hàng thân thiết',
-    rating: 5,
-    text: 'Sau 3 tuần dùng VeganGlow Serum, da mình sáng hẳn lên! Không còn lo ngại về thành phần hóa học nữa.',
-    avatar: 'NL',
-  },
-  {
-    name: 'Trần Minh Châu',
-    role: 'Beauty Blogger',
-    rating: 5,
-    text: 'Đây là thương hiệu thuần chay Việt Nam mình tự hào giới thiệu. Chất lượng sánh ngang hàng quốc tế.',
-    avatar: 'MC',
-  },
-  {
-    name: 'Lê Thị Hoa',
-    role: 'Da nhạy cảm',
-    rating: 5,
-    text: 'Da mình cực kỳ nhạy cảm nhưng sản phẩm VeganGlow không gây kích ứng gì. Thực sự yên tâm khi dùng.',
-    avatar: 'LH',
-  },
-];
-
-const categories = [
-  { name: 'Serum', icon: <Zap size={24} />, slug: 'serum' },
-  { name: 'Toner', icon: <Droplets size={24} />, slug: 'toner' },
-  { name: 'Mặt Nạ', icon: <Sparkles size={24} />, slug: 'mat-na' },
-  { name: 'Sữa Rửa Mặt', icon: <Leaf size={24} />, slug: 'sua-rua-mat' },
-  { name: 'Kem Dưỡng', icon: <Heart size={24} />, slug: 'kem-duong' },
-];
+type TestimonialRow = {
+  id: string;
+  name: string;
+  role: string;
+  rating: number;
+  text: string;
+  avatar_initials: string;
+};
 
 export default async function Home() {
   const supabase = await createClient();
 
   const cacheKey = 'featured_products';
-  let products = await cacheGet<any[]>(cacheKey);
+  let products = await cacheGet<ProductCardProduct[]>(cacheKey);
 
   if (!products) {
     const { data: dbProducts } = await supabase.from('products').select('*, categories(name, slug)').limit(4);
-    products = dbProducts || [];
+    products = (dbProducts ?? []) as unknown as ProductCardProduct[];
     await cacheSet(cacheKey, products, 1800);
   }
+
+  const { data: testimonialsData, error: testimonialsError } = await supabase
+    .from('testimonials')
+    .select('id,name,role,rating,text,avatar_initials')
+    .eq('is_active', true)
+    .order('display_order');
+
+  const FEATURED_CATEGORIES = [
+    { slug: 'chong-nang', name: 'Chống nắng', image: '/images/categories/sunscreen.jpg', description: 'Bảo vệ toàn diện trước tia UV', size: 'large' },
+    { slug: 'serum', name: 'Serum', image: '/images/categories/serum.jpg', description: 'Tinh túy phục hồi', size: 'small' },
+    { slug: 'mat-na', name: 'Mặt nạ', image: '/images/categories/mask.jpg', description: 'Thư giãn sâu', size: 'small' },
+    { slug: 'duong-the', name: 'Dưỡng thể', image: '/images/categories/body-care.jpg', description: 'Mịn màng toàn thân mỗi ngày', size: 'medium' },
+  ];
+
+  const testimonials: TestimonialRow[] =
+    !testimonialsError && testimonialsData && testimonialsData.length > 0
+      ? (testimonialsData as unknown as TestimonialRow[])
+      : [];
 
   return (
     <div className={styles.main}>
@@ -101,10 +96,14 @@ export default async function Home() {
 
           <FadeIn delay={0.35}>
             <div className={styles.heroImageWrap}>
-              <img
-                src="/images/hero.png"
+              <Image
+                src="/images/hero.jpg"
                 alt="VeganGlow – Skincare thuần chay từ thiên nhiên Việt Nam"
+                width={800}
+                height={800}
                 className={styles.heroImage}
+                priority
+                loading="eager"
               />
             </div>
           </FadeIn>
@@ -151,14 +150,41 @@ export default async function Home() {
         {/* Categories Section */}
         <FadeIn direction="up">
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Danh Mục Sản Phẩm</h2>
-            <p className={styles.sectionSubtitle}>Dành riêng cho từng nhu cầu của làn da</p>
+            <div className={styles.sectionHeader}>
+              <div>
+                <h2 className={styles.sectionTitle}>Danh Mục Sản Phẩm</h2>
+                <p className={styles.sectionSubtitle}>Dành riêng cho từng nhu cầu của làn da</p>
+              </div>
+              <Link href="/products" className={styles.btnSecondary}>
+                Xem tất cả danh mục
+              </Link>
+            </div>
+
             <StaggerContainer className={styles.categoriesGrid}>
-              {categories.map((cat, i) => (
-                <StaggerItem key={i}>
+              {FEATURED_CATEGORIES.map((cat) => (
+                <StaggerItem 
+                  key={cat.slug} 
+                  className={
+                    cat.size === 'large' ? styles.categoryCardLarge : 
+                    cat.size === 'medium' ? styles.categoryCardMedium : 
+                    styles.categoryCardSmall
+                  }
+                >
                   <Link href={`/products?category=${cat.slug}`} className={styles.categoryCard}>
-                    <div className={styles.categoryIcon}>{cat.icon}</div>
-                    <span className={styles.categoryName}>{cat.name}</span>
+                    <div className={styles.categoryImageWrap}>
+                      <Image 
+                        src={cat.image} 
+                        alt={cat.name} 
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className={styles.categoryImage}
+                      />
+                    </div>
+                    <div className={styles.categoryOverlay}>
+                      <span className={styles.categoryTag}>Premium Care</span>
+                      <h3 className={styles.categoryName}>{cat.name}</h3>
+                      <p className={styles.categoryDesc}>{cat.description}</p>
+                    </div>
                   </Link>
                 </StaggerItem>
               ))}
@@ -173,9 +199,9 @@ export default async function Home() {
             <p className={styles.sectionSubtitle}>Những sản phẩm được yêu thích nhất</p>
             <StaggerContainer className={styles.productsGrid}>
               {products && products.length > 0 ? (
-                products.map((p: any) => (
+                products.map((p, index) => (
                   <StaggerItem key={p.id}>
-                    <ProductCard product={p} />
+                    <ProductCard product={p} priority={index < 4} />
                   </StaggerItem>
                 ))
               ) : (
@@ -239,36 +265,38 @@ export default async function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className={styles.testimonialsSection}>
-        <div className="container">
-          <FadeIn direction="up">
-            <h2 className={styles.sectionTitle}>Khách Hàng Nói Gì?</h2>
-            <p className={styles.sectionSubtitle}>
-              Hàng nghìn khách hàng đã tin tưởng và yêu thích VeganGlow
-            </p>
-            <StaggerContainer className={styles.testimonialsGrid}>
-              {testimonials.map((t, i) => (
-                <StaggerItem key={i} className={styles.testimonialCard}>
-                  <Quote size={28} className={styles.testimonialQuote} />
-                  <p className={styles.testimonialText}>{t.text}</p>
-                  <div className={styles.testimonialStars}>
-                    {Array.from({ length: t.rating }).map((_, j) => (
-                      <Star key={j} size={14} fill="currentColor" />
-                    ))}
-                  </div>
-                  <div className={styles.testimonialAuthor}>
-                    <div className={styles.testimonialAvatar}>{t.avatar}</div>
-                    <div className={styles.testimonialMeta}>
-                      <strong>{t.name}</strong>
-                      <span>{t.role}</span>
+      {testimonials.length > 0 && (
+        <section className={styles.testimonialsSection}>
+          <div className="container">
+            <FadeIn direction="up">
+              <h2 className={styles.sectionTitle}>Khách Hàng Nói Gì?</h2>
+              <p className={styles.sectionSubtitle}>
+                Hàng nghìn khách hàng đã tin tưởng và yêu thích VeganGlow
+              </p>
+              <StaggerContainer className={styles.testimonialsGrid}>
+                {testimonials.map((t) => (
+                  <StaggerItem key={t.id} className={styles.testimonialCard}>
+                    <Quote size={28} className={styles.testimonialQuote} />
+                    <p className={styles.testimonialText}>{t.text}</p>
+                    <div className={styles.testimonialStars}>
+                      {Array.from({ length: t.rating }).map((_, j) => (
+                        <Star key={j} size={14} fill="currentColor" />
+                      ))}
                     </div>
-                  </div>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </FadeIn>
-        </div>
-      </section>
+                    <div className={styles.testimonialAuthor}>
+                      <div className={styles.testimonialAvatar}>{t.avatar_initials}</div>
+                      <div className={styles.testimonialMeta}>
+                        <strong>{t.name}</strong>
+                        <span>{t.role}</span>
+                      </div>
+                    </div>
+                  </StaggerItem>
+                ))}
+              </StaggerContainer>
+            </FadeIn>
+          </div>
+        </section>
+      )}
 
       {/* Brand Story Section */}
       <section className={styles.storySection}>
@@ -298,10 +326,13 @@ export default async function Home() {
                 </div>
               </div>
               <div className={styles.storyImageWrap}>
-                <img
-                  src="/images/hero.png"
+                <Image
+                  src="/images/hero.jpg"
                   alt="VeganGlow – Câu chuyện thương hiệu"
+                  width={800}
+                  height={800}
                   className={styles.storyImage}
+                  loading="lazy"
                 />
               </div>
             </div>

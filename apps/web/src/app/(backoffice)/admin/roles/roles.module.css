@@ -1,24 +1,21 @@
 /* ============================================
-   Admin — Roles & Permissions
+   VeganGlow Admin — Roles & Permissions (Clean)
    ============================================ */
 
 .sectionTitle {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-body);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  margin-bottom: var(--space-4);
-  letter-spacing: -0.01em;
+  gap: var(--vg-space-2);
+  margin-bottom: var(--vg-space-4);
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .sectionIcon {
-  color: var(--color-primary);
+  color: var(--vg-leaf-600);
 }
 
-/* ── Role Cards ── */
 .rolesSection {
   display: flex;
   flex-direction: column;
@@ -26,139 +23,134 @@
 
 .rolesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--vg-space-4);
 }
 
 .roleCard {
-  background-color: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  padding: var(--vg-space-5);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  background: var(--vg-surface-0);
+  transition: border-color var(--vg-duration-fast);
 }
 
 .roleCard:hover {
-  border-color: var(--color-primary-100);
-  box-shadow: var(--shadow-md);
+  border-color: var(--vg-border-hover);
 }
 
 .roleHeader {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  gap: var(--vg-space-3);
+  margin-bottom: var(--vg-space-3);
 }
 
 .roleIcon {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  background-color: var(--color-primary-50);
-  color: var(--color-primary-dark);
+  border-radius: var(--vg-radius-md);
+  background: var(--vg-leaf-50);
+  color: var(--vg-leaf-700);
   flex-shrink: 0;
 }
 
 .roleName {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-text);
-  font-family: var(--font-body);
-  letter-spacing: -0.005em;
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .roleSlug {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
+  color: var(--vg-ink-400);
+  font-family: var(--vg-font-mono);
+  font-size: var(--vg-text-xs);
 }
 
 .roleCount {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  background-color: var(--color-primary-50);
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  display: inline-flex;
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-600);
+  font-size: var(--vg-text-xs);
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .roleBar {
-  height: 6px;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-full);
+  height: 4px;
+  border-radius: var(--vg-radius-pill);
+  background: var(--vg-surface-100);
   overflow: hidden;
 }
 
 .roleBarFill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary));
-  border-radius: var(--radius-full);
-  transition: width var(--transition-base);
+  border-radius: inherit;
+  background: var(--vg-gradient-leaf-vivid);
+  transition: width var(--vg-duration-base);
 }
 
 .roleDesc {
-  margin-top: var(--space-3);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  line-height: 1.6;
+  margin-top: var(--vg-space-3);
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-xs);
+  line-height: var(--vg-leading-normal);
 }
 
-/* ── Matrix ── */
 .matrixHeader {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-5) var(--space-6);
-  border-bottom: 1px solid var(--color-border-light);
+  justify-content: space-between;
+  gap: var(--vg-space-3);
+  padding: var(--vg-space-5);
+  border-bottom: 1px solid var(--vg-border);
   flex-wrap: wrap;
 }
 
 .matrixTitle {
-  font-family: var(--font-body);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  margin-bottom: 4px;
+  margin: 0 0 4px;
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-base);
+  font-weight: 600;
 }
 
 .matrixDesc {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-sm);
 }
 
 .matrixTable thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background-color: var(--color-bg-secondary);
-  box-shadow: 0 1px 0 var(--color-border);
+  background: var(--vg-surface-50);
+  border-bottom: 1px solid var(--vg-border);
 }
 
-/* ── Legend ── */
 .legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-6);
-  background: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--color-border-light);
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
+  gap: var(--vg-space-4);
+  padding: var(--vg-space-3) var(--vg-space-5);
+  border-bottom: 1px solid var(--vg-border);
+  background: var(--vg-surface-50);
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-xs);
 }
 
 .legendTitle {
-  font-weight: 700;
+  color: var(--vg-ink-400);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--color-text-muted);
-  font-size: 0.65rem;
 }
 
 .legendItem {
@@ -168,31 +160,30 @@
 }
 
 .legendChip {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
 }
 
 .legendChipYes {
-  background: hsl(151, 43%, 93%);
-  color: hsl(151, 43%, 28%);
+  background: var(--vg-success-bg);
+  color: var(--vg-success-fg);
 }
 
 .legendChipNo {
-  background: var(--color-bg-card);
-  color: hsl(0, 0%, 60%);
-  border: 1px solid var(--color-border);
+  background: var(--vg-surface-100);
+  border: 1px solid var(--vg-border);
+  color: var(--vg-ink-300);
 }
 
 .legendChipModule {
-  display: inline-block;
-  width: 8px;
+  width: 6px;
   height: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--color-primary);
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-leaf-500);
 }
 
 .matrixCol {
@@ -201,64 +192,62 @@
 }
 
 .matrixGroupRow td {
-  background-color: var(--color-bg-secondary) !important;
-  font-size: var(--text-xs);
-  font-weight: 700;
+  padding: var(--vg-space-3) var(--vg-space-5);
+  background: var(--vg-surface-50) !important;
+  color: var(--vg-ink-700) !important;
+  font-size: var(--vg-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-primary-dark);
-  padding: var(--space-3) var(--space-6);
 }
 
 .matrixCell {
   text-align: center;
 }
 
-.matrixYes {
+.matrixYes,
+.matrixNo {
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: hsl(151, 43%, 93%);
-  color: hsl(151, 43%, 28%);
+  border-radius: 999px;
+}
+
+.matrixYes {
+  background: var(--vg-success-bg);
+  color: var(--vg-success-fg);
 }
 
 .matrixNo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: var(--color-bg-secondary);
-  color: hsl(0, 0%, 70%);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-300);
 }
 
 .permLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--vg-space-2);
   flex-wrap: wrap;
 }
 
 .permIcon {
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-primary-50);
-  color: var(--color-primary-dark);
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-500);
 }
 
 .permKey {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  background-color: var(--color-bg-secondary);
   padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-400);
+  font-family: var(--vg-font-mono);
+  font-size: 11px;
 }

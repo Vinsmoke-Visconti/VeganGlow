@@ -1,102 +1,142 @@
+/* ============================================
+   VeganGlow Admin — Customer Detail (Rich)
+   ============================================ */
+
 .grid {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: var(--vg-space-4);
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: var(--vg-space-5);
+  flex: 1;
+  min-height: 0;
 }
 
+/* Sidebar card */
 .card {
-  background: var(--vg-glass-bg);
-  border: 1px solid var(--vg-glass-border);
-  border-radius: var(--vg-radius-lg);
-  padding: var(--vg-space-5);
-  box-shadow: var(--vg-shadow-1);
   margin-bottom: var(--vg-space-4);
-  backdrop-filter: blur(var(--vg-glass-blur));
+  padding: var(--vg-space-5);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  background: var(--vg-surface-0);
+  box-shadow: var(--vg-shadow-1);
+}
+
+.card:last-child {
+  margin-bottom: 0;
 }
 
 .cardTitle {
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-lg);
-  margin: 0 0 var(--vg-space-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 var(--vg-space-4);
   color: var(--vg-ink-900);
+  font-size: var(--vg-text-base);
   font-weight: 600;
 }
 
+.cardTitle svg {
+  color: var(--vg-leaf-600);
+}
+
+/* Profile section */
 .profileRow {
   display: flex;
-  gap: var(--vg-space-3);
+  flex-direction: column;
   align-items: center;
-  margin-bottom: var(--vg-space-4);
+  text-align: center;
+  gap: var(--vg-space-3);
+  margin-bottom: var(--vg-space-5);
+  padding-bottom: var(--vg-space-5);
+  border-bottom: 1px solid var(--vg-surface-200);
 }
 
 .avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--vg-leaf-100);
-  color: var(--vg-leaf-700);
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: var(--vg-gradient-leaf-vivid);
+  color: #fff;
   display: grid;
   place-items: center;
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-xl);
-  font-weight: 600;
+  font-size: var(--vg-text-2xl);
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(46,150,73,0.2);
 }
 
 .profileMeta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
 }
 
 .profileName {
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-lg);
-  color: var(--vg-ink-900);
   margin: 0;
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-lg);
+  font-weight: 700;
 }
 
 .profileSub {
-  color: var(--vg-ink-500);
-  font-size: var(--vg-text-sm);
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-xs);
+  font-weight: 500;
+  word-break: break-all;
 }
 
+/* KPI row */
 .kpiCol {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--vg-space-3);
 }
 
 .kpi {
-  background: var(--vg-parchment-50);
-  border-radius: var(--vg-radius-md);
   padding: var(--vg-space-3);
+  border: 1px solid var(--vg-surface-200);
+  border-radius: var(--vg-radius-md);
+  background: var(--vg-gradient-emerald);
+  text-align: center;
 }
 
 .kpiLabel {
-  font-size: var(--vg-text-xs);
   color: var(--vg-ink-500);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .kpiValue {
-  font-family: var(--vg-font-display);
+  margin-top: 4px;
+  color: var(--vg-leaf-800);
   font-size: var(--vg-text-lg);
-  color: var(--vg-ink-900);
-  font-weight: 600;
-  margin-top: 2px;
+  font-weight: 700;
 }
 
+/* Address items */
 .addressItem {
-  background: var(--vg-parchment-50);
-  border-radius: var(--vg-radius-md);
-  padding: var(--vg-space-3);
   margin-bottom: var(--vg-space-2);
+  padding: var(--vg-space-3);
+  border: 1px solid var(--vg-surface-200);
+  border-radius: var(--vg-radius-md);
+  background: var(--vg-surface-50);
+  color: var(--vg-ink-600);
   font-size: var(--vg-text-sm);
+  line-height: var(--vg-leading-normal);
 }
 
 .addressItem strong {
   color: var(--vg-ink-900);
 }
 
+.addressItem:last-child {
+  margin-bottom: 0;
+}
+
+/* Vouchers */
 .voucherList {
   list-style: none;
   margin: 0;
@@ -108,16 +148,38 @@
 
 .voucherItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--vg-space-3);
   padding: var(--vg-space-2) var(--vg-space-3);
-  background: var(--vg-parchment-50);
+  border: 1px solid var(--vg-surface-200);
   border-radius: var(--vg-radius-md);
+  color: var(--vg-ink-700);
   font-size: var(--vg-text-sm);
+  background: var(--vg-surface-50);
+}
+
+/* Right column — order history card fills height */
+.grid > div:last-child .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.grid > div:last-child .card .tableWrap {
+  flex: 1;
+  overflow-y: auto;
 }
 
 @media (max-width: 1024px) {
   .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .kpiCol {
     grid-template-columns: 1fr;
   }
 }

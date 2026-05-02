@@ -2,12 +2,15 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { getOrder } from '@/lib/admin/queries/orders';
+import { createClient } from '@/lib/supabase/server';
 import {
   formatVND,
   formatDate,
   ORDER_STATUS_LABEL,
   ORDER_STATUS_BADGE,
   PAYMENT_LABEL,
+  PAYMENT_STATUS_LABEL,
+  PAYMENT_STATUS_BADGE,
 } from '@/lib/admin/format';
 import shared from '../../admin-shared.module.css';
 import styles from './order-detail.module.css';
@@ -31,6 +34,9 @@ type OrderShape = {
   total_amount: number | string;
   status: string;
   payment_method: string;
+  payment_status: string;
+  paid_at: string | null;
+  payment_reference: string | null;
   created_at: string;
   address: string;
   city: string;
@@ -47,21 +53,18 @@ export default async function OrderDetailPage({ params }: Props) {
 
   const items = order.items ?? [];
 
+  // Manual-confirm button is super-admin only.
+  const supabase = await createClient();
+  const { data: superAdminFlag } = await supabase.rpc('is_super_admin');
+  const canManualConfirm = Boolean(superAdminFlag);
+
   return (
     <div className={shared.page}>
       <Link href="/admin/orders" className={`${shared.btn} ${shared.btnGhost}`}>
         <ChevronLeft size={14} /> Quay lại danh sách
       </Link>
 
-      <div className={shared.pageHeader} style={{ marginTop: 12 }}>
-        <div>
-          <h1 className={shared.pageTitle}>{order.code}</h1>
-          <p className={shared.pageSubtitle}>{formatDate(order.created_at)}</p>
-        </div>
-        <span className={`${shared.badge} ${shared[ORDER_STATUS_BADGE[order.status] ?? 'badgeMuted']}`}>
-          {ORDER_STATUS_LABEL[order.status] ?? order.status}
-        </span>
-      </div>
+
 
       <div className={styles.grid}>
         <section className={styles.card}>
@@ -79,12 +82,26 @@ export default async function OrderDetailPage({ params }: Props) {
           <p className={styles.cardLine}>
             Thanh toán: {PAYMENT_LABEL[order.payment_method] ?? order.payment_method}
           </p>
+          <p className={styles.cardLine}>
+            Tiền:{' '}
+            <span className={`${shared.badge} ${shared[PAYMENT_STATUS_BADGE[order.payment_status] ?? 'badgeMuted']}`}>
+              {PAYMENT_STATUS_LABEL[order.payment_status] ?? order.payment_status}
+            </span>
+          </p>
+          {order.paid_at && <p className={styles.cardLine}>Đã nhận tiền: {formatDate(order.paid_at)}</p>}
+          {order.payment_reference && <p className={styles.cardLine}>Mã GD: {order.payment_reference}</p>}
           {order.note && <p className={styles.cardLine}>Ghi chú: {order.note}</p>}
         </section>
 
         <section className={styles.card}>
           <h3 className={styles.cardTitle}>Hành động</h3>
-          <OrderActions id={order.id} status={order.status} />
+          <OrderActions
+            id={order.id}
+            status={order.status}
+            paymentMethod={order.payment_method}
+            paymentStatus={order.payment_status}
+            canManualConfirm={canManualConfirm}
+          />
         </section>
       </div>
 

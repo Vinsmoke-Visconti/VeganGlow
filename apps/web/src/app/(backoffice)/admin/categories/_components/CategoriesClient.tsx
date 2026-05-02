@@ -5,6 +5,7 @@ import { Plus, Edit, Trash2, X, Loader2, Tag } from 'lucide-react';
 import { upsertCategory, deleteCategory } from '@/app/actions/admin/categories';
 import { slugify } from '@/lib/admin/format';
 import shared from '../../admin-shared.module.css';
+import { AdminViewSwitcher, ViewMode } from '../../_components/AdminViewSwitcher';
 
 type Category = {
   id: string;
@@ -21,6 +22,7 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
   const [slug, setSlug] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   function openCreate() {
     setEditing(null);
@@ -70,7 +72,7 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
   return (
     <>
       <div className={shared.toolbar}>
-        <div />
+        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
         <button type="button" className={`${shared.btn} ${shared.btnPrimary}`} onClick={openCreate}>
           <Plus size={14} /> Thêm danh mục
         </button>
@@ -83,52 +85,140 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
           </div>
           <p className={shared.emptyTitle}>Chưa có danh mục</p>
         </div>
-      ) : (
+      ) : viewMode === 'table' ? (
         <div className={shared.tableWrap}>
           <table className={shared.table}>
             <thead>
               <tr>
-                <th>Tên</th>
+                <th>Danh mục</th>
                 <th>Slug</th>
-                <th>Số sản phẩm</th>
-                <th></th>
+                <th>Sản phẩm</th>
+                <th>Ngày tạo</th>
+                <th style={{ textAlign: 'right' }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <strong>{c.name}</strong>
-                  </td>
-                  <td>
-                    <code style={{ fontSize: 12, color: 'var(--vg-ink-500)' }}>{c.slug}</code>
-                  </td>
-                  <td>
-                    <span className={`${shared.badge} ${shared.badgeMuted}`}>{c.product_count}</span>
-                  </td>
-                  <td>
+              {categories.map((c) => {
+                const initial = c.name.charAt(0).toUpperCase();
+                return (
+                  <tr 
+                    key={c.id} 
+                    className={shared.clickableRow}
+                    onClick={() => openEdit(c)}
+                  >
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ 
+                          width: 36, height: 36, borderRadius: 8, 
+                          background: 'linear-gradient(135deg, var(--vg-leaf-100), var(--vg-parchment-200))', 
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'var(--vg-leaf-800)', fontWeight: 800, fontSize: 16
+                        }}>
+                          {initial}
+                        </div>
+                        <strong>{c.name}</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <code style={{ fontSize: 12, color: 'var(--vg-ink-500)' }}>/{c.slug}</code>
+                    </td>
+                    <td>
+                      <span className={`${shared.badge} ${c.product_count > 0 ? shared.badgeSuccess : shared.badgeMuted}`}>
+                        {c.product_count} SP
+                      </span>
+                    </td>
+                    <td>
+                      {new Date(c.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </td>
+                    <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => openEdit(c)}
+                        className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
+                        aria-label="Sửa"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => remove(c)}
+                        disabled={pending}
+                        className={`${shared.btn} ${shared.btnDanger} ${shared.btnIcon}`}
+                        style={{ marginLeft: 4 }}
+                        aria-label="Xóa"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className={shared.cardGrid}>
+          {categories.map((c) => {
+            const initial = c.name.charAt(0).toUpperCase();
+            return (
+              <div key={c.id} className={shared.adminCard} style={{ cursor: 'pointer' }} onClick={() => openEdit(c)}>
+                <div className={shared.adminCardHeader}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ 
+                      width: 44, height: 44, borderRadius: 10, 
+                      background: 'linear-gradient(135deg, var(--vg-leaf-100), var(--vg-parchment-200))', 
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: 'var(--vg-leaf-800)', fontWeight: 800, fontSize: 18
+                    }}>
+                      {initial}
+                    </div>
+                    <div>
+                      <h3 className={shared.adminCardTitle} style={{ fontSize: 16 }}>{c.name}</h3>
+                      <code style={{ fontSize: 11, color: 'var(--vg-ink-400)' }}>/{c.slug}</code>
+                    </div>
+                  </div>
+                </div>
+                <div className={shared.adminCardContent}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: 'var(--vg-ink-400)', marginBottom: 4 }}>Số lượng sản phẩm</div>
+                      <span className={`${shared.badge} ${c.product_count > 0 ? shared.badgeSuccess : shared.badgeMuted}`}>
+                        {c.product_count} sản phẩm
+                      </span>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 11, color: 'var(--vg-ink-400)', marginBottom: 4 }}>Ngày tạo</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--vg-ink-700)' }}>
+                        {new Date(c.created_at).toLocaleDateString('vi-VN')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className={shared.adminCardFooter}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--vg-leaf-700)' }}>
+                     CHỈNH SỬA →
+                  </span>
+                  <div className={shared.pageActions}>
                     <button
                       type="button"
-                      onClick={() => openEdit(c)}
+                      onClick={(e) => { e.stopPropagation(); openEdit(c); }}
                       className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
-                      aria-label="Sửa"
                     >
                       <Edit size={14} />
                     </button>
                     <button
                       type="button"
-                      onClick={() => remove(c)}
+                      onClick={(e) => { e.stopPropagation(); remove(c); }}
                       disabled={pending}
-                      className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
-                      aria-label="Xóa"
+                      className={`${shared.btn} ${shared.btnDanger} ${shared.btnIcon}`}
                     >
                       <Trash2 size={14} />
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

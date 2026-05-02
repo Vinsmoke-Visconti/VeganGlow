@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { audit, getAuditContext } from '@/lib/security/auditLog';
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -18,6 +19,10 @@ export async function upsertCategory(input: CategoryInput): Promise<Result> {
     const { error } = await supabase.from('categories').update(rest as never).eq('id', id);
     if (error) return { ok: false, error: error.message };
     revalidatePath('/admin/categories');
+    await audit(
+      { action: 'category.updated', severity: 'info', entity: 'category', entity_id: id, details: { name: input.name, slug: input.slug } },
+      await getAuditContext()
+    );
     return { ok: true, id };
   } else {
     const { data, error } = await supabase
@@ -26,8 +31,13 @@ export async function upsertCategory(input: CategoryInput): Promise<Result> {
       .select('id')
       .single();
     if (error) return { ok: false, error: error.message };
+    const newId = (data as { id: string }).id;
     revalidatePath('/admin/categories');
-    return { ok: true, id: (data as { id: string }).id };
+    await audit(
+      { action: 'category.created', severity: 'info', entity: 'category', entity_id: newId, details: { name: input.name, slug: input.slug } },
+      await getAuditContext()
+    );
+    return { ok: true, id: newId };
   }
 }
 
@@ -43,5 +53,10 @@ export async function deleteCategory(id: string): Promise<Result> {
   const { error } = await supabase.from('categories').delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/admin/categories');
+  await audit(
+    { action: 'category.deleted', severity: 'info', entity: 'category', entity_id: id },
+    await getAuditContext()
+  );
   return { ok: true };
 }
+

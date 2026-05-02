@@ -1,24 +1,15 @@
 import type { Metadata } from 'next';
+import { Lora } from 'next/font/google';
 import { Toaster } from 'sonner';
 import EnvGuard from '../components/EnvGuard';
 import AppProviders from '../components/providers/AppProviders';
-import { Outfit, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 
-// Configure premium fonts
-const fontBody = Outfit({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-body',
-  weight: ['300', '400', '500', '600'],
-});
-
-const fontHeading = Cormorant_Garamond({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-heading',
+const lora = Lora({
+  subsets: ['latin', 'vietnamese'],
   weight: ['400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  variable: '--font-lora',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -56,8 +47,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" suppressHydrationWarning className={`${fontBody.variable} ${fontHeading.variable}`} data-scroll-behavior="smooth">
-      <body className="antialiased">
+    <html lang="vi" suppressHydrationWarning data-scroll-behavior="smooth">
+      <body className={`${lora.variable} antialiased`}>
         <AppProviders>
           <EnvGuard>
             {children}
@@ -69,7 +60,7 @@ export default function RootLayout({
           closeButton
           toastOptions={{
             style: {
-              fontFamily: 'var(--font-body)',
+              fontFamily: 'var(--font-lora)',
             },
           }}
         />

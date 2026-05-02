@@ -32,12 +32,7 @@ export default async function AdminProfile() {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Hồ sơ của tôi</h1>
-          <p className={shared.pageSubtitle}>{profile.role?.display_name ?? 'Nhân sự'}</p>
-        </div>
-      </div>
+
 
       <div className={styles.grid}>
         <section className={styles.card}>

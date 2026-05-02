@@ -27,6 +27,8 @@ additional_redirect_urls = [
 jwt_expiry = 3600
 enable_signup = true
 enable_anonymous_sign_ins = false
+# Leaked password protection is enabled via Supabase Dashboard
+# (Authentication → Settings → Password Strength). It's not a valid config.toml key.
 
 [auth.email]
 enable_signup = true
@@ -39,9 +41,19 @@ client_id = ""
 secret = ""
 redirect_uri = ""
 
+# Custom access token hook injects staff_role + permissions + role_weight + is_super_admin
+# into JWT app_metadata so middleware can authorize without DB roundtrip.
+# See migration 00025_jwt_custom_claims_hook.sql
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"
+
 [storage]
 enabled = true
 file_size_limit = "5MB"
 
 [realtime]
 enabled = true
+
+[functions.bank-transfer-webhook]
+verify_jwt = false

@@ -1,254 +1,217 @@
 /* ============================================
-   VeganGlow Admin — Marketing Page
+   VeganGlow Admin — Marketing (Clean)
    ============================================ */
 
-/* ── Tabs ── */
 .tabs {
   display: flex;
-  gap: var(--space-2);
-  border-bottom: 1px solid var(--color-border-light);
-  padding: 0 var(--space-2);
+  gap: 2px;
+  border-bottom: 1px solid var(--vg-border);
+  margin-bottom: var(--vg-space-5);
 }
 
 .tab {
+  height: 36px;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
+  justify-content: center;
+  gap: 6px;
+  padding: 0 var(--vg-space-4);
   border: none;
+  border-bottom: 2px solid transparent;
   background: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
+  color: var(--vg-ink-400);
+  font-family: inherit;
+  font-size: var(--vg-text-sm);
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all var(--transition-fast);
-  font-family: inherit;
+  white-space: nowrap;
+  transition: all var(--vg-duration-fast);
   margin-bottom: -1px;
 }
 
 .tab:hover {
-  color: var(--color-primary-dark);
+  color: var(--vg-ink-700);
 }
 
 .tabActive {
-  color: var(--color-primary-dark);
-  border-bottom-color: var(--color-primary);
+  color: var(--vg-leaf-800);
+  border-bottom-color: var(--vg-leaf-600);
   font-weight: 600;
 }
 
-/* ── Voucher Cards ── */
-.voucherGrid {
+.voucherGrid,
+.bannerGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: var(--space-4);
+  gap: var(--vg-space-4);
+}
+
+.voucherGrid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.bannerGrid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.voucherCard,
+.bannerCard {
+  background: var(--vg-surface-0);
+  border: 1px solid var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  overflow: hidden;
+  transition: border-color var(--vg-duration-fast);
 }
 
 .voucherCard {
   display: flex;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
 }
 
-.voucherCard:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  border-color: var(--color-primary-100);
+.voucherCard:hover,
+.bannerCard:hover {
+  border-color: var(--vg-border-hover);
 }
 
 .voucherLeft {
+  min-width: 72px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-5) var(--space-3);
-  background: linear-gradient(180deg, var(--color-primary-50), var(--color-primary-100));
+  padding: var(--vg-space-4) var(--vg-space-3);
+  background: var(--vg-surface-50);
   position: relative;
   flex-shrink: 0;
-}
-
-[data-theme='dark'] .voucherLeft {
-  background: linear-gradient(180deg, var(--color-bg-secondary), var(--color-bg));
 }
 
 .voucherIcon {
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-card);
-  color: var(--color-primary-dark);
+  border-radius: var(--vg-radius-md);
+  background: var(--vg-surface-0);
+  color: var(--vg-ink-600);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--vg-border);
 }
 
 .voucherDashed {
   position: absolute;
   right: 0;
-  top: 8px;
-  bottom: 8px;
-  width: 1px;
-  border-right: 1.5px dashed var(--color-border);
+  top: var(--vg-space-3);
+  bottom: var(--vg-space-3);
+  border-right: 1px dashed var(--vg-border);
+}
+
+.voucherBody,
+.bannerBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vg-space-2);
+  min-width: 0;
 }
 
 .voucherBody {
   flex: 1;
-  padding: var(--space-4) var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
+  padding: var(--vg-space-4);
 }
 
-.voucherTop {
+.voucherTop,
+.bannerTop {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--vg-space-3);
 }
 
 .voucherCode {
-  font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: var(--text-base);
-  font-weight: 800;
-  color: var(--color-primary-dark);
-  background: var(--color-primary-50);
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-surface-100);
+  color: var(--vg-ink-800);
+  font-family: var(--vg-font-mono);
+  font-size: var(--vg-text-sm);
+  font-weight: 600;
   letter-spacing: 0.04em;
 }
 
-[data-theme='dark'] .voucherCode {
-  background: var(--color-bg-secondary);
-}
-
-.voucherTitle {
-  font-size: var(--text-sm);
+.voucherTitle,
+.bannerTitle {
+  color: var(--vg-ink-900);
+  font-size: var(--vg-text-base);
   font-weight: 600;
-  color: var(--color-text);
+  line-height: 1.4;
 }
 
-.voucherMeta {
+.voucherMeta,
+.bannerMeta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  gap: var(--vg-space-2);
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-xs);
 }
 
 .voucherDot {
-  color: var(--color-border);
-  margin: 0 4px;
+  color: var(--vg-ink-200);
 }
 
 .voucherProgress {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+  gap: var(--vg-space-2);
+  margin-top: var(--vg-space-2);
 }
 
 .voucherProgressBar {
   flex: 1;
-  height: 6px;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-full);
+  height: 4px;
+  border-radius: var(--vg-radius-pill);
+  background: var(--vg-surface-100);
   overflow: hidden;
 }
 
 .voucherProgressFill {
   height: 100%;
-  background: var(--gradient-primary);
-  border-radius: var(--radius-full);
-  transition: width var(--transition-base);
+  border-radius: inherit;
+  background: var(--vg-leaf-500);
+  transition: width var(--vg-duration-base);
 }
 
 .voucherProgressLabel {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  font-weight: 600;
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-xs);
+  font-weight: 500;
   white-space: nowrap;
-}
-
-/* ── Banner Cards ── */
-.bannerGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: var(--space-5);
-}
-
-.bannerCard {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
-}
-
-.bannerCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .bannerCover {
   height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   position: relative;
+  background: var(--vg-surface-100);
 }
 
 .bannerCoverIcon {
-  color: white;
-  opacity: 0.7;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  color: var(--vg-ink-300);
 }
 
 .bannerBody {
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.bannerTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.bannerTitle {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--color-text);
-  font-family: var(--font-body);
-  flex: 1;
-  min-width: 0;
+  padding: var(--vg-space-4);
 }
 
 .bannerDesc {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
+  color: var(--vg-ink-500);
+  font-size: var(--vg-text-sm);
+  line-height: var(--vg-leading-normal);
 }
 
 .bannerMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-top: var(--space-1);
-  padding-top: var(--space-3);
-  border-top: 1px dashed var(--color-border-light);
+  margin-top: var(--vg-space-1);
+  padding-top: var(--vg-space-3);
+  border-top: 1px solid var(--vg-surface-200);
 }
 
 .bannerMetaItem {
@@ -259,20 +222,35 @@
 
 .bannerActions {
   display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+  gap: var(--vg-space-2);
+  margin-top: var(--vg-space-2);
+  flex-wrap: wrap;
 }
 
-/* ── Note ── */
 .note {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  background: var(--color-bg-card);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  gap: var(--vg-space-2);
+  padding: var(--vg-space-3) var(--vg-space-4);
+  border: 1px dashed var(--vg-border);
+  border-radius: var(--vg-radius-lg);
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-xs);
   font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .voucherGrid,
+  .bannerGrid {
+    grid-template-columns: 1fr;
+  }
+  .voucherCard {
+    flex-direction: column;
+  }
+  .voucherLeft {
+    min-height: 60px;
+  }
+  .voucherDashed {
+    display: none;
+  }
 }

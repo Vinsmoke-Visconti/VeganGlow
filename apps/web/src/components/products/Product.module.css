@@ -2,17 +2,20 @@
   background: white;
   border-radius: 1.5rem;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s ease;
   border: 1px solid rgba(6, 78, 59, 0.05);
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
+  cursor: pointer;
 }
 
 .premiumCard:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(6, 78, 59, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px rgba(6, 78, 59, 0.12);
   border-color: var(--color-primary-100);
 }
 
@@ -37,24 +40,32 @@
 /* Badges */
 .badgeContainer {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 3.75rem; /* leave room for the wishlist button on the right */
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.375rem;
   z-index: 2;
+  pointer-events: none;
 }
 
 .badge {
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 800;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
   backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--color-primary-dark);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .badgeSale {
@@ -73,6 +84,88 @@
   border: 1px dashed #d97706;
 }
 
+/* ── Hover overlay ── */
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 78, 59, 0.52);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 3;
+}
+
+.premiumCard:hover .imageOverlay {
+  opacity: 1;
+}
+
+.overlayCartBtn {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: white;
+  color: var(--color-primary-dark);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.28s ease,
+              background 0.2s ease;
+}
+
+.premiumCard:hover .overlayCartBtn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.overlayCartBtn:hover {
+  background: var(--color-primary-50);
+  transform: translateY(-2px) scale(1.06);
+}
+
+.overlayCartBtnActive {
+  background: var(--color-primary) !important;
+  color: white !important;
+}
+
+.overlayBuyBtn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.375rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(6, 78, 59, 0.35);
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) 0.04s,
+              opacity 0.28s ease 0.04s,
+              background 0.2s ease;
+}
+
+.premiumCard:hover .overlayBuyBtn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.overlayBuyBtn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
 /* Actions */
 .wishlistBtn {
   position: absolute;
@@ -87,7 +180,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 2;
+  z-index: 4;
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -99,50 +192,44 @@
 
 /* Info Section */
 .info {
-  padding: 1.5rem;
+  padding: 0.875rem 1.125rem 1.125rem;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .category {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .name {
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   color: var(--color-primary-dark);
   line-height: 1.4;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.375rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 3.125rem;
+  transition: color 0.2s ease;
 }
 
-.description {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.premiumCard:hover .name {
+  color: var(--color-primary);
 }
 
 .ratingRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
 }
 
 .stars {
@@ -164,9 +251,8 @@
 .priceContainer {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
+  gap: 0.625rem;
   margin-top: auto;
-  margin-bottom: 1.25rem;
 }
 
 .price {
@@ -176,17 +262,17 @@
 }
 
 .oldPrice {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   text-decoration: line-through;
 }
 
-/* Button Group */
+/* Mobile-only button group — hidden on hover-capable devices */
 .buttonGroup {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  margin-top: auto;
+  gap: 0.625rem;
+  margin-top: 1rem;
 }
 
 .cartBtn {
@@ -198,7 +284,7 @@
   font-weight: 700;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,7 +304,7 @@
   font-weight: 700;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s;
 }
 
 .buyBtn:hover {
@@ -226,8 +312,30 @@
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
+.cartBtnActive {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* On devices that support hover, hide the inline button group */
+@media (hover: hover) {
+  .buttonGroup {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .buttonGroup {
     grid-template-columns: 1fr;
+  }
+
+  /* No overlay on touch mobile — show inline buttons */
+  .imageOverlay {
+    display: none;
+  }
+
+  .buttonGroup {
+    display: grid !important;
   }
 }

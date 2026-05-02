@@ -1,0 +1,106 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.labelText {
+  color: var(--color-text-muted);
+}
+
+.labelValue {
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.875rem;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 4.5rem;
+  padding: 0.625rem 1rem;
+  border: 2px solid var(--color-border-light);
+  border-radius: 0.75rem;
+  background: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.option:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.optionValue {
+  line-height: 1.2;
+}
+
+.optionStatus,
+.optionStatusLow {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.optionStatus {
+  color: var(--color-error, #dc2626);
+}
+
+.optionStatusLow {
+  color: #d97706;
+}
+
+.optionSelected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 6px 16px rgba(6, 78, 59, 0.18);
+}
+
+.optionSelected .optionStatusLow {
+  color: #fde68a;
+}
+
+.optionOut {
+  opacity: 0.45;
+  text-decoration: line-through;
+  cursor: not-allowed;
+  background: var(--color-bg-secondary);
+}
+
+.optionOut .optionValue {
+  text-decoration: line-through;
+}

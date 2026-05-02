@@ -1,37 +1,80 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { normalizeProductImage } from '@/lib/imageUrl';
 
-type CartItem = {
-  id: string;
+export type CartItem = {
+  id: string;            // unique cart line key — product_id or `${product_id}__${variant_id}`
+  product_id: string;    // always the underlying product id
+  variant_id?: string;
+  variant_name?: string;
+  slug: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
 };
 
+export type CartProduct = {
+  id: string;
+  slug?: string | null;
+  name: string;
+  price: number;
+  image?: string | null;
+  image_url?: string | null;
+};
+
+export type AddToCartOptions = {
+  quantity?: number;
+  variant?: {
+    id: string;
+    name: string;
+    price: number;
+    image?: string | null;
+  };
+};
+
+export type LastAddedInfo = {
+  id: string;
+  name: string;
+  image: string;
+  at: number;
+};
+
 type CartContextType = {
   cartItems: CartItem[];
-  addToCart: (product: any) => void;
+  addToCart: (product: CartProduct, options?: AddToCartOptions) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalAmount: number;
   totalCount: number;
+  lastAdded: LastAddedInfo | null;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+function buildLineKey(productId: string, variantId?: string): string {
+  return variantId ? `${productId}__${variantId}` : productId;
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [lastAdded, setLastAdded] = useState<LastAddedInfo | null>(null);
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('vg-cart');
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart) as CartItem[];
+        // Backfill product_id for items saved before the variant migration
+        const migrated = parsed.map((item) => ({
+          ...item,
+          product_id: item.product_id ?? item.id,
+        }));
+        setCartItems(migrated);
       } catch (e) {
         console.error('Failed to parse cart', e);
       }
@@ -46,21 +89,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [cartItems, isLoaded]);
 
-  const addToCart = (product: any) => {
+  const addToCart = (product: CartProduct, options: AddToCartOptions = {}) => {
+    const qty = Math.max(1, Math.floor(options.quantity ?? 1));
+    const variant = options.variant;
+    const lineId = buildLineKey(product.id, variant?.id);
+    const variantImage = variant?.image ?? null;
+    const normalizedImage =
+      normalizeProductImage(variantImage || product.image || product.image_url) ?? '';
+    const linePrice = variant?.price ?? product.price;
+    const lineName = variant?.name ? `${product.name} — ${variant.name}` : product.name;
+
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
+      const existingItem = prevItems.find((item) => item.id === lineId);
       if (existingItem) {
         return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === lineId ? { ...item, quantity: item.quantity + qty } : item,
         );
       }
-      return [...prevItems, { 
-        id: product.id, 
-        name: product.name, 
-        price: product.price, 
-        image: product.image || product.image_url || '', 
-        quantity: 1 
-      }];
+      return [
+        ...prevItems,
+        {
+          id: lineId,
+          product_id: product.id,
+          variant_id: variant?.id,
+          variant_name: variant?.name,
+          slug: product.slug || product.id,
+          name: lineName,
+          price: linePrice,
+          image: normalizedImage,
+          quantity: qty,
+        },
+      ];
+    });
+    setLastAdded({
+      id: lineId,
+      name: lineName,
+      image: normalizedImage,
+      at: Date.now(),
     });
   };
 
@@ -97,6 +162,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalAmount,
         totalCount,
+        lastAdded,
       }}
     >
       {children}

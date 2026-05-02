@@ -1,79 +1,134 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--vg-space-4);
+/* ============================================
+   VeganGlow Admin — Product Table (Clean)
+   ============================================ */
+
+.productTable {
+  min-width: 900px;
 }
 
-.card {
-  background: var(--vg-glass-bg);
-  border: 1px solid var(--vg-glass-border);
-  border-radius: var(--vg-radius-lg);
-  padding: var(--vg-space-3);
-  box-shadow: var(--vg-shadow-1);
-  display: flex;
-  flex-direction: column;
-  gap: var(--vg-space-2);
-  text-decoration: none;
+.productTable th:first-child,
+.productTable td:first-child {
+  width: 64px;
+}
+
+.productTable th:last-child,
+.productTable td:last-child {
+  width: 100px;
+  text-align: right;
+}
+
+.sortLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: inherit;
-  transition: all var(--vg-duration-fast) var(--vg-ease-out);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--vg-shadow-2);
+.sortLink:hover {
+  color: var(--vg-ink-700);
 }
 
-.imageWrap {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: var(--vg-radius-md);
-  overflow: hidden;
-  background: var(--vg-parchment-100);
+.sortLinkActive {
+  color: var(--vg-ink-900);
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--vg-surface-200);
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-surface-50);
+  color: var(--vg-ink-300);
   display: grid;
   place-items: center;
-  color: var(--vg-ink-300);
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.image {
+.thumbImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.cardName {
-  font-size: var(--vg-text-base);
-  color: var(--vg-ink-900);
-  line-height: 1.3;
-  font-weight: 500;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin: 0;
-}
-
-.cardCategory {
-  font-size: var(--vg-text-xs);
-  color: var(--vg-ink-500);
-}
-
-.cardFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-  padding-top: var(--vg-space-2);
-  border-top: 1px solid var(--vg-parchment-100);
-}
-
-.cardPrice {
-  font-family: var(--vg-font-display);
-  font-size: var(--vg-text-md);
-  color: var(--vg-ink-900);
+.productName {
+  color: var(--vg-ink-800);
   font-weight: 600;
+  text-decoration: none;
+  line-height: 1.4;
 }
 
-.inactive {
-  opacity: 0.55;
+.productMeta {
+  margin-top: 2px;
+  color: var(--vg-ink-400);
+  font-size: var(--vg-text-xs);
+  font-weight: 500;
+}
+
+.sku {
+  padding: 2px 6px;
+  border: 1px solid var(--vg-surface-200);
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-surface-50);
+  color: var(--vg-ink-600);
+  font-family: var(--vg-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.category {
+  color: var(--vg-ink-600);
+  font-weight: 500;
+}
+
+.price {
+  color: var(--vg-ink-800) !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.actions {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--vg-space-1);
+  min-width: 80px;
+}
+
+.actionError {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  width: 200px;
+  padding: 6px 8px;
+  border-radius: var(--vg-radius-sm);
+  background: var(--vg-danger-bg);
+  color: var(--vg-danger-fg);
+  font-size: var(--vg-text-xs);
+  font-weight: 500;
+  text-align: left;
+  box-shadow: var(--vg-shadow-2);
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .productTable {
+    min-width: 0;
+  }
+  .productTable th:first-child,
+  .productTable td:first-child,
+  .productTable th:last-child,
+  .productTable td:last-child {
+    width: auto;
+    text-align: left;
+  }
+  .actions {
+    justify-content: flex-start;
+  }
 }

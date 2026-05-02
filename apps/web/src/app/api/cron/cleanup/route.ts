@@ -10,12 +10,13 @@ export async function GET(request: Request) {
     const authHeader = request.headers.get('authorization');
     
     // In production, verify the CRON_SECRET to ensure only Vercel can trigger this
-    if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const cronSecret = process.env.CRON_SECRET;
+    if (process.env.NODE_ENV === 'production' && (!cronSecret || authHeader !== `Bearer ${cronSecret}`)) {
       logger.warn({ action: 'cron_unauthorized' }, 'Unauthorized cron execution attempt');
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    logger.info({ action: 'cron_start', task: 'cleanup_abandoned_carts' }, 'Starting scheduled cleanup task');
+    logger.info({ action: 'cron_start', task: 'cleanup_expired_bank_transfer_orders' }, 'Starting scheduled cleanup task');
 
     // We use the Service Role key here to bypass RLS for administrative tasks
     const supabase = createClient(
@@ -23,15 +24,24 @@ export async function GET(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Data Processing Task: Example - Clean up abandoned carts older than 24 hours
-    // (Assuming we have an 'abandoned_carts' or similar temporary table)
-    // const { count, error } = await supabase
-    //   .from('cart_sessions')
-    //   .delete()
-    //   .lt('updated_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-    //   .select();
+    const { data: expiredBankOrders, error: expiredBankOrdersError } = await (
+      supabase.rpc as unknown as (
+        fn: 'cancel_expired_bank_transfer_orders',
+      ) => Promise<{ data: number | null; error: { message: string } | null }>
+    )('cancel_expired_bank_transfer_orders');
 
-    logger.info({ action: 'cron_complete', task: 'cleanup_abandoned_carts' }, 'Scheduled task completed successfully');
+    if (expiredBankOrdersError) {
+      throw new Error(expiredBankOrdersError.message);
+    }
+
+    logger.info(
+      {
+        action: 'cron_complete',
+        task: 'cleanup_expired_bank_transfer_orders',
+        expiredBankOrders: expiredBankOrders ?? 0,
+      },
+      'Scheduled task completed successfully',
+    );
     
     return NextResponse.json({ success: true, message: 'Cleanup job completed' });
   } catch (error) {

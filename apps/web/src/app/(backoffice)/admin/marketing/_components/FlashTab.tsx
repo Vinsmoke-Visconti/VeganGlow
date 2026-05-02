@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Plus, Edit, Trash2, X, Loader2, Zap } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Loader2, Zap, Clock } from 'lucide-react';
 import { upsertFlashSale, deleteFlashSale } from '@/app/actions/admin/marketing';
 import { formatDate } from '@/lib/admin/format';
 import { SafeImage } from '@/components/ui/SafeImage';
 import shared from '../../admin-shared.module.css';
+import { AdminViewSwitcher, ViewMode } from '../../_components/AdminViewSwitcher';
+import styles from '../marketing.module.css';
 
 type FlashSale = {
   id: string;
@@ -51,6 +53,7 @@ export function FlashTab({
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   const [form, setForm] = useState({
     product_id: products[0]?.id ?? '',
@@ -118,7 +121,7 @@ export function FlashTab({
   return (
     <>
       <div className={shared.toolbar}>
-        <p style={{ color: 'var(--vg-ink-500)', margin: 0 }}>{sales.length} flash sale</p>
+        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
         <button type="button" onClick={openCreate} className={`${shared.btn} ${shared.btnPrimary}`}>
           <Plus size={14} /> Tạo flash sale
         </button>
@@ -131,7 +134,7 @@ export function FlashTab({
           </div>
           <p className={shared.emptyTitle}>Chưa có flash sale</p>
         </div>
-      ) : (
+      ) : viewMode === 'table' ? (
         <div className={shared.tableWrap}>
           <table className={shared.table}>
             <thead>
@@ -190,6 +193,53 @@ export function FlashTab({
               ))}
             </tbody>
           </table>
+        </div>
+      ) : (
+        <div className={shared.cardGrid}>
+          {sales.map((s) => (
+            <div key={s.id} className={shared.adminCard}>
+              <div className={shared.adminCardHeader}>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  {s.product_image && (
+                    <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden' }}>
+                      <SafeImage src={s.product_image} alt={s.product_name} fallback="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                  <div>
+                    <h4 className={shared.adminCardTitle}>{s.product_name}</h4>
+                    <span className={`${shared.badge} ${shared.badgeDanger}`} style={{ marginTop: 4 }}>
+                      GIẢM {s.discount_percent}%
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                   <button onClick={() => openEdit(s)} className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}>
+                     <Edit size={14} />
+                   </button>
+                </div>
+              </div>
+              <div className={shared.adminCardContent}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+                   <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Clock size={14} className={shared.iconMuted} />
+                      Bắt đầu: {formatDate(s.starts_at)}
+                   </div>
+                   <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Clock size={14} className={shared.iconMuted} />
+                      Kết thúc: {formatDate(s.ends_at)}
+                   </div>
+                </div>
+              </div>
+              <div className={shared.adminCardFooter}>
+                 <span className={`${shared.badge} ${shared[STATUS_BADGE[s.status]]}`}>
+                   {STATUS_LABEL[s.status]}
+                 </span>
+                 <button onClick={() => remove(s)} className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}>
+                   <Trash2 size={14} />
+                 </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

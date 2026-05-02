@@ -1,19 +1,48 @@
-import Link from 'next/link';
-import { Plus, Package } from 'lucide-react';
-import { listProducts, listAllCategories, type ProductListFilters } from '@/lib/admin/queries/products';
-import { formatVND } from '@/lib/admin/format';
-import { SafeImage } from '@/components/ui/SafeImage';
+import {
+  listAllCategories,
+  listProducts,
+  type ProductListFilters,
+  type ProductSortDirection,
+  type ProductSortKey,
+} from '@/lib/admin/queries/products';
 import shared from '../admin-shared.module.css';
 import { Suspense } from 'react';
-import { ProductFilters } from './_components/ProductFilters';
-import grid from './_components/ProductGrid.module.css';
+import { ProductsClient } from './_components/ProductsClient';
+import Link from 'next/link';
+import { ArrowDown, ArrowUp, ArrowUpDown, Plus } from 'lucide-react';
+import table from './_components/ProductGrid.module.css';
 
 type Props = { searchParams: Promise<ProductListFilters> };
 
-function stockBadge(stock: number) {
-  if (stock === 0) return { cls: 'badgeDanger', label: 'Hết hàng' };
-  if (stock < 5) return { cls: 'badgeWarn', label: `Sắp hết: ${stock}` };
-  return { cls: 'badgeSuccess', label: `Còn ${stock}` };
+const DEFAULT_SORT_DIR: Record<ProductSortKey, ProductSortDirection> = {
+  name: 'asc',
+  sku: 'asc',
+  category: 'asc',
+  price: 'desc',
+  stock: 'desc',
+  status: 'desc',
+  created_at: 'desc',
+};
+
+function sortHref(filters: ProductListFilters, sortKey: ProductSortKey) {
+  const next = new URLSearchParams();
+  if (filters.q) next.set('q', filters.q);
+  if (filters.category) next.set('category', filters.category);
+  if (filters.stock) next.set('stock', filters.stock);
+  if (filters.status) next.set('status', filters.status);
+
+  const currentSort = filters.sort ?? 'created_at';
+  const currentDir: ProductSortDirection = filters.dir === 'asc' ? 'asc' : 'desc';
+  const nextDir =
+    currentSort === sortKey
+      ? currentDir === 'asc'
+        ? 'desc'
+        : 'asc'
+      : DEFAULT_SORT_DIR[sortKey];
+
+  next.set('sort', sortKey);
+  next.set('dir', nextDir);
+  return `/admin/products?${next.toString()}`;
 }
 
 export default async function AdminProducts({ searchParams }: Props) {
@@ -22,58 +51,14 @@ export default async function AdminProducts({ searchParams }: Props) {
 
   return (
     <div className={shared.page}>
-      <div className={shared.pageHeader}>
-        <div>
-          <h1 className={shared.pageTitle}>Sản phẩm</h1>
-          <p className={shared.pageSubtitle}>{products.length} sản phẩm</p>
-        </div>
-        <Link href="/admin/products/new" className={`${shared.btn} ${shared.btnPrimary}`}>
-          <Plus size={14} /> Thêm sản phẩm
-        </Link>
-      </div>
 
-      <Suspense fallback={<div className={shared.loadingSkeleton} style={{ height: '48px', marginBottom: '1.5rem' }} />}>
-        <ProductFilters defaults={filters} categories={categories} />
+      <Suspense fallback={<div className={shared.loadingSkeleton} style={{ height: '400px', borderRadius: 'var(--vg-radius-xl)' }} />}>
+        <ProductsClient 
+          products={products} 
+          filters={filters} 
+          categories={categories} 
+        />
       </Suspense>
-
-      {products.length === 0 ? (
-        <div className={shared.emptyState}>
-          <div className={shared.emptyIcon}>
-            <Package size={24} />
-          </div>
-          <p className={shared.emptyTitle}>Chưa có sản phẩm</p>
-          <Link href="/admin/products/new" className={`${shared.btn} ${shared.btnPrimary}`} style={{ marginTop: 12 }}>
-            <Plus size={14} /> Tạo sản phẩm đầu tiên
-          </Link>
-        </div>
-      ) : (
-        <div className={grid.grid}>
-          {products.map((p) => {
-            const badge = stockBadge(p.stock);
-            return (
-              <Link
-                key={p.id}
-                href={`/admin/products/${p.id}`}
-                className={`${grid.card} ${!p.is_active ? grid.inactive : ''}`}
-              >
-                <div className={grid.imageWrap}>
-                  {p.image ? (
-                    <SafeImage src={p.image} alt={p.name} className={grid.image} fallback="" />
-                  ) : (
-                    <Package size={40} />
-                  )}
-                </div>
-                <h3 className={grid.cardName}>{p.name}</h3>
-                <div className={grid.cardCategory}>{p.category?.name ?? 'Chưa phân loại'}</div>
-                <div className={grid.cardFooter}>
-                  <span className={grid.cardPrice}>{formatVND(p.price)}</span>
-                  <span className={`${shared.badge} ${shared[badge.cls]}`}>{badge.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }

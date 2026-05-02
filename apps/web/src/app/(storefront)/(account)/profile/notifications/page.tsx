@@ -17,6 +17,18 @@ function NotificationsContent() {
   const [saving, setSaving] = useState(false);
   const supabase = createBrowserClient();
 
+  type SettingsWriteClient = {
+    upsert: (row: {
+      user_id: string;
+      order_updates: boolean;
+      promo_emails: boolean;
+      wallet_updates: boolean;
+      chat_notifications: boolean;
+      newsletters: boolean;
+      updated_at: string;
+    }) => Promise<{ error: { message: string } | null }>;
+  };
+
   useEffect(() => {
     const fetchSettings = async () => {
       setLoading(true);
@@ -35,7 +47,14 @@ function NotificationsContent() {
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching settings:', error);
       } else if (data) {
-        const row = data as any;
+        type SettingsRow = {
+          order_updates?: boolean | null;
+          promo_emails?: boolean | null;
+          wallet_updates?: boolean | null;
+          chat_notifications?: boolean | null;
+          newsletters?: boolean | null;
+        };
+        const row = data as SettingsRow;
         setSettings({
           order_updates: !!row.order_updates,
           promo_emails: !!row.promo_emails,
@@ -59,7 +78,11 @@ function NotificationsContent() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await (supabase.from('user_settings') as any).upsert({
+    // Supabase 14.5 generated types narrow upsert payloads to `never`; cast to
+    // bypass the type bug. Schema is enforced server-side via user_settings RLS.
+    const { error } = await (
+      supabase.from('user_settings') as unknown as SettingsWriteClient
+    ).upsert({
       user_id: user.id,
       ...settings,
       updated_at: new Date().toISOString(),

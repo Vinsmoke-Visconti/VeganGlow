@@ -1,27 +1,26 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
-  LayoutDashboard,
-  ShoppingBag,
-  Package,
   FolderOpen,
-  Users,
-  UserCog,
-  Shield,
-  Settings,
-  ArrowLeft,
+  LayoutDashboard,
   Leaf,
-  Sparkles,
   Megaphone,
-  CircleUserRound,
+  Package,
   PanelLeftClose,
   PanelLeftOpen,
+  Settings,
+  Shield,
+  ShoppingBag,
+  Sparkles,
+  UserCog,
+  Users,
+  Activity,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useSyncExternalStore } from 'react';
 import styles from './backoffice-layout.module.css';
-import type { LucideIcon } from 'lucide-react';
 
 type NavItem = {
   href: string;
@@ -30,6 +29,7 @@ type NavItem = {
   exact?: boolean;
   permission?: string;
 };
+
 type NavGroup = { title: string; items: NavItem[] };
 
 const NAV_GROUPS: NavGroup[] = [
@@ -59,6 +59,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin/users', icon: UserCog, label: 'Nhân sự', permission: 'users:read' },
       { href: '/admin/roles', icon: Shield, label: 'Phân quyền', permission: 'users:write' },
+      { href: '/admin/audit-logs', icon: Activity, label: 'Nhật ký hệ thống', permission: 'users:read' },
       { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
       { href: '/admin/about-team', icon: Sparkles, label: 'Tác giả & Nhóm' },
     ],
@@ -66,9 +67,6 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 type Props = {
-  userName: string;
-  userInitial: string;
-  userRoleLabel: string;
   permissions?: string[];
 };
 
@@ -81,7 +79,7 @@ function readCollapsed(): boolean {
 }
 
 function subscribeCollapsed(cb: () => void): () => void {
-  if (typeof window === 'undefined') return () => {};
+  if (typeof window === 'undefined') return () => { };
   window.addEventListener(COLLAPSE_EVENT, cb);
   window.addEventListener('storage', cb);
   return () => {
@@ -97,16 +95,14 @@ function setCollapsedPersistent(next: boolean): void {
   window.dispatchEvent(new Event(COLLAPSE_EVENT));
 }
 
-export function AdminSidebar({ userName, userInitial, userRoleLabel, permissions }: Props) {
+export function AdminSidebar({ permissions }: Props) {
   const pathname = usePathname();
   const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
 
-  // Permission filter — when permissions list is provided, hide items the staff can't access.
-  // Items without a `permission` field are always visible (Dashboard, Settings, About-team).
-  const visibleGroups = NAV_GROUPS.map((g) => ({
-    ...g,
-    items: g.items.filter((it) => !it.permission || !permissions || permissions.includes(it.permission)),
-  })).filter((g) => g.items.length > 0);
+  const visibleGroups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.permission || !permissions || permissions.includes(item.permission)),
+  })).filter((group) => group.items.length > 0);
 
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
@@ -155,30 +151,6 @@ export function AdminSidebar({ userName, userInitial, userRoleLabel, permissions
           </div>
         ))}
       </nav>
-
-      <div className={styles.sidebarFooter}>
-        <Link
-          href="/admin/profile"
-          className={`${styles.sidebarUserCard} ${pathname.startsWith('/admin/profile') ? styles.sidebarUserCardActive : ''}`}
-          title={collapsed ? `${userName} · ${userRoleLabel}` : undefined}
-        >
-          <div className={styles.sidebarUserAvatar}>{userInitial}</div>
-          {!collapsed && (
-            <>
-              <div className={styles.sidebarUserInfo}>
-                <span className={styles.sidebarUserName}>{userName}</span>
-                <span className={styles.sidebarUserRole}>{userRoleLabel}</span>
-              </div>
-              <CircleUserRound size={14} className={styles.sidebarUserGo} aria-hidden="true" />
-            </>
-          )}
-        </Link>
-
-        <Link href="/" className={styles.storefrontLink} title={collapsed ? 'Về trang cửa hàng' : undefined}>
-          <ArrowLeft size={16} />
-          {!collapsed && 'Về trang cửa hàng'}
-        </Link>
-      </div>
     </aside>
   );
 }

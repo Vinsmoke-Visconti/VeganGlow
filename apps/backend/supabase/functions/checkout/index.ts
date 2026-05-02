@@ -1,9 +1,15 @@
-// Edge Function: Checkout — Process order creation
+// Edge Function: Checkout
 // POST /functions/v1/checkout
-// Body: { items: [{ product_id, quantity }], address, payment_method }
+// Body: {
+//   idempotency_key?: string,
+//   items: [{ product_id, quantity }],
+//   customer_name, phone, email?, address,
+//   ward?, ward_code?, province?, province_code?, city?,
+//   payment_method
+// }
 
 import { corsHeaders } from '../_shared/cors.ts';
-import { createUserClient, createAdminClient } from '../_shared/supabase.ts';
+import { createUserClient } from '../_shared/supabase.ts';
 
 interface CheckoutItem {
   product_id: string;
@@ -11,136 +17,151 @@ interface CheckoutItem {
 }
 
 interface CheckoutBody {
+  idempotency_key?: string;
   items: CheckoutItem[];
   customer_name: string;
   phone: string;
+  email?: string;
   address: string;
-  city: string;
-  payment_method: 'cod' | 'card';
+  city?: string;
+  ward?: string;
+  ward_code?: string;
+  province?: string;
+  province_code?: string;
+  payment_method: 'cod' | 'card' | 'bank_transfer';
+  note?: string;
+}
+
+type NormalizedPaymentMethod = 'cod' | 'bank_transfer';
+
+type RpcArgs = {
+  p_customer: Record<string, string>;
+  p_items: { id: string; quantity: number }[];
+  p_payment_method: NormalizedPaymentMethod;
+  p_idempotency_key: string;
+};
+
+type RpcOrder = {
+  order_id: string;
+  order_code: string;
+  total_amount: number;
+  reused?: boolean;
+};
+
+function json(payload: unknown, status: number) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+function mapCheckoutError(message: string) {
+  if (message.includes('INSUFFICIENT_STOCK:')) {
+    const name = message.split('INSUFFICIENT_STOCK:')[1]?.trim() || 'product';
+    return { status: 409, error: `Het hang: ${name}` };
+  }
+  if (message.includes('PRODUCT_INACTIVE')) return { status: 409, error: 'San pham khong con ban.' };
+  if (message.includes('PRODUCT_NOT_FOUND')) return { status: 404, error: 'Khong tim thay san pham.' };
+  if (message.includes('IDEMPOTENCY_KEY_REUSED')) {
+    return { status: 409, error: 'Idempotency key was already used for another order.' };
+  }
+  if (message.includes('IDEMPOTENCY_IN_PROGRESS')) {
+    return { status: 409, error: 'Order is still being processed. Retry shortly.' };
+  }
+  return { status: 400, error: message || 'Checkout failed.' };
 }
 
 Deno.serve(async (req: Request) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') {
+    return json({ error: 'Method not allowed' }, 405);
   }
 
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Unauthorized' }, 401);
     }
 
     const supabase = createUserClient(authHeader);
-    const adminClient = createAdminClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Invalid token' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Invalid token' }, 401);
     }
 
-    const body: CheckoutBody = await req.json();
+    const body = (await req.json()) as Partial<CheckoutBody>;
+    const idempotencyKey = req.headers.get('Idempotency-Key') ?? body.idempotency_key;
 
-    // Validate items
+    if (!idempotencyKey) {
+      return json({ error: 'Missing Idempotency-Key header.' }, 400);
+    }
+
     if (!body.items || body.items.length === 0) {
-      return new Response(JSON.stringify({ error: 'Giỏ hàng trống' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Cart is empty.' }, 400);
     }
 
-    // Fetch products and validate stock
-    const productIds = body.items.map((i) => i.product_id);
-    const { data: products, error: productsError } = await adminClient
-      .from('products')
-      .select('*')
-      .in('id', productIds);
+    const paymentMethod: NormalizedPaymentMethod =
+      body.payment_method === 'card' || body.payment_method === 'bank_transfer'
+        ? 'bank_transfer'
+        : 'cod';
+    const province = body.province ?? body.city ?? '';
+    const provinceCode = body.province_code ?? province;
+    const ward = body.ward ?? 'unknown';
+    const wardCode = body.ward_code ?? ward;
 
-    if (productsError || !products) {
-      return new Response(JSON.stringify({ error: 'Lỗi tải sản phẩm' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Calculate total & prepare order items
-    let totalAmount = 0;
-    const orderItems = body.items.map((item) => {
-      const product = products.find((p) => p.id === item.product_id);
-      if (!product) throw new Error(`Sản phẩm không tồn tại: ${item.product_id}`);
-      if (product.stock < item.quantity) throw new Error(`Hết hàng: ${product.name}`);
-
-      totalAmount += product.price * item.quantity;
-      return {
-        product_id: product.id,
-        product_name: product.name,
-        product_image: product.image,
-        unit_price: product.price,
+    const rpcArgs: RpcArgs = {
+      p_customer: {
+        name: body.customer_name ?? '',
+        phone: body.phone ?? '',
+        email: body.email ?? user.email ?? '',
+        address: body.address ?? '',
+        ward,
+        ward_code: wardCode,
+        province,
+        province_code: provinceCode,
+        note: body.note ?? '',
+      },
+      p_items: body.items.map((item) => ({
+        id: item.product_id,
         quantity: item.quantity,
-      };
-    });
+      })),
+      p_payment_method: paymentMethod,
+      p_idempotency_key: idempotencyKey,
+    };
 
-    // Generate order code
-    const code = `VG-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const { data, error } = await (
+      supabase.rpc as unknown as (
+        fn: 'decrement_stock_and_create_order',
+        args: RpcArgs,
+      ) => Promise<{ data: RpcOrder[] | null; error: { message: string } | null }>
+    )('decrement_stock_and_create_order', rpcArgs);
 
-    // Create order
-    const { data: order, error: orderError } = await adminClient
-      .from('orders')
-      .insert({
-        code,
-        user_id: user.id,
-        customer_name: body.customer_name,
-        phone: body.phone,
-        address: body.address,
-        city: body.city,
-        payment_method: body.payment_method,
-        total_amount: totalAmount,
-      })
-      .select()
-      .single();
-
-    if (orderError) throw orderError;
-
-    // Create order items
-    const { error: itemsError } = await adminClient
-      .from('order_items')
-      .insert(orderItems.map((item) => ({ ...item, order_id: order.id })));
-
-    if (itemsError) throw itemsError;
-
-    // Atomic stock decrement (prevents oversell race condition)
-    for (const item of body.items) {
-      const { data: ok, error: stockErr } = await adminClient.rpc('decrement_stock', {
-        p_product_id: item.product_id,
-        p_quantity: item.quantity,
-      });
-      if (stockErr || ok === false) {
-        const product = products.find((p) => p.id === item.product_id);
-        throw new Error(`Hết hàng: ${product?.name ?? item.product_id}`);
-      }
+    if (error || !data || data.length === 0) {
+      const mapped = mapCheckoutError(error?.message ?? '');
+      return json({ error: mapped.error }, mapped.status);
     }
 
-    return new Response(
-      JSON.stringify({ success: true, order_code: order.code, order_id: order.id }),
+    const order = data[0];
+    return json(
       {
-        status: 201,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+        success: true,
+        order_code: order.order_code,
+        order_id: order.order_id,
+        reused: Boolean(order.reused),
+      },
+      order.reused ? 200 : 201,
     );
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : 'Server error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+    return json(
+      { error: err instanceof Error ? err.message : 'Server error' },
+      500,
     );
   }
 });

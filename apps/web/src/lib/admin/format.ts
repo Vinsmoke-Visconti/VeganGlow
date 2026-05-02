@@ -41,7 +41,10 @@ export function formatRelative(value: string | Date): string {
 export const ORDER_STATUS_LABEL: Record<string, string> = {
   pending: 'Chờ xử lý',
   confirmed: 'Đã xác nhận',
+  packing: 'Đang đóng gói',
+  shipped: 'Đã gửi hàng',
   shipping: 'Đang giao',
+  delivered: 'Đã giao',
   completed: 'Hoàn thành',
   cancelled: 'Đã hủy',
 };
@@ -49,21 +52,41 @@ export const ORDER_STATUS_LABEL: Record<string, string> = {
 export const ORDER_STATUS_BADGE: Record<string, string> = {
   pending: 'badgePending',
   confirmed: 'badgeShipping',
+  packing: 'badgeInfo',
+  shipped: 'badgeShipping',
   shipping: 'badgeShipping',
+  delivered: 'badgeSuccess',
   completed: 'badgeSuccess',
   cancelled: 'badgeDanger',
 };
 
 export const PAYMENT_LABEL: Record<string, string> = {
   cod: 'COD',
-  card: 'Thẻ',
+  card: 'Chuyển khoản',
+  bank_transfer: 'Chuyển khoản',
+};
+
+export const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  unpaid: 'Chưa thanh toán',
+  pending: 'Chờ tiền vào',
+  paid: 'Đã nhận tiền',
+  failed: 'Thanh toán lỗi',
+  refunded: 'Đã hoàn tiền',
+};
+
+export const PAYMENT_STATUS_BADGE: Record<string, string> = {
+  unpaid: 'badgeMuted',
+  pending: 'badgePending',
+  paid: 'badgeSuccess',
+  failed: 'badgeDanger',
+  refunded: 'badgeMuted',
 };
 
 export function slugify(s: string): string {
   return s
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/g, 'd')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')

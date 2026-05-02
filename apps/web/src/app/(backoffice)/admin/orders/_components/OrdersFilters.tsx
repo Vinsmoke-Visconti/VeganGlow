@@ -27,39 +27,37 @@ export function OrdersFilters({ defaults }: { defaults: OrderListFilters }) {
   }
 
   return (
-    <div className={shared.toolbar}>
-      <div className={shared.filterBar}>
-        <div className={shared.searchInput}>
-          <Search size={16} />
-          <input
-            placeholder="Tìm theo mã / tên / SĐT"
-            defaultValue={defaults.q ?? ''}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const value = (e.target as HTMLInputElement).value.trim();
-                setParam('q', value || undefined);
-              }
-            }}
-          />
-        </div>
-        <button
-          type="button"
-          className={`${shared.filterChip} ${!defaults.status ? shared.filterChipActive : ''}`}
-          onClick={() => setParam('status', undefined)}
-        >
-          Tất cả
-        </button>
-        {STATUS_OPTIONS.map((s) => (
-          <button
-            key={s}
-            type="button"
-            className={`${shared.filterChip} ${defaults.status === s ? shared.filterChipActive : ''}`}
-            onClick={() => setParam('status', s)}
-          >
-            {ORDER_STATUS_LABEL[s]}
-          </button>
-        ))}
+    <div className={shared.filterBar}>
+      <div className={shared.searchInput}>
+        <Search size={16} />
+        <input
+          placeholder="Tìm theo mã / tên / SĐT"
+          defaultValue={defaults.q ?? ''}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              const value = (e.target as HTMLInputElement).value.trim();
+              setParam('q', value || undefined);
+            }
+          }}
+        />
       </div>
+      <button
+        type="button"
+        className={`${shared.filterChip} ${!defaults.status ? shared.filterChipActive : ''}`}
+        onClick={() => setParam('status', undefined)}
+      >
+        Tất cả
+      </button>
+      {STATUS_OPTIONS.map((s) => (
+        <button
+          key={s}
+          type="button"
+          className={`${shared.filterChip} ${defaults.status === s ? shared.filterChipActive : ''}`}
+          onClick={() => setParam('status', s)}
+        >
+          {ORDER_STATUS_LABEL[s]}
+        </button>
+      ))}
     </div>
   );
 }

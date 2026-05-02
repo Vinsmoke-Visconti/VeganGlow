@@ -18,11 +18,8 @@
 .title {
   font-size: 2rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #111827;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #1a1a1a 0%, var(--color-primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
@@ -35,9 +32,9 @@
   gap: 12px;
   background: white;
   padding: 8px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--color-border-light, #f3f4f6);
 }
 
 .inputWrapper {
@@ -54,8 +51,8 @@
 
 .voucherInput {
   padding: 10px 12px 10px 36px;
-  border: 1px solid #eee;
-  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   font-size: 0.9rem;
   width: 240px;
   transition: 0.2s;
@@ -67,26 +64,30 @@
 }
 
 .applyBtn {
-  background: var(--color-primary);
+  background: var(--color-primary-dark, #111827);
   color: white;
   border: none;
   padding: 0 24px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
+}
+
+.applyBtn:hover {
+  background: black;
 }
 
 .welcomeOffer {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  background: var(--color-primary-dark, #111827);
   padding: 24px;
-  border-radius: 20px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   gap: 20px;
   color: white;
   margin-bottom: 40px;
-  box-shadow: 0 12px 30px rgba(45, 90, 39, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .offerIcon {
@@ -116,18 +117,18 @@
 
 .claimBtn {
   background: white;
-  color: var(--color-primary);
+  color: #111827;
   border: none;
   padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s ease;
 }
 
 .claimBtn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,255,255,0.2);
 }
 
 .tabs {
@@ -153,25 +154,25 @@
 
 .tabActive {
   background: white;
-  color: var(--color-primary);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  color: #111827;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .voucherGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
   gap: 24px;
 }
 
 .voucherCard {
   background: white;
-  border-radius: 20px;
+  border-radius: 16px;
   display: flex;
   height: 140px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
   position: relative;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--color-border-light, #f3f4f6);
 }
 
 .cardLeft {
@@ -256,18 +257,18 @@
 
 .useBtn {
   padding: 6px 16px;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+  background: #f3f4f6;
+  color: #111827;
   border: none;
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.2s ease;
 }
 
 .useBtn:hover:not(:disabled) {
-  background: var(--color-primary);
+  background: var(--color-primary-dark, #111827);
   color: white;
 }
 
@@ -318,9 +319,9 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 80px 20px;
-  background: #fafafa;
-  border-radius: 24px;
-  border: 2px dashed #eee;
+  background: #f9fafb;
+  border-radius: 16px;
+  border: 1px dashed #d1d5db;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -381,4 +382,20 @@
   .voucherInput { flex: 1; }
   .welcomeOffer { flex-direction: column; text-align: center; }
   .claimBtn { width: 100%; }
+}
+
+@media (max-width: 640px) {
+  .wrapper { padding: 16px; }
+  .title { font-size: 1.5rem; }
+  .header { margin-bottom: 24px; }
+  .headerTop { margin-bottom: 20px; }
+  .addVoucher { flex-direction: column; gap: 8px; }
+  .voucherInput { width: 100%; }
+  .voucherCard { height: auto; min-height: 120px; }
+  .cardLeft { width: 80px; }
+  .cardRight { padding: 14px 16px; }
+  .voucherTitle { font-size: 0.95rem; }
+  .tabs { width: 100%; justify-content: center; }
+  .tab { padding: 6px 14px; font-size: 0.8rem; }
+  .emptyState { padding: 48px 16px; }
 }

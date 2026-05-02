@@ -182,6 +182,8 @@ create policy audit_logs_insert on public.audit_logs
   for insert with check (public.is_staff() and actor_id = auth.uid());
 
 -- ============== EXTRA PERMISSIONS ==============
+alter table public.permissions add column if not exists display_name text not null default '';
+
 insert into public.permissions (module, action, display_name, description) values
   ('marketing', 'read',  'Xem Tiếp thị', 'Xem khuyến mãi & banner'),
   ('marketing', 'write', 'Quản lý Tiếp thị', 'Quản lý khuyến mãi & banner'),

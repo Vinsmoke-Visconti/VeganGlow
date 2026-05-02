@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getProvinces, getWardsByProvince, type VnProvince, type VnWard } from '@/lib/vn-address';
+import { SearchableSelect } from './SearchableSelect';
 
 export type VnAddressValue = {
   province: string;
@@ -51,6 +52,7 @@ export function VnAddressSelect({ value, onChange, required, layout = 'inline', 
     };
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!value.province_code) {
       setWards([]);
@@ -94,6 +96,9 @@ export function VnAddressSelect({ value, onChange, required, layout = 'inline', 
   const labelProvince = labels?.province ?? 'Tỉnh / Thành phố';
   const labelWard = labels?.ward ?? 'Phường / Xã';
 
+  const provinceOptions = provinces.map((p) => ({ label: p.name_with_type, value: p.code }));
+  const wardOptions = wards.map((w) => ({ label: w.name_with_type, value: w.code }));
+
   return (
     <div
       style={{
@@ -108,21 +113,13 @@ export function VnAddressSelect({ value, onChange, required, layout = 'inline', 
             {labelProvince}
           </label>
         )}
-        <select
-          name="province_code"
-          required={required}
+        <SearchableSelect
+          options={provinceOptions}
           value={value.province_code}
-          onChange={(e) => handleProvince(e.target.value)}
-          disabled={loadingProvinces}
-          style={baseInput}
-        >
-          <option value="">{loadingProvinces ? 'Đang tải...' : '-- Chọn Tỉnh / Thành phố --'}</option>
-          {provinces.map((p) => (
-            <option key={p.code} value={p.code}>
-              {p.name_with_type}
-            </option>
-          ))}
-        </select>
+          onChange={handleProvince}
+          loading={loadingProvinces}
+          placeholder="Chọn Tỉnh / Thành phố"
+        />
       </div>
 
       <div>
@@ -131,27 +128,14 @@ export function VnAddressSelect({ value, onChange, required, layout = 'inline', 
             {labelWard}
           </label>
         )}
-        <select
-          name="ward_code"
-          required={required}
+        <SearchableSelect
+          options={wardOptions}
           value={value.ward_code}
-          onChange={(e) => handleWard(e.target.value)}
-          disabled={!value.province_code || loadingWards}
-          style={baseInput}
-        >
-          <option value="">
-            {!value.province_code
-              ? 'Chọn Tỉnh / Thành phố trước'
-              : loadingWards
-              ? 'Đang tải...'
-              : '-- Chọn Phường / Xã --'}
-          </option>
-          {wards.map((w) => (
-            <option key={w.code} value={w.code}>
-              {w.name_with_type}
-            </option>
-          ))}
-        </select>
+          onChange={handleWard}
+          loading={loadingWards}
+          disabled={!value.province_code}
+          placeholder={!value.province_code ? 'Chọn Tỉnh / Thành phố trước' : 'Chọn Phường / Xã'}
+        />
       </div>
     </div>
   );

@@ -2,21 +2,38 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, MessageCircle, Clock, Loader2, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageCircle, Clock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import styles from './contact.module.css';
+import { submitContactMessage } from '@/app/actions/contact';
 
 export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMessage(null);
     setSubmitting(true);
-    // Demo only — replace with real endpoint
-    await new Promise((r) => setTimeout(r, 800));
+
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    const result = await submitContactMessage({
+      name: String(fd.get('name') ?? ''),
+      email: String(fd.get('email') ?? ''),
+      subject: String(fd.get('subject') ?? ''),
+      message: String(fd.get('message') ?? ''),
+    });
+
     setSubmitting(false);
-    setSent(true);
-    (e.currentTarget as HTMLFormElement).reset();
+
+    if (result.success) {
+      setSent(true);
+      form.reset();
+    } else {
+      setErrorMessage(result.error);
+    }
   };
 
   return (
@@ -67,6 +84,17 @@ export default function ContactPage() {
               className={styles.sentNotice}
             >
               <CheckCircle2 size={18} /> Cảm ơn bạn! Tin nhắn đã được gửi đi.
+            </motion.div>
+          )}
+
+          {errorMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={styles.sentNotice}
+              style={{ background: '#fef2f2', color: '#991b1b', borderColor: '#fecaca' }}
+            >
+              <AlertCircle size={18} /> {errorMessage}
             </motion.div>
           )}
 

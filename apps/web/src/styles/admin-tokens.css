@@ -1,88 +1,171 @@
-/* VeganGlow Admin Design Tokens
-   Botanical + Glassmorphism + Premium aesthetic. */
+/* VeganGlow Admin — Design Tokens
+   Modern botanical with green gradients. */
 
 :root {
-  /* Palette — botanical */
-  --vg-ink-900: #0f1411;
-  --vg-ink-700: #2c3531;
-  --vg-ink-500: #5a655e;
-  --vg-ink-300: #a8b5ae;
-  --vg-parchment-50: #fbfaf6;
-  --vg-parchment-100: #f3f1ea;
-  --vg-parchment-200: #e7e3d6;
-  --vg-leaf-50: #eef7ef;
-  --vg-leaf-100: #d4ecd6;
-  --vg-leaf-300: #8fcf95;
-  --vg-leaf-500: #56a35e;
-  --vg-leaf-700: #2f7236;
-  --vg-leaf-900: #1c4520;
-  --vg-gold-300: #e6cf85;
-  --vg-gold-500: #c9a64e;
-  --vg-gold-700: #8a7029;
+  /* Palette — Cool Neutral */
+  --vg-ink-900: #0f172a;
+  --vg-ink-800: #1e293b;
+  --vg-ink-700: #334155;
+  --vg-ink-600: #475569;
+  --vg-ink-500: #64748b;
+  --vg-ink-400: #94a3b8;
+  --vg-ink-300: #cbd5e1;
+  --vg-ink-200: #e2e8f0;
+  --vg-ink-100: #f1f5f9;
 
-  /* Status */
-  --vg-success-bg: #e9f6eb;
-  --vg-success-fg: #1f6b2a;
-  --vg-warn-bg: #fdf3da;
-  --vg-warn-fg: #8a6212;
-  --vg-danger-bg: #fbe6e6;
-  --vg-danger-fg: #9b1f1f;
-  --vg-info-bg: #e4eef9;
-  --vg-info-fg: #1f4a85;
-  --vg-pending-bg: #f0e9da;
-  --vg-pending-fg: #6b4f1a;
+  /* Surface — Pure & Clean */
+  --vg-surface-0: #ffffff;
+  --vg-surface-50: #f8fafc;
+  --vg-surface-100: #f1f5f9;
+  --vg-surface-200: #e2e8f0;
+  --vg-surface-300: #cbd5e1;
 
-  /* Spacing */
+  /* Emerald Botanical — High Vibrancy */
+  --vg-leaf-50: #ecfdf5;
+  --vg-leaf-100: #d1fae5;
+  --vg-leaf-200: #a7f3d0;
+  --vg-leaf-300: #6ee7b7;
+  --vg-leaf-400: #34d399;
+  --vg-leaf-500: #10b981;
+  --vg-leaf-600: #059669;
+  --vg-leaf-700: #047857;
+  --vg-leaf-800: #065f46;
+  --vg-leaf-900: #064e3b;
+
+  /* Gradient presets — Rich & Deep */
+  --vg-gradient-leaf: linear-gradient(135deg, #10b981, #064e3b);
+  --vg-gradient-leaf-soft: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  --vg-gradient-leaf-vivid: linear-gradient(135deg, #34d399, #047857);
+  --vg-gradient-emerald: linear-gradient(145deg, #d1fae5 0%, #f8fafc 100%);
+  --vg-gradient-glass: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(241,245,249,0.85));
+
+  /* Gold accent — Champagne */
+  --vg-gold-300: #fde68a;
+  --vg-gold-500: #f59e0b;
+  --vg-gold-700: #b45309;
+
+  /* Status — Vibrant & Clear */
+  --vg-success-bg: #d1fae5;
+  --vg-success-fg: #065f46;
+  --vg-warn-bg: #fef3c7;
+  --vg-warn-fg: #92400e;
+  --vg-danger-bg: #fee2e2;
+  --vg-danger-fg: #991b1b;
+  --vg-danger-700: #7f1d1d;
+  --vg-info-bg: #e0f2fe;
+  --vg-info-fg: #075985;
+  --vg-pending-bg: #ffedd5;
+  --vg-pending-fg: #9a3412;
+
+  /* Spacing — Standard 4px */
   --vg-space-1: 4px;
   --vg-space-2: 8px;
   --vg-space-3: 12px;
   --vg-space-4: 16px;
-  --vg-space-5: 24px;
-  --vg-space-6: 32px;
-  --vg-space-7: 48px;
-  --vg-space-8: 64px;
+  --vg-space-5: 20px;
+  --vg-space-6: 24px;
+  --vg-space-7: 32px;
+  --vg-space-8: 48px;
 
-  /* Radii */
+  /* Radii — Smoother corners */
   --vg-radius-sm: 8px;
   --vg-radius-md: 12px;
   --vg-radius-lg: 16px;
   --vg-radius-xl: 24px;
-  --vg-radius-pill: 999px;
+  --vg-radius-pill: 9999px;
 
-  /* Shadows — glass layers */
-  --vg-shadow-1: 0 1px 2px rgba(15, 20, 17, 0.04), 0 1px 3px rgba(15, 20, 17, 0.06);
-  --vg-shadow-2: 0 4px 12px rgba(15, 20, 17, 0.06), 0 2px 4px rgba(15, 20, 17, 0.04);
-  --vg-shadow-3: 0 12px 32px rgba(15, 20, 17, 0.10), 0 4px 8px rgba(15, 20, 17, 0.06);
-  --vg-glass-bg: rgba(255, 255, 255, 0.72);
-  --vg-glass-border: rgba(255, 255, 255, 0.6);
-  --vg-glass-blur: 12px;
+  /* Shadows — Soft & Deep */
+  --vg-shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --vg-shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --vg-shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --vg-glass-bg: rgba(255,255,255,0.8);
+  --vg-glass-border: rgba(255,255,255,0.4);
+  --vg-glass-blur: 16px;
+
+  /* Border — Clean Slate */
+  --vg-border: #e2e8f0;
+  --vg-border-hover: #cbd5e1;
+  --vg-border-active: #10b981;
 
   /* Typography */
-  --vg-font-display: 'Playfair Display', 'Times New Roman', serif;
-  --vg-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --vg-font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --vg-font-body: 'Inter', system-ui, sans-serif;
   --vg-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  --vg-text-xs: 12px;
+  --vg-text-xs: 11px;
   --vg-text-sm: 13px;
   --vg-text-base: 14px;
   --vg-text-md: 15px;
-  --vg-text-lg: 18px;
-  --vg-text-xl: 22px;
-  --vg-text-2xl: 28px;
-  --vg-text-3xl: 36px;
-  --vg-leading-tight: 1.25;
+  --vg-text-lg: 16px;
+  --vg-text-xl: 20px;
+  --vg-text-2xl: 24px;
+  --vg-text-3xl: 32px;
+  --vg-leading-tight: 1.3;
   --vg-leading-normal: 1.5;
 
   /* Motion */
-  --vg-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --vg-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --vg-duration-fast: 150ms;
-  --vg-duration-base: 250ms;
-  --vg-duration-slow: 400ms;
+  --vg-ease-out: cubic-bezier(0.22,1,0.36,1);
+  --vg-ease-in-out: cubic-bezier(0.45,0,0.55,1);
+  --vg-duration-fast: 120ms;
+  --vg-duration-base: 200ms;
+  --vg-duration-normal: 200ms;
+  --vg-duration-slow: 350ms;
 
   /* Layout */
-  --vg-sidebar-width: 240px;
-  --vg-sidebar-collapsed: 72px;
-  --vg-topbar-height: 64px;
+  --vg-sidebar-width: 220px;
+  --vg-sidebar-collapsed: 64px;
+  --vg-topbar-height: 48px;
   --vg-content-max: 1280px;
+}
+
+.dark {
+  --vg-ink-900: #f8fafc;
+  --vg-ink-800: #f1f5f9;
+  --vg-ink-700: #e2e8f0;
+  --vg-ink-600: #94a3b8;
+  --vg-ink-500: #64748b;
+  --vg-ink-400: #475569;
+  --vg-ink-300: #1e293b;
+  --vg-ink-200: #0f172a;
+  --vg-ink-100: #020617;
+
+  --vg-surface-0: #0f172a;
+  --vg-surface-50: #020617;
+  --vg-surface-100: #1e293b;
+  --vg-surface-200: #334155;
+  --vg-surface-300: #475569;
+
+  --vg-leaf-50: #064e3b;
+  --vg-leaf-100: #065f46;
+  --vg-leaf-200: #047857;
+  --vg-leaf-300: #059669;
+  --vg-leaf-400: #10b981;
+  --vg-leaf-500: #34d399;
+  --vg-leaf-600: #6ee7b7;
+  --vg-leaf-700: #a7f3d0;
+  --vg-leaf-800: #d1fae5;
+  --vg-leaf-900: #ecfdf5;
+
+  --vg-success-bg: rgba(16, 185, 129, 0.15);
+  --vg-success-fg: #10b981;
+  --vg-warn-bg: rgba(245, 158, 11, 0.15);
+  --vg-warn-fg: #f59e0b;
+  --vg-danger-bg: rgba(239, 68, 68, 0.15);
+  --vg-danger-fg: #ef4444;
+  --vg-danger-700: #fca5a5;
+
+  --vg-gradient-leaf: linear-gradient(135deg, #065f46, #020617);
+  --vg-gradient-leaf-soft: linear-gradient(135deg, #064e3b, #0f172a);
+  --vg-gradient-leaf-vivid: linear-gradient(135deg, #10b981, #064e3b);
+  --vg-gradient-emerald: linear-gradient(145deg, #064e3b 0%, #020617 100%);
+  --vg-gradient-glass: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.8));
+
+  --vg-shadow-1: 0 1px 3px rgba(0,0,0,0.4);
+  --vg-shadow-2: 0 4px 12px rgba(0,0,0,0.5);
+  --vg-shadow-3: 0 12px 32px rgba(0,0,0,0.6);
+  --vg-glass-bg: rgba(15, 23, 42, 0.8);
+  --vg-glass-border: rgba(255, 255, 255, 0.1);
+  --vg-border: #1e293b;
+  --vg-border-hover: #334155;
+  --vg-border-active: var(--vg-leaf-500);
 }

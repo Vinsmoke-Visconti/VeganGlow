@@ -15,6 +15,8 @@ export type OrderRow = {
   total_amount: number;
   status: string;
   payment_method: string;
+  payment_status: string;
+  paid_at: string | null;
   created_at: string;
   address: string;
   city: string;
@@ -24,7 +26,7 @@ export async function listOrders(filters: OrderListFilters = {}): Promise<OrderR
   const supabase = await createClient();
   let query = supabase
     .from('orders')
-    .select('id, code, customer_name, phone, total_amount, status, payment_method, created_at, address, city')
+    .select('id, code, customer_name, phone, total_amount, status, payment_method, payment_status, paid_at, created_at, address, city')
     .order('created_at', { ascending: false })
     .limit(200);
   if (filters.q) {
