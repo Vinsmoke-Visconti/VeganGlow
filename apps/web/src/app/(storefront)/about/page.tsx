@@ -84,22 +84,28 @@ const INGREDIENTS = [
 
 const TEAM = [
   {
-    name: 'Trần Quỳnh Trâm',
-    role: 'Co-founder & Technical Lead',
-    initials: 'TQT',
-    bio: 'Chuyên gia về kiến trúc hệ thống và bảo mật dữ liệu, người đưa nền tảng VeganGlow lên đám mây với hiệu năng tối ưu.',
+    name: 'Trần Thảo My',
+    role: 'CEO & Co-founder',
+    initials: 'TTM',
+    bio: 'Người đặt nền móng cho sứ mệnh thuần chay của VeganGlow, với tầm nhìn mang thảo dược Việt ra thế giới.',
   },
   {
-    name: 'Nguyễn Minh Anh',
-    role: 'Product Designer',
-    initials: 'NMA',
-    bio: 'Nhà thiết kế tâm huyết với phong cách tối giản, tạo ra trải nghiệm mua sắm thuần khiết và tinh tế cho khách hàng.',
+    name: 'Huỳnh Nguyễn Quốc Việt',
+    role: 'CTO & Lead Developer',
+    initials: 'HNV',
+    bio: 'Kiến trúc sư trưởng của hệ thống, người đảm bảo trải nghiệm mua sắm mượt mà và hiện đại trên mọi thiết bị.',
   },
   {
-    name: 'Lê Hoàng Nam',
+    name: 'Phạm Hoài Thương',
     role: 'Operations Manager',
-    initials: 'LHN',
-    bio: 'Chuyên gia vận hành với tầm nhìn về chuỗi cung ứng bền vững, đảm bảo mỗi sản phẩm đến tay bạn là sự hoàn hảo.',
+    initials: 'PHT',
+    bio: 'Quản lý vận hành và chuỗi cung ứng, đảm bảo từng sản phẩm được đóng gói và giao đến tay khách hàng hoàn hảo nhất.',
+  },
+  {
+    name: 'Trần Quỳnh Trâm',
+    role: 'Technical Lead & Security',
+    initials: 'TQT',
+    bio: 'Chuyên gia phụ trách hạ tầng kỹ thuật và bảo mật thông tin, bảo vệ dữ liệu và quyền riêng tư của khách hàng.',
   },
 ];
 
