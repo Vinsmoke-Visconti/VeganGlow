@@ -1,5 +1,20 @@
 'use client';
 
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import {
+  Leaf,
+  Heart,
+  Sparkles,
+  ShieldCheck,
+  Globe2,
+  Award,
+  ArrowRight,
+  CheckCircle2,
+  Recycle,
+  Flower2,
+  HandHeart,
+} from 'lucide-react';
 import styles from './about.module.css';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 
