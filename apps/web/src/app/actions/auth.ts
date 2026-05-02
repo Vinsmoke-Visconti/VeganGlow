@@ -63,8 +63,27 @@ function safeRedirectPath(value: FormDataEntryValue | string | null, fallback = 
   }
 }
 
-function getTrustedAppOrigin(originHeader: string | null) {
-  // 1. Explicitly configured URL (highest priority)
+async function getTrustedAppOrigin() {
+  // 1. Get headers to detect current environment
+  // We use a safe try-catch because headers() might not be available in all contexts
+  let host: string | null = null;
+  let protocol = 'https';
+
+  try {
+    // This is only available in Next.js server context
+    const { headers: getHeaders } = require('next/headers');
+    const h = await getHeaders();
+    host = h.get('x-forwarded-host') || h.get('host');
+    protocol = h.get('x-forwarded-proto') || 'https';
+  } catch {
+    // Not in a request context
+  }
+
+  if (host) {
+    return `${protocol}://${host}`;
+  }
+
+  // 2. Explicitly configured URL (env vars)
   const configured = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL;
   if (configured) {
     try {
@@ -74,25 +93,12 @@ function getTrustedAppOrigin(originHeader: string | null) {
     }
   }
 
-  // 2. Try to derive from the origin header
-  if (originHeader) {
-    try {
-      const origin = new URL(originHeader);
-      if (origin.protocol === 'https:' || origin.protocol === 'http:') {
-        return origin.origin;
-      }
-    } catch {
-      // Ignore invalid origin headers
-    }
+  // 3. Final Fallback: Hardcoded production URL for this project
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://veganglow.vercel.app';
   }
 
-  // 3. Fallback to localhost only if we are absolutely sure we are in development
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000';
-  }
-
-  // 4. Final attempt: Use a default production URL or throw a more descriptive error/fallback
-  return 'https://veganglow.vercel.app';
+  return 'http://localhost:3000';
 }
 
 export async function login(_prevState: AuthFormState, formData: FormData) {
@@ -277,7 +283,7 @@ export async function adminLogout() {
 export async function adminGoogleLogin() {
   const supabase = await createClient();
   const headersList = await headers();
-  const origin = getTrustedAppOrigin(headersList.get('origin'));
+  const origin = await getTrustedAppOrigin();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -382,7 +388,7 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
 export async function signInWithGitHub() {
   const supabase = await createClient();
   const headersList = await headers();
-  const origin = getTrustedAppOrigin(headersList.get('origin'));
+  const origin = await getTrustedAppOrigin();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
