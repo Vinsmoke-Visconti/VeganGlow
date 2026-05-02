@@ -103,7 +103,6 @@ export default async function Home() {
                 height={800}
                 className={styles.heroImage}
                 priority
-                loading="eager"
               />
             </div>
           </FadeIn>
