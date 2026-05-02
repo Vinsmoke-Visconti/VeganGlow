@@ -82,6 +82,27 @@ const INGREDIENTS = [
   { name: 'Tràm Trà', desc: 'Kháng khuẩn dịu nhẹ, hỗ trợ làn da khỏe mạnh từ bên trong.' },
 ];
 
+const TEAM = [
+  {
+    name: 'Trần Quỳnh Trâm',
+    role: 'Co-founder & Technical Lead',
+    initials: 'TQT',
+    bio: 'Chuyên gia về kiến trúc hệ thống và bảo mật dữ liệu, người đưa nền tảng VeganGlow lên đám mây với hiệu năng tối ưu.',
+  },
+  {
+    name: 'Nguyễn Minh Anh',
+    role: 'Product Designer',
+    initials: 'NMA',
+    bio: 'Nhà thiết kế tâm huyết với phong cách tối giản, tạo ra trải nghiệm mua sắm thuần khiết và tinh tế cho khách hàng.',
+  },
+  {
+    name: 'Lê Hoàng Nam',
+    role: 'Operations Manager',
+    initials: 'LHN',
+    bio: 'Chuyên gia vận hành với tầm nhìn về chuỗi cung ứng bền vững, đảm bảo mỗi sản phẩm đến tay bạn là sự hoàn hảo.',
+  },
+];
+
 export default function AboutPage() {
   return (
     <div className={styles.page}>
@@ -201,6 +222,40 @@ export default function AboutPage() {
         </div>
       </motion.section>
 
+      {/* TEAM */}
+      <motion.section
+        className={styles.teamSection}
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className={styles.sectionTitle}>Đội ngũ sáng lập</h2>
+        <p className={styles.sectionSubtitle}>
+          Những người trẻ tâm huyết đứng sau hành trình xanh của VeganGlow
+        </p>
+
+        <div className={styles.teamGrid}>
+          {TEAM.map((m, idx) => (
+            <motion.div
+              key={m.name}
+              className={styles.teamCard}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+            >
+              <div className={styles.teamAvatar}>
+                {m.initials}
+              </div>
+              <h3 className={styles.teamName}>{m.name}</h3>
+              <div className={styles.teamRole}>{m.role}</div>
+              <p className={styles.teamBio}>{m.bio}</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
       {/* TIMELINE */}
       <motion.section
         className={styles.timelineSection}
@@ -236,6 +291,7 @@ export default function AboutPage() {
           ))}
         </div>
       </motion.section>
+
 
       {/* INGREDIENTS */}
       <motion.section
