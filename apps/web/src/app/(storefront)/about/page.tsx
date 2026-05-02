@@ -1,21 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import {
-  Leaf,
-  Heart,
-  Sparkles,
-  ShieldCheck,
-  Globe2,
-  Award,
-  ArrowRight,
-  CheckCircle2,
-  Recycle,
-  Flower2,
-  HandHeart,
-} from 'lucide-react';
 import styles from './about.module.css';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 
 const VALUES = [
   {
@@ -113,52 +99,40 @@ export default function AboutPage() {
   return (
     <div className={styles.page}>
       {/* HERO */}
-      <motion.section
-        className={styles.hero}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-      >
-        <div className={styles.eyebrow}>
-          <Leaf size={14} /> Mỹ phẩm thuần chay Việt Nam
-        </div>
-        <h1 className={styles.title}>
-          Vẻ đẹp tự nhiên,
-          <br />
-          <span className={styles.titleAccent}>nâng niu thiên nhiên</span>
-        </h1>
-        <p className={styles.lead}>
-          <strong>VeganGlow</strong> sinh ra từ niềm tin rằng làn da đẹp không cần đánh đổi
-          bằng môi trường hay sự sống. Chúng tôi mang đến mỹ phẩm thuần chay làm từ thảo
-          dược Việt Nam — an toàn cho bạn, dịu dàng với địa cầu.
-        </p>
-      </motion.section>
+      <section className={styles.hero}>
+        <FadeIn direction="down" delay={0.1} className={styles.heroWrapper}>
+          <div className={styles.eyebrow}>
+            <Leaf size={14} /> Mỹ phẩm thuần chay Việt Nam
+          </div>
+          <h1 className={styles.title}>
+            Vẻ đẹp tự nhiên,
+            <br />
+            <span className={styles.titleAccent}>nâng niu thiên nhiên</span>
+          </h1>
+          <p className={styles.lead}>
+            <strong>VeganGlow</strong> sinh ra từ niềm tin rằng làn da đẹp không cần đánh đổi
+            bằng môi trường hay sự sống. Chúng tôi mang đến mỹ phẩm thuần chay làm từ thảo
+            dược Việt Nam — an toàn cho bạn, dịu dàng với địa cầu.
+          </p>
+        </FadeIn>
+      </section>
 
       {/* STATS */}
-      <motion.div
-        className={styles.statsBar}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15, duration: 0.5 }}
-      >
-        {STATS.map((s) => (
-          <div key={s.label} className={styles.statCell}>
-            <span className={styles.statValue}>{s.value}</span>
-            <span className={styles.statLabel}>{s.label}</span>
-          </div>
-        ))}
-      </motion.div>
+      <div className={styles.statsBarWrapper}>
+        <StaggerContainer className={styles.statsBar}>
+          {STATS.map((s) => (
+            <StaggerItem key={s.label} className={styles.statCell}>
+              <span className={styles.statValue}>{s.value}</span>
+              <span className={styles.statLabel}>{s.label}</span>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      </div>
 
       {/* MISSION */}
-      <motion.section
-        className={styles.missionSection}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className={styles.missionGrid}>
-          <div className={styles.missionCard}>
+      <section className={styles.missionSection}>
+        <StaggerContainer className={styles.missionGrid}>
+          <StaggerItem className={styles.missionCard}>
             <span className={styles.missionIcon}>
               <Heart size={22} />
             </span>
@@ -167,8 +141,8 @@ export default function AboutPage() {
               Chứng minh rằng mỹ phẩm Việt Nam có thể vừa tinh tế, vừa bền vững — không
               cần dùng tới một giọt nguyên liệu từ động vật để có làn da khỏe đẹp.
             </p>
-          </div>
-          <div className={styles.missionCard}>
+          </StaggerItem>
+          <StaggerItem className={styles.missionCard}>
             <span className={styles.missionIcon}>
               <Globe2 size={22} />
             </span>
@@ -177,8 +151,8 @@ export default function AboutPage() {
               Trở thành thương hiệu mỹ phẩm thuần chay hàng đầu Đông Nam Á đến năm 2030,
               đưa thảo dược Việt ra thế giới với cam kết zero animal testing.
             </p>
-          </div>
-          <div className={styles.missionCard}>
+          </StaggerItem>
+          <StaggerItem className={styles.missionCard}>
             <span className={styles.missionIcon}>
               <Award size={22} />
             </span>
@@ -187,103 +161,76 @@ export default function AboutPage() {
               Mỗi sản phẩm đều được kiểm nghiệm da liễu độc lập và đạt chuẩn Vegan
               Society. 1% doanh thu được trích cho các quỹ bảo tồn động vật.
             </p>
-          </div>
-        </div>
-      </motion.section>
+          </StaggerItem>
+        </StaggerContainer>
+      </section>
 
       {/* VALUES */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className={styles.sectionTitle}>
-          <Sparkles size={28} className={styles.sectionIcon} />
-          Giá trị cốt lõi
-        </h2>
-        <p className={styles.sectionSubtitle}>
-          Bốn nguyên tắc dẫn đường mọi quyết định, từ phòng nghiên cứu đến đôi bàn tay khách hàng
-        </p>
+      <section className={styles.valuesSection}>
+        <FadeIn>
+          <h2 className={styles.sectionTitle}>
+            <Sparkles size={28} className={styles.sectionIcon} />
+            Giá trị cốt lõi
+          </h2>
+          <p className={styles.sectionSubtitle}>
+            Bốn nguyên tắc dẫn đường mọi quyết định, từ phòng nghiên cứu đến đôi bàn tay khách hàng
+          </p>
+        </FadeIn>
 
-        <div className={styles.valuesGrid}>
-          {VALUES.map((v, idx) => (
-            <motion.div
-              key={v.title}
-              className={styles.valueCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{
-                delay: idx * 0.08,
-                duration: 0.5,
-                ease: [0.34, 1.56, 0.64, 1],
-              }}
-            >
+        <StaggerContainer className={styles.valuesGrid}>
+          {VALUES.map((v) => (
+            <StaggerItem key={v.title} className={styles.valueCard}>
               <div className={styles.valueIcon}>{v.icon}</div>
               <div className={styles.valueTitle}>{v.title}</div>
               <p className={styles.valueDesc}>{v.desc}</p>
-            </motion.div>
+            </StaggerItem>
           ))}
-        </div>
-      </motion.section>
+        </StaggerContainer>
+      </section>
 
       {/* TEAM */}
-      <motion.section
-        className={styles.teamSection}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className={styles.sectionTitle}>Đội ngũ sáng lập</h2>
-        <p className={styles.sectionSubtitle}>
-          Những người trẻ tâm huyết đứng sau hành trình xanh của VeganGlow
-        </p>
+      <section className={styles.teamSection}>
+        <FadeIn>
+          <h2 className={styles.sectionTitle}>Đội ngũ sáng lập</h2>
+          <p className={styles.sectionSubtitle}>
+            Những người trẻ tâm huyết đứng sau hành trình xanh của VeganGlow
+          </p>
+        </FadeIn>
 
-        <div className={styles.teamGrid}>
-          {TEAM.map((m, idx) => (
-            <motion.div
-              key={m.name}
-              className={styles.teamCard}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <div className={styles.teamAvatar}>
+        <StaggerContainer className={styles.teamGrid}>
+          {TEAM.map((m) => (
+            <StaggerItem key={m.name} className={styles.teamCard}>
+              <motion.div 
+                className={styles.teamAvatar}
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+              >
                 {m.initials}
-              </div>
+              </motion.div>
               <h3 className={styles.teamName}>{m.name}</h3>
               <div className={styles.teamRole}>{m.role}</div>
               <p className={styles.teamBio}>{m.bio}</p>
-            </motion.div>
+            </StaggerItem>
           ))}
-        </div>
-      </motion.section>
+        </StaggerContainer>
+      </section>
 
       {/* TIMELINE */}
-      <motion.section
-        className={styles.timelineSection}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.5 }}
-      >
-        <h2 className={styles.sectionTitle}>Hành trình của chúng tôi</h2>
-        <p className={styles.sectionSubtitle}>
-          Từ một phòng thí nghiệm nhỏ đến thương hiệu được tin yêu trên toàn quốc
-        </p>
+      <section className={styles.timelineSection}>
+        <FadeIn>
+          <h2 className={styles.sectionTitle}>Hành trình của chúng tôi</h2>
+          <p className={styles.sectionSubtitle}>
+            Từ một phòng thí nghiệm nhỏ đến thương hiệu được tin yêu trên toàn quốc
+          </p>
+        </FadeIn>
 
         <div className={styles.timeline}>
           {TIMELINE.map((item, idx) => (
-            <motion.div
-              key={item.year}
+            <FadeIn 
+              key={item.year} 
+              direction={idx % 2 === 0 ? 'left' : 'right'} 
               className={styles.timelineItem}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              delay={idx * 0.1}
             >
               <div className={styles.timelineMarker}>
                 <span className={styles.timelineDot} />
@@ -293,58 +240,44 @@ export default function AboutPage() {
                 <h4 className={styles.timelineTitle}>{item.title}</h4>
                 <p className={styles.timelineDesc}>{item.desc}</p>
               </div>
-            </motion.div>
+            </FadeIn>
           ))}
         </div>
-      </motion.section>
-
+      </section>
 
       {/* INGREDIENTS */}
-      <motion.section
-        className={styles.ingredientsSection}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className={styles.sectionTitle}>
-          <Flower2 size={28} className={styles.sectionIcon} />
-          Bốn loại thảo dược kim chỉ nam
-        </h2>
-        <p className={styles.sectionSubtitle}>
-          Những nguyên liệu Việt Nam quen thuộc, được khoa học chứng minh hiệu quả
-        </p>
+      <section className={styles.ingredientsSection}>
+        <FadeIn>
+          <h2 className={styles.sectionTitle}>
+            <Flower2 size={28} className={styles.sectionIcon} />
+            Bốn loại thảo dược kim chỉ nam
+          </h2>
+          <p className={styles.sectionSubtitle}>
+            Những nguyên liệu Việt Nam quen thuộc, được khoa học chứng minh hiệu quả
+          </p>
+        </FadeIn>
 
-        <div className={styles.ingredientsGrid}>
-          {INGREDIENTS.map((ing, idx) => (
-            <motion.div
-              key={ing.name}
-              className={styles.ingredientCard}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.05, duration: 0.4 }}
-              whileHover={{ y: -6 }}
-            >
-              <div className={styles.ingredientIcon}>
-                <Leaf size={22} />
-              </div>
-              <div className={styles.ingredientName}>{ing.name}</div>
-              <div className={styles.ingredientDesc}>{ing.desc}</div>
-            </motion.div>
+        <StaggerContainer className={styles.ingredientsGrid}>
+          {INGREDIENTS.map((ing) => (
+            <StaggerItem key={ing.name}>
+              <motion.div 
+                className={styles.ingredientCard}
+                whileHover={{ y: -10, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              >
+                <div className={styles.ingredientIcon}>
+                  <Leaf size={22} />
+                </div>
+                <div className={styles.ingredientName}>{ing.name}</div>
+                <div className={styles.ingredientDesc}>{ing.desc}</div>
+              </motion.div>
+            </StaggerItem>
           ))}
-        </div>
-      </motion.section>
+        </StaggerContainer>
+      </section>
 
       {/* CTA */}
-      <motion.section
-        className={styles.ctaSection}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className={styles.ctaInner}>
+      <section className={styles.ctaSection}>
+        <FadeIn className={styles.ctaInner} direction="none" delay={0.2}>
           <h2 className={styles.ctaTitle}>Bắt đầu hành trình thuần chay cùng VeganGlow</h2>
           <p className={styles.ctaText}>
             Khám phá bộ sưu tập sản phẩm chiết xuất từ thảo dược Việt — an toàn cho da bạn,
@@ -361,8 +294,8 @@ export default function AboutPage() {
           <div className={styles.ctaCheck}>
             <CheckCircle2 size={14} /> Miễn phí giao hàng cho đơn từ 500.000đ
           </div>
-        </div>
-      </motion.section>
+        </FadeIn>
+      </section>
     </div>
   );
 }

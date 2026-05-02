@@ -47,9 +47,18 @@
   color: var(--color-text-secondary);
 }
 
-.statsBar {
+.heroWrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.statsBarWrapper {
   max-width: 1100px;
   margin: 3rem auto 6rem;
+  padding: 0 1.5rem;
+}
+
+.statsBar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: white;
