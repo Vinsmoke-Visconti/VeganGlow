@@ -64,15 +64,17 @@ function safeRedirectPath(value: FormDataEntryValue | string | null, fallback = 
 }
 
 function getTrustedAppOrigin(originHeader: string | null) {
+  // 1. Explicitly configured URL (highest priority)
   const configured = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL;
   if (configured) {
     try {
       return new URL(configured).origin;
     } catch {
-      // Fall back to the request origin below.
+      // Ignore invalid URLs
     }
   }
 
+  // 2. Try to derive from the origin header
   if (originHeader) {
     try {
       const origin = new URL(originHeader);
@@ -80,11 +82,17 @@ function getTrustedAppOrigin(originHeader: string | null) {
         return origin.origin;
       }
     } catch {
-      // Fall through to local development default.
+      // Ignore invalid origin headers
     }
   }
 
-  return 'http://localhost:3000';
+  // 3. Fallback to localhost only if we are absolutely sure we are in development
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+
+  // 4. Final attempt: Use a default production URL or throw a more descriptive error/fallback
+  return 'https://veganglow.vercel.app';
 }
 
 export async function login(_prevState: AuthFormState, formData: FormData) {
