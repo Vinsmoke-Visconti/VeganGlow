@@ -74,6 +74,7 @@ begin
     -- We'll refine them to be more explicit.
     execute format('drop policy if exists "Public Access %s" on storage.objects', bucket_name);
     execute format('drop policy if exists "Public read %s" on storage.objects', bucket_name);
+    execute format('drop policy if exists "public_read_%s" on storage.objects', bucket_name);
     execute format('drop policy if exists "Avatar public access" on storage.objects'); -- specific name in report
     execute format('drop policy if exists "review_photos_public_read" on storage.objects'); -- specific name in report
     
