@@ -53,12 +53,11 @@ async function dispatchEmail(options: {
   }
 
   const toList = Array.isArray(options.to) ? options.to : [options.to];
-  const finalTo = IS_PRODUCTION || HAS_VERIFIED_DOMAIN ? toList : [TEST_RECIPIENT];
+  const finalTo = toList;
 
-  if (!IS_PRODUCTION && !HAS_VERIFIED_DOMAIN) {
-    logger.info(`[SANDBOX MODE] Redirecting email originally meant for ${toList.join(', ')} to verified test email: ${TEST_RECIPIENT}`);
-  }
-
+  // The user explicitly requested to send emails directly to the intended recipients,
+  // bypassing any sandbox redirection. Note that if the domain is unverified,
+  // Resend will throw a 403 error for unverified recipients.
   const { data, error } = await resend.emails.send({
     ...options,
     to: finalTo,

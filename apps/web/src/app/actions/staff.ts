@@ -96,17 +96,15 @@ export async function inviteStaff(prevState: unknown, formData: FormData) {
     return { error: 'Không thể tạo lời mời: ' + error.message };
   }
 
+  revalidatePath('/admin/users');
+
   // Send the email
   try {
     await sendStaffInvitationEmail(email, fullName, role.display_name, token);
   } catch (emailErr) {
     console.error('Failed to send invitation email:', emailErr);
-    // We don't return error here because the DB entry is created, 
-    // but we might want to warn the user.
-    return { success: `Đã tạo lời mời cho ${email} nhưng không thể gửi email tự động. Vui lòng gửi link thủ công cho họ.` };
+    return { success: `Đã tạo lời mời cho ${email} nhưng không thể gửi email tự động. Vui lòng copy link trong phần "Xem lời mời".` };
   }
-
-  revalidatePath('/admin/users');
   await audit(
     {
       action: 'rbac.staff_invited',
