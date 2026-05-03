@@ -31,7 +31,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    if (order.payment_status !== 'paid') {
+    const orderData = order as any;
+
+    if (orderData.payment_status !== 'paid') {
       return NextResponse.json({ error: 'Order is not paid' }, { status: 400 });
     }
 

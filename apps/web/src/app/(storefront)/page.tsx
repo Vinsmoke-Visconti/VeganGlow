@@ -42,7 +42,7 @@ export default async function Home() {
   let bestSellers = await cacheGet<ProductCardProduct[]>(cacheKey);
 
   if (!bestSellers) {
-    const { data: bestSellersData } = await supabase.rpc('get_best_selling_products', {
+    const { data: bestSellersData } = await (supabase.rpc as any)('get_best_selling_products', {
       p_days_ago: 30,
       p_limit: 20
     });
