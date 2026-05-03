@@ -152,7 +152,7 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                         <Sparkles size={16} /> Gợi ý cho bạn
                       </h3>
                       <p className={styles.hintText}>
-                        Hãy thử tìm "Rau Má" hoặc "Trà Xanh" để khám phá các dòng sản phẩm đặc trưng của VeganGlow.
+                        Hãy thử tìm &quot;Rau Má&quot; hoặc &quot;Trà Xanh&quot; để khám phá các dòng sản phẩm đặc trưng của VeganGlow.
                       </p>
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                           className={styles.viewAllBtn}
                           onClick={handleSearch}
                         >
-                          Xem tất cả kết quả cho "{query}"
+                          Xem tất cả kết quả cho &quot;{query}&quot;
                         </button>
                       </>
                     ) : !loading && (
@@ -206,7 +206,7 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                         <div className={styles.noResultsIcon}>
                           <Search size={48} />
                         </div>
-                        <p>Không tìm thấy sản phẩm nào khớp với "<strong>{query}</strong>"</p>
+                        <p>Không tìm thấy sản phẩm nào khớp với &quot;<strong>{query}</strong>&quot;</p>
                         <span>Vui lòng thử từ khóa khác hoặc kiểm tra lại chính tả.</span>
                       </div>
                     )}
