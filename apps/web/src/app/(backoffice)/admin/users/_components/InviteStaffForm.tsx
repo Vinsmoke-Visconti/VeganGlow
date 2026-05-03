@@ -60,12 +60,8 @@ export function InviteStaffForm({ roles }: { roles: Role[] }) {
             <form ref={formRef} onSubmit={handleSubmit}>
               <div className={shared.modalBody}>
                 <div className={shared.formField}>
-                  <label className={shared.formLabel}>Họ tên</label>
-                  <input className={shared.formInput} name="fullName" required />
-                </div>
-                <div className={shared.formField}>
                   <label className={shared.formLabel}>Email</label>
-                  <input className={shared.formInput} name="email" type="email" required />
+                  <input className={shared.formInput} name="email" type="email" placeholder="ví dụ: phuoc@gmail.com" required />
                   <p className={shared.formHint}>Họ sẽ đăng nhập bằng Google với email này.</p>
                 </div>
                 <div className={shared.formField}>

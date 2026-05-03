@@ -46,11 +46,12 @@ import { sendStaffInvitationEmail } from '@/lib/email';
  */
 export async function inviteStaff(prevState: unknown, formData: FormData) {
   const email = (formData.get('email') as string)?.trim().toLowerCase();
-  const fullName = (formData.get('fullName') as string)?.trim();
+  const fullNameRaw = (formData.get('fullName') as string)?.trim();
+  const fullName = fullNameRaw || email.split('@')[0];
   const roleName = (formData.get('roleName') as string) || 'staff';
 
-  if (!email || !fullName) {
-    return { error: 'Vui lòng nhập đầy đủ email và họ tên.' };
+  if (!email) {
+    return { error: 'Vui lòng nhập email.' };
   }
 
   const supabase = await createClient();
