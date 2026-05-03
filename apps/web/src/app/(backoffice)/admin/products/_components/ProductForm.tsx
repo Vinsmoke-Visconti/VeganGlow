@@ -132,7 +132,7 @@ export function ProductForm({
     >
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px' }}>
         {/* Left Side: Fields */}
-        <div style={{ padding: '24px', borderRight: '1px solid var(--vg-parchment-200)' }}>
+        <div style={{ padding: '24px', borderRight: '1px solid var(--vg-border)' }}>
           <section style={{ marginBottom: 24 }}>
              <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 900, marginBottom: 16, color: 'var(--vg-ink-900)', textTransform: 'uppercase' }}>
                Thông tin cơ bản
@@ -262,8 +262,8 @@ export function ProductForm({
                         gap: 6,
                         padding: '6px 12px',
                         borderRadius: 999,
-                        border: isSelected ? `2px solid ${tag.color}` : '2px solid var(--vg-parchment-200)',
-                        background: isSelected ? tag.color : '#fff',
+                        border: isSelected ? `2px solid ${tag.color}` : '2px solid var(--vg-border)',
+                        background: isSelected ? tag.color : 'var(--vg-surface-0)',
                         color: isSelected ? tag.text_color : 'var(--vg-ink-700)',
                         fontSize: 12,
                         fontWeight: 700,
@@ -287,7 +287,7 @@ export function ProductForm({
         </div>
 
         {/* Right Side: Media & Status */}
-        <div style={{ padding: '24px', background: '#fafafa' }}>
+        <div style={{ padding: '24px', background: 'var(--vg-surface-50)' }}>
            <h3 style={{ fontSize: 12, fontWeight: 900, marginBottom: 16, color: 'var(--vg-ink-600)', textTransform: 'uppercase' }}>Ảnh & Trạng thái</h3>
            
            <div className={shared.formField}>
@@ -308,8 +308,8 @@ export function ProductForm({
                 aspectRatio: '1/1', 
                 borderRadius: 16, 
                 overflow: 'hidden', 
-                background: dragOver ? 'var(--vg-leaf-50)' : '#fff', 
-                border: dragOver ? '2px solid var(--vg-leaf-500)' : '2px dashed var(--vg-parchment-200)',
+                background: dragOver ? 'var(--vg-surface-200)' : 'var(--vg-surface-0)', 
+                border: dragOver ? '2px solid var(--vg-leaf-500)' : '2px dashed var(--vg-border)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -349,10 +349,10 @@ export function ProductForm({
            </div>
 
            <div style={{ 
-             background: 'rgba(255,255,255,0.6)', 
+             background: 'var(--vg-surface-0)', 
              padding: 16, 
              borderRadius: 12, 
-             border: '1px solid var(--vg-parchment-200)',
+             border: '1px solid var(--vg-border)',
              marginTop: 24
            }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
@@ -383,7 +383,7 @@ export function ProductForm({
         </div>
       </div>
 
-      <div className={shared.modalFooter} style={{ padding: '16px 32px', background: '#fff' }}>
+      <div className={shared.modalFooter} style={{ padding: '16px 32px', background: 'var(--vg-surface-0)' }}>
         <button type="submit" className={`${shared.btn} ${shared.btnPrimary}`} style={{ minWidth: 160 }} disabled={pending || uploading}>
           {pending ? <Loader2 className={shared.spin} size={14} /> : null}
           {product?.id ? 'Lưu thay đổi' : 'Tạo sản phẩm mới'}

@@ -1,25 +1,26 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { logger } from './logger';
 import { buildVietQrUrl, isBankTransferMethod, type PaymentMethod } from './payment';
 
-// Notification Service using Resend
-// Requires RESEND_API_KEY in .env.local
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+// Notification Service using Nodemailer (Gmail SMTP)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER || '',
+    pass: process.env.GMAIL_APP_PASSWORD || '',
+  },
+});
 
-// In testing mode (unverified domain), Resend only allows sending to the owner's email.
-// Set RESEND_TEST_EMAIL in .env.local to your verified testing email.
-const TEST_RECIPIENT = process.env.RESEND_TEST_EMAIL || 'binmin81@gmail.com';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const HAS_VERIFIED_DOMAIN = process.env.RESEND_DOMAIN_VERIFIED === 'true';
 
-// Default sender if domain is not verified
-const DEFAULT_FROM = HAS_VERIFIED_DOMAIN 
-  ? 'VeganGlow <hello@veganglow.vn>' 
-  : 'VeganGlow <onboarding@resend.dev>';
+// Always send from the Gmail address
+const DEFAULT_FROM = process.env.GMAIL_USER 
+  ? `"VeganGlow" <${process.env.GMAIL_USER}>` 
+  : 'VeganGlow <hello@veganglow.vn>';
 
-const SECURITY_FROM = HAS_VERIFIED_DOMAIN
-  ? 'VeganGlow Security <security@veganglow.vn>'
-  : 'VeganGlow Security <onboarding@resend.dev>';
+const SECURITY_FROM = process.env.GMAIL_USER 
+  ? `"VeganGlow Security" <${process.env.GMAIL_USER}>` 
+  : 'VeganGlow Security <security@veganglow.vn>';
 
 function maskEmail(email: string) {
   const [local, domain] = email.split('@');
@@ -37,7 +38,7 @@ function escapeHtml(value: string) {
 }
 
 /**
- * Centralized email dispatcher to handle dev/prod differences and unverified domains
+ * Centralized email dispatcher using Gmail SMTP
  */
 async function dispatchEmail(options: {
   from?: string;
@@ -47,45 +48,40 @@ async function dispatchEmail(options: {
   text?: string;
   tags?: { name: string; value: string }[];
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    logger.warn('RESEND_API_KEY not set. Mocking email delivery.');
-    return { id: 'mock-id-' + Date.now() };
-  }
-
-  const toList = Array.isArray(options.to) ? options.to : [options.to];
-  const finalTo = toList;
-
-  // The user explicitly requested to send emails directly to the intended recipients,
-  // bypassing any sandbox redirection. Note that if the domain is unverified,
-  // Resend will throw a 403 error for unverified recipients.
-  const { data, error } = await resend.emails.send({
-    ...options,
-    to: finalTo,
-    text: options.text || (options.html as string).replace(/<[^>]*>/g, ''),
-  } as any);
-
-  if (error) {
-    logger.error({ action: 'send_email_error', error, to: finalTo }, 'Resend API error');
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    logger.warn('GMAIL_USER or GMAIL_APP_PASSWORD not set. Mocking email delivery.');
     
     // FALLBACK FOR LOCAL TESTING:
-    // If Resend blocks the email (e.g., unverified domain in sandbox), 
-    // we save the exact HTML to the Desktop so the user can see it and click the links!
+    // If credentials are not set, we save the exact HTML to the Desktop so the user can see it
     if (!IS_PRODUCTION) {
       try {
         const fs = require('fs');
         const path = require('path');
         const desktopPath = path.join(require('os').homedir(), 'Desktop', 'VeganGlow_Email_Preview.html');
         fs.writeFileSync(desktopPath, options.html);
-        logger.info(`Email blocked by Resend. Saved preview to: ${desktopPath}`);
+        logger.info(`Email mocked. Saved preview to: ${desktopPath}`);
       } catch (fsErr) {
         console.error('Failed to save email preview to desktop', fsErr);
       }
     }
-
-    throw error;
+    return { id: 'mock-id-' + Date.now() };
   }
 
-  return data;
+  const toList = Array.isArray(options.to) ? options.to : [options.to];
+
+  try {
+    const info = await transporter.sendMail({
+      from: options.from || DEFAULT_FROM,
+      to: toList,
+      subject: options.subject,
+      html: options.html,
+      text: options.text || (options.html as string).replace(/<[^>]*>/g, ''),
+    });
+    return { id: info.messageId };
+  } catch (error) {
+    logger.error({ action: 'send_email_error', error, to: toList }, 'Nodemailer SMTP error');
+    throw error;
+  }
 }
 
 export async function sendOrderConfirmation(

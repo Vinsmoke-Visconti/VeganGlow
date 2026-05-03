@@ -1,8 +1,9 @@
-// Edge Function: Send Email — Transactional email via Resend
+// Edge Function: Send Email — Transactional email via Gmail SMTP
 // POST /functions/v1/send-email
 // Body: { to, subject, html }
 
 import { corsHeaders } from '../_shared/cors.ts';
+import nodemailer from 'npm:nodemailer';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -12,27 +13,29 @@ Deno.serve(async (req: Request) => {
   try {
     const { to, subject, html } = await req.json();
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+    // Cấu hình nodemailer sử dụng Gmail SMTP
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: Deno.env.get('GMAIL_USER'), // Email Gmail của dự án
+        pass: Deno.env.get('GMAIL_APP_PASSWORD'), // App Password (16 ký tự)
       },
-      body: JSON.stringify({
-        from: 'VeganGlow <noreply@veganglow.vn>',
-        to: [to],
-        subject,
-        html,
-      }),
     });
 
-    const data = await res.json();
+    // Gửi email
+    const info = await transporter.sendMail({
+      from: `"VeganGlow Team" <${Deno.env.get('GMAIL_USER')}>`,
+      to,
+      subject,
+      html,
+    });
 
-    return new Response(JSON.stringify(data), {
-      status: res.ok ? 200 : 400,
+    return new Response(JSON.stringify({ success: true, messageId: info.messageId }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('Email error:', err);
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : 'Failed' }),
       {

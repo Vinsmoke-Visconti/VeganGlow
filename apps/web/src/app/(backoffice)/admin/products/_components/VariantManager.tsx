@@ -148,7 +148,7 @@ export function VariantManager({ productId, variants }: Props) {
   }
 
   return (
-    <div style={{ marginTop: 32, padding: 24, background: '#fff', borderRadius: 16, border: '1px solid var(--vg-parchment-200)' }}>
+    <div style={{ marginTop: 32, padding: 24, background: 'var(--vg-surface-0)', borderRadius: 16, border: '1px solid var(--vg-border)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <h3 style={{ fontSize: 14, fontWeight: 900, color: 'var(--vg-ink-900)', textTransform: 'uppercase', margin: 0 }}>
           Biến thể sản phẩm ({variants.length})
@@ -171,7 +171,7 @@ export function VariantManager({ productId, variants }: Props) {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--vg-parchment-200)' }}>
+              <tr style={{ borderBottom: '1px solid var(--vg-border)' }}>
                 <th style={th}>Ảnh</th>
                 <th style={th}>SKU</th>
                 <th style={th}>Tên / Thuộc tính</th>
@@ -183,12 +183,12 @@ export function VariantManager({ productId, variants }: Props) {
             </thead>
             <tbody>
               {variants.map((v) => (
-                <tr key={v.id} style={{ borderBottom: '1px solid var(--vg-parchment-100)' }}>
+                <tr key={v.id} style={{ borderBottom: '1px solid var(--vg-surface-100)' }}>
                   <td style={td}>
                     {v.image_url ? (
                       <SafeImage src={v.image_url} alt={v.sku} fallback="" style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8 }} />
                     ) : (
-                      <div style={{ width: 40, height: 40, background: 'var(--vg-parchment-100)', borderRadius: 8, display: 'grid', placeItems: 'center', fontSize: 12, color: 'var(--vg-ink-400)' }}>—</div>
+                      <div style={{ width: 40, height: 40, background: 'var(--vg-surface-100)', borderRadius: 8, display: 'grid', placeItems: 'center', fontSize: 12, color: 'var(--vg-ink-400)' }}>—</div>
                     )}
                   </td>
                   <td style={{ ...td, fontFamily: 'monospace', fontSize: 12 }}>{v.sku}</td>
@@ -246,7 +246,7 @@ export function VariantManager({ productId, variants }: Props) {
 
       {/* Edit/Create form */}
       {editing && (
-        <div style={{ background: 'var(--vg-parchment-50)', padding: 20, borderRadius: 12, border: '1px solid var(--vg-parchment-200)', marginTop: 16 }}>
+        <div style={{ background: 'var(--vg-surface-50)', padding: 20, borderRadius: 12, border: '1px solid var(--vg-border)', marginTop: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 16 }}>
             {/* Image */}
             <div>
@@ -266,11 +266,11 @@ export function VariantManager({ productId, variants }: Props) {
                 }}
                 style={{ 
                   aspectRatio: '1/1', 
-                  border: dragOver ? '2px solid var(--vg-leaf-500)' : '2px dashed var(--vg-parchment-200)', 
+                  border: dragOver ? '2px solid var(--vg-leaf-500)' : '2px dashed var(--vg-border)', 
                   borderRadius: 8, 
                   overflow: 'hidden', 
                   position: 'relative', 
-                  background: dragOver ? 'var(--vg-leaf-50)' : '#fff',
+                  background: dragOver ? 'var(--vg-surface-100)' : 'var(--vg-surface-0)',
                   transition: 'all 0.2s ease',
                   transform: dragOver ? 'scale(1.05)' : 'scale(1)',
                   zIndex: 10
