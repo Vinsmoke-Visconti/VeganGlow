@@ -107,6 +107,15 @@ npm run docker:prod
 - **Mobile:** Capacitor (iOS + Android), chia sẻ DB types với Web
 - **Backend:** Supabase (PostgreSQL, Auth, Edge Functions, RLS)
 - **Deploy:** Vercel (Web), Docker Hub (Container), GitHub Actions (CI/CD)
+- **AI-Driven Development:** Claude (Anthropic), GitHub Copilot
+
+## AI-Driven Development & Automation
+
+Dự án ứng dụng quy trình **AI-Driven Development** hiện đại để tối ưu hóa hiệu suất và độ chính xác:
+
+- **AI Assistants:** Sử dụng các mô hình ngôn ngữ lớn (LLMs) như Claude để hỗ trợ thiết kế hệ thống, tối ưu hóa database schema và hỗ trợ viết mã nguồn nhanh chóng.
+- **Automated Workflows:** Hệ thống tự động hóa toàn diện từ CI/CD (GitHub Actions) đến việc tự động deploy đa nền tảng (Vercel, Supabase Edge Functions, Docker Hub).
+- **AI Git Flow:** Các quy trình commit và xử lý logic phức tạp (như SMTP OAuth2, Staff RBAC) được AI hỗ trợ kiểm soát chất lượng mã nguồn trước khi deploy.
 
 ## Đội ngũ phát triển (Development Team)
 
