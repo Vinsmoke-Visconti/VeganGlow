@@ -66,7 +66,13 @@ export default async function ProductsPage({
   // This avoids complex nested Supabase filtering for counts.
   const [categoriesRes, allActiveProductsRes] = await Promise.all([
     supabase.from('categories').select('id, name, slug').order('name'),
-    supabase.from('products').select('category_id').eq('is_active', true)
+    supabase.from('products').select('category_id').eq('is_active', true),
+    supabase
+      .from('flash_sales')
+      .select('*')
+      .eq('status', 'active')
+      .lte('starts_at', new Date().toISOString())
+      .gte('ends_at', new Date().toISOString()),
   ]);
 
   const rawCategories: CategoryRow[] = (categoriesRes.data as CategoryRow[] | null) ?? [];
@@ -115,7 +121,20 @@ export default async function ProductsPage({
     console.error('Products query error:', error);
   }
 
-  const list: ProductCardProduct[] = (products as ProductCardProduct[] | null) ?? [];
+  const activeFlashSales = (allActiveProductsRes[2]?.data as any[]) ?? [];
+
+  const list: ProductCardProduct[] = (products as any[] | null)?.map(p => {
+    const flash = activeFlashSales.find(f => f.product_id === p.id);
+    if (flash) {
+      return {
+        ...p,
+        original_price: p.price,
+        price: p.price * (1 - flash.discount_percent / 100),
+        flash_sale: flash
+      };
+    }
+    return p;
+  }) ?? [];
 
   return (
     <div className={styles.page}>

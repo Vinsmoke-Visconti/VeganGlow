@@ -9,16 +9,21 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
   avatar_url text,
+  role_id uuid references public.roles(id),
   role text not null default 'customer' check (role in ('customer', 'admin')),
   created_at timestamptz not null default now()
 );
 
--- Auto-create a profile row whenever a new auth user signs up.
+-- Update handle_new_user to set default customer role_id
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  v_role_id uuid;
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)))
+  select id into v_role_id from public.roles where name = 'customer';
+  
+  insert into public.profiles (id, full_name, role_id)
+  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)), v_role_id)
   on conflict (id) do nothing;
   return new;
 end $$;

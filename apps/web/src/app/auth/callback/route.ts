@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { audit, getAuditContext } from '@/lib/security/auditLog';
+import { sendWelcomeEmail, sendAdminLoginAlert } from '@/lib/email';
 
 function safeRedirectPath(value: string | null, fallback = '/') {
   if (!value || !value.startsWith('/') || value.startsWith('//')) {
@@ -58,6 +59,25 @@ export async function GET(request: Request) {
 
   // ============== CUSTOMER FLOW ==============
   if (!isAdminFlow) {
+    const fullName = user.user_metadata.full_name || user.user_metadata.name;
+    const { data: existingProfile } = await (supabase.from('profiles') as any)
+      .select('full_name')
+      .eq('id', user.id)
+      .single();
+
+    if (existingProfile && !existingProfile.full_name && fullName) {
+      await (supabase.from('profiles') as any)
+        .update({ full_name: fullName })
+        .eq('id', user.id);
+    }
+
+    // Send welcome email for new accounts (created in the last 2 minutes)
+    // We use a short window to avoid resending multiple times if they refresh during first login
+    const isNewUser = (Date.now() - new Date(user.created_at).getTime()) < 120000;
+    if (isNewUser && (!existingProfile || !existingProfile.full_name)) {
+      await sendWelcomeEmail(user.email!, fullName);
+    }
+
     return NextResponse.redirect(`${origin}${next}`);
   }
 
@@ -86,6 +106,13 @@ export async function GET(request: Request) {
 
   // Force refresh session to pick up new app_metadata claims from triggers
   await supabase.auth.refreshSession();
+
+  // Send login alert
+  const { ip, userAgent } = await getAuditContext(request);
+  const adminName = user.user_metadata?.full_name || user.user_metadata?.name || 'Admin';
+  sendAdminLoginAlert(user.email!, adminName, { ip: ip || undefined, userAgent: userAgent || undefined }).catch(err => {
+    console.error('Failed to send admin login alert:', err);
+  });
 
   const response = NextResponse.redirect(`${origin}${next}`);
   response.cookies.set('admin_last_activity', Date.now().toString(), {

@@ -128,7 +128,7 @@ Deno.serve(async (req: Request) => {
         province_code: provinceCode,
         note: body.note ?? '',
       },
-      p_items: body.items.map((item) => ({
+      p_items: body.items.map((item: CheckoutItem) => ({
         id: item.product_id,
         quantity: item.quantity,
       })),

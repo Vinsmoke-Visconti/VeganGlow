@@ -135,3 +135,17 @@
   background: var(--vg-surface-200);
   color: var(--vg-ink-900);
 }
+
+.declinedMessage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--vg-danger-fg);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px;
+  background: var(--vg-danger-50);
+  border-radius: var(--vg-radius-pill);
+  width: 100%;
+}

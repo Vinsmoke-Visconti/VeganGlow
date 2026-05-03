@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { sendOrderConfirmation } from '@/lib/email';
 import { normalizePaymentMethod, type PaymentMethod } from '@/lib/payment';
 
@@ -20,6 +21,7 @@ type CheckoutInput = {
   province_code: string;
   payment_method: PaymentMethod;
   note?: string;
+  voucher_code?: string;
 };
 
 type CheckoutResult =
@@ -101,6 +103,7 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
     p_items: input.items.map((i) => ({ id: i.id, quantity: i.quantity })),
     p_payment_method: paymentMethod,
     p_idempotency_key: input.idempotency_key ?? null,
+    p_voucher_code: input.voucher_code ?? null,
   };
 
   // Supabase generated types currently lack the new RPC signature; cast once,
@@ -158,16 +161,18 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   revalidatePath('/products');
 
   if (!reused) {
-    try {
-      await sendOrderConfirmation(
-        input.email.trim(),
-        order_code,
-        Number(total_amount),
-        paymentMethod
-      );
-    } catch (emailError) {
-      console.error('Failed to send order confirmation email:', emailError);
-    }
+    after(async () => {
+      try {
+        await sendOrderConfirmation(
+          input.email.trim(),
+          order_code,
+          Number(total_amount),
+          paymentMethod
+        );
+      } catch (emailError) {
+        console.error('Failed to send order confirmation email:', emailError);
+      }
+    });
   }
 
   return { success: true, order_id, order_code };

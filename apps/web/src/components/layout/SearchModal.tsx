@@ -6,6 +6,7 @@ import { Search, X, Loader2, ArrowRight, Sparkles, TrendingUp } from 'lucide-rea
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { normalizeProductImage } from '@/lib/imageUrl';
 import styles from './SearchModal.module.css';
 
 interface SearchResult {
@@ -13,8 +14,8 @@ interface SearchResult {
   name: string;
   slug: string;
   price: number;
-  image_url: string;
-  category: { name: string } | null;
+  image: string;
+  categories: { name: string } | null;
 }
 
 const TRENDING_SEARCHES = ['Serum Rau Má', 'Kem chống nắng', 'Toner Diếp Cá', 'Mặt nạ hoa hồng'];
@@ -50,12 +51,14 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
 
       setLoading(true);
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('products')
-          .select('id, name, slug, price, image_url, category:categories(name)')
-          .ilike('name', `%${query}%`)
+          .select('id, name, slug, price, image, categories:category_id(name)')
+          .eq('is_active', true)
+          .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
           .limit(5);
         
+        if (error) console.error('Supabase search error:', error);
         setResults((data as any[]) || []);
       } catch (error) {
         console.error('Search error:', error);
@@ -167,16 +170,17 @@ export default function SearchModal({ isOpen, onClose }: { isOpen: boolean; onCl
                             >
                               <div className={styles.productImg}>
                                 <Image
-                                  src={product.image_url || '/images/placeholder.jpg'}
+                                  src={normalizeProductImage(product.image) || '/images/placeholder.jpg'}
                                   alt={product.name}
                                   width={60}
                                   height={60}
                                   className={styles.img}
+                                  unoptimized
                                 />
                               </div>
                               <div className={styles.productInfo}>
                                 <div className={styles.productCategory}>
-                                  {product.category?.name || 'Chăm sóc da'}
+                                  {product.categories?.name || 'Chăm sóc da'}
                                 </div>
                                 <div className={styles.productName}>{product.name}</div>
                                 <div className={styles.productPrice}>

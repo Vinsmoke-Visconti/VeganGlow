@@ -102,7 +102,7 @@ create or replace function private.create_checkout_order(
 ) returns table(order_id uuid, order_code text, total_amount numeric, reused boolean)
 language plpgsql
 security definer
-set search_path = public, pg_temp
+set search_path = public, extensions, pg_temp
 as $$
 declare
   v_user_id         uuid := auth.uid();

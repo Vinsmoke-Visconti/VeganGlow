@@ -50,7 +50,7 @@ export default function UserAccountSidebar() {
           <User size={28} />
         </div>
         <div className={styles.userInfo}>
-          <h3 className={styles.userName}>{profile?.username || 'Thành viên'}</h3>
+          <h3 className={styles.userName}>{profile?.full_name || profile?.username || 'Thành viên'}</h3>
           <Link href="/profile" className={styles.editProfile}>
             Sửa hồ sơ
           </Link>

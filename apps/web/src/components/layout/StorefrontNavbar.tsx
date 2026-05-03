@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SearchModal from './SearchModal';
 
-type NavbarProfile = { username: string | null; avatar_url: string | null };
+type NavbarProfile = { username: string | null; full_name: string | null; avatar_url: string | null };
 
 const NAV_LINKS = [
   { href: '/products', label: 'Cửa hàng' },
@@ -54,10 +54,10 @@ export default function StorefrontNavbar() {
     const fetchProfile = async (userId: string) => {
       const { data } = await supabase
         .from('profiles')
-        .select('username, avatar_url')
+        .select('username, full_name, avatar_url')
         .eq('id', userId)
         .single();
-      setProfile(data);
+      setProfile(data as NavbarProfile | null);
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -162,7 +162,7 @@ export default function StorefrontNavbar() {
                   )}
                 </div>
                 <span>
-                  {profile?.username || 'Tài khoản'}
+                  {profile?.full_name || profile?.username || 'Tài khoản'}
                 </span>
               </Link>
             ) : (

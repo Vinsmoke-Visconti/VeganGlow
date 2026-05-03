@@ -61,7 +61,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const filename = `products/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
+   const slug = form.get('slug') as string | null;
+  const randomSuffix = Math.random().toString(36).slice(2, 6);
+  const baseName = slug ? `${slug}-${randomSuffix}` : `${Date.now()}-${randomSuffix}`;
+  const filename = `products/${user.id}/${baseName}.webp`;
   const { error: uploadErr } = await supabase.storage
     .from('products')
     .upload(filename, webp, {

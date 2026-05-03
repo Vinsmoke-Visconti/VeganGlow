@@ -26,8 +26,8 @@ type StaffInvitationWriteClient = {
     },
     options: { onConflict: string },
   ) => Promise<{ error: { message: string } | null }>;
-  update: (row: { status: 'revoked' }) => {
-    eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
+  update: (row: { status: 'revoked' | 'declined' | 'accepted' }) => {
+    eq: (column: 'id' | 'token', value: string) => Promise<{ error: { message: string } | null }>;
   };
 };
 
@@ -167,4 +167,41 @@ export async function deactivateStaff(staffId: string) {
     await auditCtx()
   );
   return { success: 'Đã vô hiệu hóa nhân sự.' };
+}
+
+/**
+ * Invitee declines the invitation.
+ */
+export async function declineStaffInvitation(token: string) {
+  const supabase = await createClient();
+
+  // Find invitation first to audit it
+  const { data: invite } = await supabase
+    .from('staff_invitations')
+    .select('id, email, full_name')
+    .eq('token', token)
+    .single();
+
+  if (!invite) return { error: 'Không tìm thấy lời mời.' };
+
+  const { error } = await (
+    supabase.from('staff_invitations') as unknown as StaffInvitationWriteClient
+  )
+    .update({ status: 'declined' })
+    .eq('token', token);
+
+  if (error) return { error: error.message };
+
+  await audit(
+    {
+      action: 'rbac.staff_invitation_declined',
+      severity: 'info',
+      entity: 'staff',
+      entity_id: invite.email,
+      details: { full_name: invite.full_name },
+    },
+    await auditCtx()
+  );
+
+  return { success: 'Đã từ chối lời mời.' };
 }

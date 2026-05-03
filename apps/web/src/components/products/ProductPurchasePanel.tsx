@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { setBuyNow } from '@/lib/buyNow';
-import { ShoppingCart, Check, Sparkles } from 'lucide-react';
+import { ShoppingCart, Check, Sparkles, Zap, Clock } from 'lucide-react';
+import { useEffect } from 'react';
 import VariantSelector, { type Variant } from './VariantSelector';
 import QuantitySelector from './QuantitySelector';
 import FreeshipBadge from './FreeshipBadge';
@@ -18,6 +19,10 @@ type ProductInfo = {
   old_price?: number | null;
   image?: string | null;
   stock: number;
+  flash_sale?: {
+    discount_percent: number;
+    ends_at: string;
+  } | null;
 };
 
 type Props = {
@@ -36,6 +41,31 @@ export default function ProductPurchasePanel({ product, variants, freeshipThresh
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (!product.flash_sale?.ends_at) return;
+
+    const interval = setInterval(() => {
+      const end = new Date(product.flash_sale!.ends_at).getTime();
+      const now = new Date().getTime();
+      const diff = end - now;
+
+      if (diff <= 0) {
+        setTimeLeft('Đã kết thúc');
+        clearInterval(interval);
+        return;
+      }
+
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [product.flash_sale]);
 
   const hasVariants = variants.length > 0;
   const effectivePrice = selectedVariant?.price ?? product.price;
@@ -96,6 +126,18 @@ export default function ProductPurchasePanel({ product, variants, freeshipThresh
 
   return (
     <div className={styles.panel}>
+      {product.flash_sale && (
+        <div className={styles.flashBanner}>
+          <div className={styles.flashLeft}>
+            <Zap size={18} fill="white" />
+            <span>FLASH SALE ĐANG DIỄN RA</span>
+          </div>
+          <div className={styles.flashRight}>
+             <Clock size={14} />
+             <span>Kết thúc sau: <strong>{timeLeft}</strong></span>
+          </div>
+        </div>
+      )}
       {/* Price + freeship badge */}
       <div className={styles.priceRow}>
         <div className={styles.priceCol}>

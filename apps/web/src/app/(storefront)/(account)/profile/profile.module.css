@@ -125,7 +125,7 @@
   object-fit: cover;
 }
 
-.avatarInner svg {
+.avatarInner > svg {
   width: 40px;
   height: 40px;
   color: white;
@@ -150,6 +150,12 @@
 
 .camBtn:hover {
   transform: scale(1.1);
+}
+
+.camBtn svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary-dark);
 }
 
 .identityInfo h2,
@@ -491,7 +497,7 @@
 }
 
 .segment {
-  width: 2.25rem;
+  width: 2.75rem;
   height: 100%;
   border: none;
   background: transparent;
@@ -502,14 +508,18 @@
   color: var(--color-primary-dark);
 }
 
+.segment:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .segment::placeholder {
   color: var(--color-text-muted);
   font-weight: 500;
-  opacity: 0.5;
 }
 
 .segmentYear {
-  width: 3.5rem;
+  width: 4rem;
 }
 
 .divider {

@@ -185,6 +185,26 @@
   opacity: 1;
 }
 
+.tagTextContainer {
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  height: 14px;
+  min-width: 60px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.tagLabel, .tagValue {
+  display: block;
+  white-space: nowrap;
+}
+
+.tagValue {
+  color: var(--vg-leaf-600);
+  font-weight: 700;
+}
+
 @media (max-width: 768px) {
   .grid {
     grid-template-columns: 1fr;

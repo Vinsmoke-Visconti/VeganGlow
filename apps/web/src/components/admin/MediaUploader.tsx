@@ -16,13 +16,14 @@ export type ProductImageRow = {
 
 type Props = {
   productId: string;
+  slug?: string;
   initialImages: ProductImageRow[];
   onAdd: (img: { url: string; width: number; height: number; isThumbnail: boolean; position: number }) => Promise<{ ok: boolean; error?: string }>;
   onDelete: (id: string) => Promise<{ ok: boolean; error?: string }>;
   onSetThumbnail: (id: string) => Promise<{ ok: boolean; error?: string }>;
 };
 
-export function MediaUploader({ initialImages, onAdd, onDelete, onSetThumbnail }: Props) {
+export function MediaUploader({ initialImages, onAdd, onDelete, onSetThumbnail, slug }: Props) {
   const [images, setImages] = useState(initialImages);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -37,6 +38,7 @@ export function MediaUploader({ initialImages, onAdd, onDelete, onSetThumbnail }
         for (const file of fileArr) {
           const fd = new FormData();
           fd.append('file', file);
+          if (slug) fd.append('slug', slug);
           const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd });
           if (!res.ok) {
             const j = await res.json().catch(() => ({ error: 'Upload failed' }));
@@ -92,17 +94,46 @@ export function MediaUploader({ initialImages, onAdd, onDelete, onSetThumbnail }
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        style={{
-          border: `2px dashed ${dragOver ? '#1a7f37' : '#bbb'}`,
+         style={{
+          border: `2px dashed ${dragOver ? 'var(--color-primary)' : '#bbb'}`,
           borderRadius: 12,
           padding: 32,
           textAlign: 'center',
-          background: dragOver ? '#f0f9f3' : '#fafafa',
+          background: dragOver ? 'var(--color-primary-50)' : '#fafafa',
           cursor: 'pointer',
-          transition: 'background 0.15s',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: dragOver ? 'scale(1.02)' : 'scale(1)',
+          boxShadow: dragOver ? '0 12px 24px rgba(6, 78, 59, 0.1)' : 'none',
+          position: 'relative',
+          overflow: 'hidden'
         }}
         onClick={() => document.getElementById('media-file-input')?.click()}
       >
+        {dragOver && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(255,255,255,0.4)',
+            backdropFilter: 'blur(1px)',
+            display: 'grid',
+            placeItems: 'center',
+            zIndex: 5
+          }}>
+            <div style={{
+              background: 'white',
+              padding: '12px 24px',
+              borderRadius: 99,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              fontWeight: 800,
+              color: 'var(--color-primary-dark)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}>
+              <UploadCloud size={20} /> Thả để tải lên
+            </div>
+          </div>
+        )}
         {uploading ? (
           <Loader2 size={32} style={{ animation: 'spin 1s linear infinite' }} />
         ) : (

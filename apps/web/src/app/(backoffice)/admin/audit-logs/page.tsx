@@ -31,8 +31,15 @@ export default async function AdminAuditLogs() {
 
 
       <div className={shared.card}>
-        <div className={shared.cardHeader}>
+        <div className={shared.cardHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 className={shared.cardTitle}>Tất cả nhật ký</h2>
+          <a 
+            href="/api/admin/export/logs?days=30" 
+            className={shared.btnSecondary}
+            style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            Xuất file CSV (30 ngày)
+          </a>
         </div>
         {auditEntries.length === 0 ? (
           <div className={shared.emptyState}>

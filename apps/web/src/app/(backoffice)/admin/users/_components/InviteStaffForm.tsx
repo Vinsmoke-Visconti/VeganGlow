@@ -16,10 +16,10 @@ export function InviteStaffForm({ roles }: { roles: Role[] }) {
   const [state, formAction] = useActionState(inviteStaff, initialState);
   const [isPending, startTransition] = useTransition();
 
+  // Removed auto-close timeout to let user read success message
   useEffect(() => {
     if (state?.success) {
-      const t = setTimeout(() => setOpen(false), 1200);
-      return () => clearTimeout(t);
+      // Keep modal open so user can see success state
     }
   }, [state]);
 
@@ -83,16 +83,29 @@ export function InviteStaffForm({ roles }: { roles: Role[] }) {
                 )}
               </div>
               <div className={shared.modalFooter}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className={`${shared.btn} ${shared.btnGhost}`}
-                >
-                  Hủy
-                </button>
-                <button type="submit" disabled={isPending} className={`${shared.btn} ${shared.btnPrimary}`}>
-                  {isPending ? <Loader2 size={14} /> : <Send size={14} />} Gửi lời mời
-                </button>
+                {state?.success ? (
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className={`${shared.btn} ${shared.btnPrimary}`}
+                    style={{ width: '100%' }}
+                  >
+                    Hoàn tất
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      className={`${shared.btn} ${shared.btnGhost}`}
+                    >
+                      Hủy
+                    </button>
+                    <button type="submit" disabled={isPending} className={`${shared.btn} ${shared.btnPrimary}`}>
+                      {isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Gửi lời mời
+                    </button>
+                  </>
+                )}
               </div>
             </form>
           </div>

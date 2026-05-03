@@ -83,6 +83,7 @@ export function VariantManager({ productId, variants }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Draft | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   function startNew() {
     setEditing({ ...NEW_DRAFT, position: variants.length });
@@ -135,7 +136,9 @@ export function VariantManager({ productId, variants }: Props) {
     if (!file || !editing) return;
     setUploading(true);
     try {
-      const { url } = await uploadAdminImage('productImages', file);
+      // Use variant SKU or name for renaming
+      const fileName = (editing.sku || editing.name || 'variant').toLowerCase().replace(/\s+/g, '-');
+      const { url } = await uploadAdminImage('productImages', file, '', fileName);
       setEditing({ ...editing, image_url: url });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Lỗi upload ảnh');
@@ -248,12 +251,36 @@ export function VariantManager({ productId, variants }: Props) {
             {/* Image */}
             <div>
               <label className={shared.formLabel} style={{ fontSize: 11 }}>Ảnh biến thể</label>
-              <div style={{ aspectRatio: '1/1', border: '2px dashed var(--vg-parchment-200)', borderRadius: 8, overflow: 'hidden', position: 'relative', background: '#fff' }}>
+              <div 
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver(false);
+                  if (e.dataTransfer.files?.[0]) {
+                    handleImageUpload(e.dataTransfer.files[0]);
+                  }
+                }}
+                style={{ 
+                  aspectRatio: '1/1', 
+                  border: dragOver ? '2px solid var(--vg-leaf-500)' : '2px dashed var(--vg-parchment-200)', 
+                  borderRadius: 8, 
+                  overflow: 'hidden', 
+                  position: 'relative', 
+                  background: dragOver ? 'var(--vg-leaf-50)' : '#fff',
+                  transition: 'all 0.2s ease',
+                  transform: dragOver ? 'scale(1.05)' : 'scale(1)',
+                  zIndex: 10
+                }}
+              >
                 {editing.image_url ? (
                   <SafeImage src={editing.image_url} alt="variant" fallback="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: 'var(--vg-ink-400)' }}>
-                    <ImagePlus size={20} />
+                  <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: dragOver ? 'var(--vg-leaf-600)' : 'var(--vg-ink-400)' }}>
+                    {dragOver ? <Upload size={24} /> : <ImagePlus size={20} />}
                   </div>
                 )}
                 {uploading && (

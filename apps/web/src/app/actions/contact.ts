@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sendContactConfirmationEmail, sendAdminContactAlert } from '@/lib/email';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -47,6 +48,13 @@ export async function submitContactMessage(input: ContactInput): Promise<Contact
   if (error) {
     return { success: false, error: 'Không gửi được tin nhắn. Vui lòng thử lại.' };
   }
+
+  // Fire-and-forget email notifications to avoid blocking the user
+  // We use Promise.all and catch errors to ensure the user still gets a success response
+  Promise.all([
+    sendContactConfirmationEmail(email, name, subject),
+    sendAdminContactAlert({ name, email, subject, message })
+  ]).catch(err => console.error('Failed to send contact emails:', err));
 
   revalidatePath('/contact');
   return { success: true };

@@ -7,7 +7,7 @@
 
 const allowList = (Deno.env.get('ALLOWED_ORIGINS') || '')
   .split(',')
-  .map((s) => s.trim())
+  .map((s: string) => s.trim())
   .filter(Boolean);
 
 export function buildCorsHeaders(req: Request): Record<string, string> {

@@ -55,6 +55,7 @@ export function ProductForm({
     product ?? { ...EMPTY, category_id: categories[0]?.id ?? null },
   );
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const selectedTagIds = new Set(form.tag_ids ?? []);
 
@@ -72,7 +73,9 @@ export function ProductForm({
     setUploading(true);
     setError(null);
     try {
-      const { url } = await uploadAdminImage('productImages', file);
+      // Use product slug for renaming if available, otherwise name-based slug
+      const fileName = form.slug || slugify(form.name) || 'product';
+      const { url } = await uploadAdminImage('productImages', file, '', fileName);
       setForm((f) => ({ ...f, image: url }));
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Lỗi upload ảnh');
@@ -288,33 +291,52 @@ export function ProductForm({
            <h3 style={{ fontSize: 12, fontWeight: 900, marginBottom: 16, color: 'var(--vg-ink-600)', textTransform: 'uppercase' }}>Ảnh & Trạng thái</h3>
            
            <div className={shared.formField}>
-              <div style={{ 
+              <div 
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                if (e.dataTransfer.files?.[0]) {
+                  handleImage(e.dataTransfer.files[0]);
+                }
+              }}
+              style={{ 
                 aspectRatio: '1/1', 
                 borderRadius: 16, 
                 overflow: 'hidden', 
-                background: '#fff', 
-                border: '2px dashed var(--vg-parchment-200)',
+                background: dragOver ? 'var(--vg-leaf-50)' : '#fff', 
+                border: dragOver ? '2px solid var(--vg-leaf-500)' : '2px dashed var(--vg-parchment-200)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
-                marginBottom: 16
-              }}>
-                {form.image ? (
-                  <SafeImage src={form.image} alt="preview" fallback="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ textAlign: 'center', padding: 20 }}>
-                     <Upload size={32} className={shared.iconMuted} style={{ marginBottom: 12 }} />
-                     <p style={{ fontSize: 12, color: 'var(--vg-ink-500)', fontWeight: 700 }}>Chưa có ảnh</p>
-                  </div>
-                )}
-                {uploading && (
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.8)', display: 'grid', placeItems: 'center' }}>
-                     <Loader2 className={shared.spin} size={24} />
-                  </div>
-                )}
-              </div>
+                marginBottom: 16,
+                transition: 'all 0.2s ease',
+                transform: dragOver ? 'scale(1.02)' : 'scale(1)',
+                boxShadow: dragOver ? '0 12px 24px rgba(6, 78, 59, 0.1)' : 'none'
+              }}
+            >
+              {form.image ? (
+                <SafeImage src={form.image} alt="preview" fallback="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: 20 }}>
+                   <Upload size={32} className={dragOver ? '' : shared.iconMuted} style={{ marginBottom: 12, color: dragOver ? 'var(--vg-leaf-600)' : undefined }} />
+                   <p style={{ fontSize: 12, color: dragOver ? 'var(--vg-leaf-700)' : 'var(--vg-ink-500)', fontWeight: 700 }}>
+                     {dragOver ? 'Thả để tải lên' : 'Chưa có ảnh'}
+                   </p>
+                </div>
+              )}
+              {uploading && (
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.8)', display: 'grid', placeItems: 'center' }}>
+                   <Loader2 className={shared.spin} size={24} />
+                </div>
+              )}
+            </div>
               <label className={`${shared.btn} ${shared.btnSecondary}`} style={{ width: '100%', cursor: 'pointer', justifyContent: 'center' }}>
                 <Upload size={14} /> {form.image ? 'Đổi ảnh sản phẩm' : 'Tải ảnh lên'}
                 <input

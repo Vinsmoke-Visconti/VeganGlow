@@ -1,8 +1,53 @@
 'use client';
- 
+
+import { useState } from 'react';
 import { Sparkles, Github, Server, Database, Cloud, Shield, Mail, GraduationCap, Copy } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import styles from './team.module.css';
+
+function ServiceTag({ svc, username, icon, onClick }: { svc: string; username: string; icon: React.ReactNode; onClick: () => void }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <button 
+      className={styles.serviceTag}
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {icon}
+      <div className={styles.tagTextContainer}>
+        <AnimatePresence mode="wait">
+          {!isHovered ? (
+            <motion.span
+              key="label"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.15 }}
+              className={styles.tagLabel}
+            >
+              {svc.toUpperCase()}
+            </motion.span>
+          ) : (
+            <motion.span
+              key="username"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.15 }}
+              className={styles.tagValue}
+            >
+              {username}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+      <Copy size={10} className={styles.copyIconMini} />
+    </button>
+  );
+}
 
 export function TeamMembersClient() {
   const SERVICE_URLS: Record<string, string> = {
@@ -72,16 +117,16 @@ export function TeamMembersClient() {
     },
     {
       id: 'author-4',
-      full_name: 'Thành viên 4 (Đang cập nhật)',
-      mssv: 'Đang cập nhật',
-      mail_can_han: 'Đang cập nhật',
-      mail_truong: 'Đang cập nhật',
-      github: 'Đang cập nhật',
-      supabase: 'Đang cập nhật',
-      vercel: 'Đang cập nhật',
-      redis: 'Đang cập nhật',
-      docker: 'Đang cập nhật',
-      snyk: 'Đang cập nhật',
+      full_name: 'Trần Quỳnh Trâm',
+      mssv: '52300071',
+      mail_can_han: 'quynhtram5358@gmail.com',
+      mail_truong: '52300071@student.tdtu.edu.vn',
+      github: 'chickndot',
+      supabase: 'chickndot',
+      vercel: 'chickndot',
+      redis: 'Tran #2920853',
+      docker: 'tranquynhtram',
+      snyk: 'chickndot',
     }
   ];
 
@@ -155,15 +200,13 @@ export function TeamMembersClient() {
                 if (!username || username === 'Đang cập nhật') return null;
 
                 return (
-                  <button 
-                    key={svc} 
-                    className={styles.serviceTag}
+                  <ServiceTag
+                    key={svc}
+                    svc={svc}
+                    username={username}
+                    icon={SERVICE_ICON[svc]}
                     onClick={() => handleCopy(username, svc.toUpperCase(), svc)}
-                  >
-                    {SERVICE_ICON[svc]}
-                    <span>{username}</span>
-                    <Copy size={10} className={styles.copyIconMini} />
-                  </button>
+                  />
                 );
               })}
             </div>

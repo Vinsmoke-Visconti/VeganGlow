@@ -40,8 +40,31 @@ export default async function Home() {
   let products = await cacheGet<ProductCardProduct[]>(cacheKey);
 
   if (!products) {
-    const { data: dbProducts } = await supabase.from('products').select('*, categories(name, slug)').limit(4);
-    products = (dbProducts ?? []) as unknown as ProductCardProduct[];
+    const [dbProductsRes, flashSalesRes] = await Promise.all([
+      supabase.from('products').select('*, categories(name, slug)').limit(4),
+      supabase
+        .from('flash_sales')
+        .select('*')
+        .eq('status', 'active')
+        .lte('starts_at', new Date().toISOString())
+        .gte('ends_at', new Date().toISOString()),
+    ]);
+
+    const activeFlashSales = (flashSalesRes.data as any[]) ?? [];
+
+    products = (dbProductsRes.data as any[] | null)?.map((p) => {
+      const flash = activeFlashSales.find((f) => f.product_id === p.id);
+      if (flash) {
+        return {
+          ...p,
+          original_price: p.price,
+          price: p.price * (1 - flash.discount_percent / 100),
+          flash_sale: flash,
+        };
+      }
+      return p;
+    }) ?? [];
+
     await cacheSet(cacheKey, products, 1800);
   }
 
@@ -342,14 +365,15 @@ export default async function Home() {
                 </div>
               </div>
               <div className={styles.storyImageWrap}>
-                <Image
-                  src="/images/hero.jpg"
-                  alt="VeganGlow Botanical Skincare"
-                  fill
-                  priority
-                  loading="eager"
-                  className="object-cover scale-105 hover:scale-100 transition-transform duration-[10000ms] ease-out"
-                />
+                 <Image
+                   src="/images/hero.jpg"
+                   alt="VeganGlow Botanical Skincare"
+                   fill
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
+                   priority
+                   loading="eager"
+                   className="object-cover scale-105 hover:scale-100 transition-transform duration-[10000ms] ease-out"
+                 />
               </div>
             </div>
           </FadeIn>

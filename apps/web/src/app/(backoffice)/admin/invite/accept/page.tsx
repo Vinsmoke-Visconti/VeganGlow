@@ -122,7 +122,7 @@ export default async function AcceptInvitePage({
 
             <div className={styles.actions}>
               <form action={adminGoogleLogin}>
-                <button type="submit" className={styles.btnPrimary} style={{ cursor: 'pointer' }}>
+                <button type="submit" className={styles.btnPrimary} style={{ cursor: 'pointer', width: '100%' }}>
                   Đăng nhập bằng Google <ArrowRight size={16} style={{ display: 'inline', marginLeft: 8 }} />
                 </button>
               </form>

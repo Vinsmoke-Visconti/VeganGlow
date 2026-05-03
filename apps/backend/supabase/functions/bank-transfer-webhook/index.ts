@@ -123,7 +123,7 @@ async function hmacSha256Hex(secret: string, body: string): Promise<string> {
   );
   const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(body));
   return Array.from(new Uint8Array(signature))
-    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .map((byte: number) => byte.toString(16).padStart(2, '0'))
     .join('');
 }
 

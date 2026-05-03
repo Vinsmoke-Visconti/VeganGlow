@@ -40,10 +40,10 @@ export default async function BackofficeLayout({
   if (user) {
     const [staffResult, pendingOrdersResult, lowStockResult] = await Promise.all([
       supabase
-        .from('staff_profiles')
-        .select('full_name, role:roles(id, name, display_name)')
+        .from('profiles')
+        .select('full_name, username, role:roles(id, name, display_name)')
         .eq('id', user.id)
-        .maybeSingle<StaffRoleRow>(),
+        .maybeSingle(),
       supabase
         .from('orders')
         .select('id', { count: 'exact', head: true })
@@ -60,7 +60,7 @@ export default async function BackofficeLayout({
     lowStockProducts = lowStockResult.count ?? 0;
 
     if (staffRow) {
-      staffName = staffRow.full_name;
+      staffName = staffRow.username || staffRow.full_name;
       if (staffRow.role) {
         roleLabel = staffRow.role.display_name;
         roleId = staffRow.role.id;

@@ -32,9 +32,17 @@ const IDLE_TIMEOUT_SECS = 30 * 60;
 const isProd = process.env.NODE_ENV === 'production';
 
 function buildAdminCsp(nonce: string): string {
+  const scriptSrc = [
+    "'self'",
+    `'nonce-${nonce}'`,
+    "'strict-dynamic'",
+    "https://challenges.cloudflare.com",
+    ...(isProd ? [] : ["'unsafe-eval'"]),
+  ].join(' ');
+
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com`,
+    `script-src ${scriptSrc}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co",
     "font-src 'self' data:",

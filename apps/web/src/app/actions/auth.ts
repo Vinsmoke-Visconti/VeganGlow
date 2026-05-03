@@ -1,6 +1,6 @@
 'use server';
 
-import { sendPasswordOtpEmail } from '@/lib/email';
+import { sendPasswordOtpEmail, sendAdminLoginAlert } from '@/lib/email';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
@@ -370,6 +370,13 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
     { action: 'auth.login_success', severity: 'info', details: { method: 'password' } },
     { ip, userAgent }
   );
+  
+  // Send email alert for admin login
+  const adminName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || 'Admin';
+  sendAdminLoginAlert(identifier, adminName, { ip, userAgent }).catch(err => {
+    console.error('Failed to send admin login alert:', err);
+  });
+
   await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
 
   // Reset idle timeout cookie on fresh login

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Star, ShoppingBag, Heart, Check } from 'lucide-react';
+import { Star, ShoppingBag, Heart, Check, Zap } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { setBuyNow } from '@/lib/buyNow';
 import { normalizeProductImage } from '@/lib/imageUrl';
@@ -27,14 +27,20 @@ export interface ProductCardProduct {
     slug: string;
   } | null;
   tags?: ProductTag[] | null;
+  flash_sale?: {
+    discount_percent: number;
+    ends_at: string;
+  } | null;
 }
 
 export default function ProductCard({ 
   product, 
-  priority = false 
+  priority = false,
+  hideWishlist = false
 }: { 
   product: ProductCardProduct;
   priority?: boolean;
+  hideWishlist?: boolean;
 }) {
   const { addToCart } = useCart();
   const router = useRouter();
@@ -179,7 +185,8 @@ export default function ProductCard({
         {/* Badges: discount (auto-computed) + dynamic tags from DB */}
         <div className={styles.badgeContainer}>
           {discountPercent > 0 && (
-            <span className={`${styles.badge} ${styles.badgeSale}`}>
+            <span className={`${styles.badge} ${product.flash_sale ? styles.badgeFlash : styles.badgeSale}`}>
+              {product.flash_sale && <Zap size={10} style={{ marginRight: 2 }} />}
               -{discountPercent}%
             </span>
           )}
@@ -195,18 +202,20 @@ export default function ProductCard({
         </div>
 
         {/* Wishlist Action */}
-        <button
-          className={styles.wishlistBtn}
-          onClick={handleWishlistToggle}
-          disabled={favoritePending}
-          aria-label={isLiked ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
-        >
-          <Heart
-            size={18}
-            fill={isLiked ? "#ef4444" : "none"}
-            color={isLiked ? "#ef4444" : "currentColor"}
-          />
-        </button>
+        {!hideWishlist && (
+          <button
+            className={styles.wishlistBtn}
+            onClick={handleWishlistToggle}
+            disabled={favoritePending}
+            aria-label={isLiked ? 'Xóa khỏi danh sách yêu thích' : 'Thêm vào danh sách yêu thích'}
+          >
+            <Heart
+              size={18}
+              fill={isLiked ? "#ef4444" : "none"}
+              color={isLiked ? "#ef4444" : "currentColor"}
+            />
+          </button>
+        )}
       </div>
 
       <div className={styles.info}>

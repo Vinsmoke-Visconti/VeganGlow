@@ -1,0 +1,3 @@
+{
+  "allowScripts": ["npm:@sentry/cli@2.58.5", "npm:sharp@0.34.5", "npm:supabase@1.226.4", "npm:unrs-resolver@1.11.1"]
+}

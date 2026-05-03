@@ -71,11 +71,29 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     (supabase.rpc as unknown as (fn: string) => Promise<{ data: number | null }>)(
       'get_freeship_threshold',
     ),
+    supabase
+      .from('flash_sales')
+      .select('*')
+      .eq('product_id', typedProduct.id)
+      .eq('status', 'active')
+      .lte('starts_at', new Date().toISOString())
+      .gte('ends_at', new Date().toISOString())
+      .maybeSingle(),
   ]);
 
   const variants = (variantsRes.data ?? []) as unknown as Variant[];
   const freeshipThreshold =
     typeof freeshipRes.data === 'number' ? freeshipRes.data : 500000;
+  const flashSale = freeshipRes[2]?.data;
+
+  // Apply flash sale to price if active
+  let currentPrice = Number(typedProduct.price);
+  let oldPrice = typedProduct.old_price ?? null;
+
+  if (flashSale) {
+    oldPrice = currentPrice;
+    currentPrice = currentPrice * (1 - flashSale.discount_percent / 100);
+  }
 
   const relatedCacheKey = `related:${typedProduct.category_id}:${typedProduct.id}`;
   let relatedProducts = await cacheGet<ProductWithCategory[]>(relatedCacheKey);
@@ -151,10 +169,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               id: typedProduct.id,
               slug: typedProduct.slug,
               name: typedProduct.name,
-              price: Number(typedProduct.price),
-              old_price: typedProduct.old_price ?? null,
+              price: currentPrice,
+              old_price: oldPrice,
               image: typedProduct.image,
               stock: typedProduct.stock,
+              flash_sale: flashSale,
             }}
             variants={variants}
             freeshipThreshold={freeshipThreshold}

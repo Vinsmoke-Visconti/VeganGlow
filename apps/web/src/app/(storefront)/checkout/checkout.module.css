@@ -789,3 +789,91 @@
     padding: var(--space-4);
   }
 }
+
+/* ============================================
+   Voucher Section
+   ============================================ */
+.voucherSection {
+  margin: var(--space-4) 0;
+  padding: 1.25rem;
+  background: var(--color-primary-50);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-primary-200);
+}
+
+.voucherInputWrap {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.voucherInput {
+  flex: 1;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.voucherBtn {
+  padding: 0.625rem 1.25rem;
+  background: var(--color-primary-dark);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voucherBtn:hover:not(:disabled) {
+  background: var(--color-primary);
+}
+
+.voucherBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.voucherError {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.voucherSuccess {
+  font-size: 0.75rem;
+  color: var(--color-primary-dark);
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.discountRow {
+  background: var(--color-primary-50);
+  padding: 0.5rem 0;
+  margin: 0.25rem 0;
+}
+
+.removeVoucherBtn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  margin-left: 0.5rem;
+}
+
+.removeVoucherBtn:hover {
+  background: #fee2e2;
+}

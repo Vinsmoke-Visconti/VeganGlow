@@ -23,7 +23,10 @@ import {
   Trash2,
   Check,
   ShoppingBag,
+  Ticket,
+  Tag as TagIcon,
 } from 'lucide-react';
+import { validateVoucher } from '@/app/actions/vouchers';
 import styles from './checkout.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
@@ -79,6 +82,16 @@ function CheckoutContent() {
 
   const [buyNowItem, setBuyNowItem] = useState<BuyNowItem | null>(null);
   const [buyNowReady, setBuyNowReady] = useState(false);
+
+  // Voucher state
+  const [voucherInput, setVoucherInput] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<{
+    code: string;
+    discount: number;
+    title: string;
+  } | null>(null);
+  const [checkingVoucher, setCheckingVoucher] = useState(false);
+  const [voucherError, setVoucherError] = useState('');
 
   // Load any buy-now item from session storage
   useEffect(() => {
@@ -152,10 +165,16 @@ function CheckoutContent() {
     return cart.cartItems;
   }, [isBuyNowMode, buyNowItem, cart.cartItems]);
 
-  const totalAmount = useMemo(
+  const subtotal = useMemo(
     () => items.reduce((sum, it) => sum + it.price * it.quantity, 0),
     [items],
   );
+
+  const totalAmount = useMemo(() => {
+    const baseTotal = subtotal;
+    const discount = appliedVoucher?.discount || 0;
+    return Math.max(0, baseTotal - discount);
+  }, [subtotal, appliedVoucher]);
 
   // Live payment-status: Supabase Realtime as primary, 10s polling fallback.
   // Replaces the previous 7-second timer-based polling that issued a server
@@ -195,6 +214,35 @@ function CheckoutContent() {
         cart.removeFromCart(id);
       }
     }
+  };
+
+  const handleApplyVoucher = async () => {
+    if (!voucherInput.trim()) return;
+    setCheckingVoucher(true);
+    setVoucherError('');
+    
+    try {
+      const res = await validateVoucher(voucherInput, subtotal);
+      if (res.ok) {
+        setAppliedVoucher({
+          code: res.voucherCode!,
+          discount: res.discount!,
+          title: res.title!,
+        });
+        setVoucherInput('');
+      } else {
+        setVoucherError(res.error || 'Mã không hợp lệ');
+      }
+    } catch (err) {
+      setVoucherError('Lỗi kiểm tra mã giảm giá');
+    } finally {
+      setCheckingVoucher(false);
+    }
+  };
+
+  const removeVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherError('');
   };
 
   if (isSuccess) {
@@ -426,6 +474,7 @@ function CheckoutContent() {
       payment_method: paymentMethod,
       note: (formData.get('note') as string) || '',
       idempotency_key: idempotencyKeyRef.current,
+      voucher_code: appliedVoucher?.code,
     });
 
     setSubmitting(false);
@@ -611,13 +660,57 @@ function CheckoutContent() {
 
             <div className={styles.summaryRow}>
               <span>Tạm tính</span>
-              <span>{totalAmount.toLocaleString('vi-VN')}đ</span>
+              <span>{subtotal.toLocaleString('vi-VN')}đ</span>
             </div>
+
+            {appliedVoucher && (
+              <div className={`${styles.summaryRow} ${styles.discountRow}`}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--vg-leaf-600)' }}>
+                  <TagIcon size={16} /> Giảm giá ({appliedVoucher.code})
+                  <button 
+                    type="button" 
+                    onClick={removeVoucher}
+                    className={styles.removeVoucherBtn}
+                  >
+                    Xóa
+                  </button>
+                </span>
+                <span style={{ color: 'var(--vg-leaf-600)', fontWeight: 700 }}>
+                  -{appliedVoucher.discount.toLocaleString('vi-VN')}đ
+                </span>
+              </div>
+            )}
             <div className={styles.summaryRow}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Truck size={16} /> Phí giao hàng
               </span>
               <span style={{ color: 'var(--color-primary)' }}>Miễn phí</span>
+            </div>
+
+            <div className={styles.voucherSection}>
+              <div className={styles.voucherInputWrap}>
+                <input
+                  type="text"
+                  placeholder="Mã giảm giá..."
+                  value={voucherInput}
+                  onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                  className={styles.voucherInput}
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyVoucher}
+                  disabled={checkingVoucher || !voucherInput.trim()}
+                  className={styles.voucherBtn}
+                >
+                  {checkingVoucher ? <Loader2 size={16} className="animate-spin" /> : 'Áp dụng'}
+                </button>
+              </div>
+              {voucherError && <p className={styles.voucherError}>{voucherError}</p>}
+              {appliedVoucher && (
+                <p className={styles.voucherSuccess}>
+                  Đã áp dụng: <strong>{appliedVoucher.title}</strong>
+                </p>
+              )}
             </div>
 
             <div className={styles.summaryDivider}></div>

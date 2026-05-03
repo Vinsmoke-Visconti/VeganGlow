@@ -16,6 +16,8 @@ import {
   UserCog,
   Users,
   Activity,
+  MessageSquare,
+  FileText,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -46,12 +48,14 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/products', icon: Package, label: 'Sản phẩm', permission: 'products:read' },
       { href: '/admin/categories', icon: FolderOpen, label: 'Danh mục', permission: 'products:read' },
       { href: '/admin/customers', icon: Users, label: 'Khách hàng', permission: 'customers:read' },
+      { href: '/admin/contacts', icon: MessageSquare, label: 'Hỗ trợ/Tin nhắn', permission: 'customers:read' },
     ],
   },
   {
-    title: 'Tiếp thị',
+    title: 'Tiếp thị & Nội dung',
     items: [
       { href: '/admin/marketing', icon: Megaphone, label: 'Khuyến mãi & Banner', permission: 'marketing:read' },
+      { href: '/admin/blogs', icon: FileText, label: 'Bài viết (Blog)', permission: 'marketing:read' },
     ],
   },
   {

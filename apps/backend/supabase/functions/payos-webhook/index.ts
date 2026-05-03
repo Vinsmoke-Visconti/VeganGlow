@@ -65,7 +65,7 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
     ['sign'],
   );
   const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
-  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(sig)).map((b: number) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // PayOS canonical-string scheme: sort keys alphabetically, render as
@@ -76,7 +76,7 @@ async function hmacSha256Hex(secret: string, message: string): Promise<string> {
 function canonicalize(data: JsonRecord): string {
   const keys = Object.keys(data).sort();
   return keys
-    .map((k) => {
+    .map((k: string) => {
       const v = data[k];
       if (v === null || v === undefined) return `${k}=`;
       if (typeof v === 'object') return `${k}=${JSON.stringify(v)}`;

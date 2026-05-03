@@ -171,7 +171,7 @@ export default function ProfilePage() {
         setProfile(row);
         setLastName(row.last_name || '');
         setFirstName(row.first_name || '');
-        setUsername(row.username || '');
+        setUsername(row.username || row.full_name || '');
         setPhone(row.phone || '');
         setCccdNumber(row.cccd_number || '');
         setCccdFullName(row.cccd_full_name || '');
@@ -216,7 +216,7 @@ export default function ProfilePage() {
           first_name: firstName.trim() || null,
           last_name: lastName.trim() || null,
           full_name: `${lastName.trim()} ${firstName.trim()}`.trim() || null,
-          username: username.trim().toLowerCase() || null,
+          username: username.trim() || null,
           phone: phone.trim() || null,
           birthday: bday,
           cccd_number: cccdNumber.trim() || null,
@@ -226,10 +226,62 @@ export default function ProfilePage() {
 
       if (error) throw error;
       setFeedback({ kind: 'success', message: 'Đã lưu thay đổi!' });
+      
+      // Update local profile state so UI refreshes immediately
+      setProfile((prev) => prev ? {
+        ...prev,
+        first_name: firstName.trim() || null,
+        last_name: lastName.trim() || null,
+        full_name: `${lastName.trim()} ${firstName.trim()}`.trim() || null,
+        username: username.trim() || null,
+        phone: phone.trim() || null,
+        birthday: bday,
+        cccd_number: cccdNumber.trim() || null,
+        cccd_full_name: cccdFullName.trim().toUpperCase() || null,
+      } as Profile : null);
+
       setTimeout(() => setFeedback(null), 2500);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Đã có lỗi xảy ra.';
       setFeedback({ kind: 'error', message });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+      const file = e.target.files[0];
+      setSaving(true);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${profile?.id}/${fileName}`;
+
+      // Upload to 'avatars' bucket
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      
+      // Update profile
+      const { error: updateError } = await (supabase.from('profiles') as unknown as ProfileUpdateClient)
+        .update({ avatar_url: data.publicUrl } as ProfileUpdatePayload)
+        .eq('id', profile?.id ?? '');
+        
+      if (updateError) throw updateError;
+      
+      setProfile(prev => prev ? { ...prev, avatar_url: data.publicUrl } : null);
+      setFeedback({ kind: 'success', message: 'Cập nhật ảnh đại diện thành công!' });
+      setTimeout(() => setFeedback(null), 2500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Đã có lỗi xảy ra.';
+      setFeedback({ kind: 'error', message: 'Lỗi tải ảnh lên: ' + message });
+      setTimeout(() => setFeedback(null), 2500);
     } finally {
       setSaving(false);
     }
@@ -341,11 +393,11 @@ export default function ProfilePage() {
                 )}
                 <label className={styles.camBtn}>
                   <Camera size={14} />
-                  <input type="file" hidden />
+                  <input type="file" accept="image/*" hidden onChange={handleAvatarUpload} />
                 </label>
               </div>
               <div className={styles.identityInfo}>
-                <h2 className={styles.profileNameLarge}>{profile?.full_name || 'Thành viên mới'}</h2>
+                <h2 className={styles.profileNameLarge}>{profile?.full_name || profile?.username || 'Thành viên mới'}</h2>
                 <div className={styles.profileEmailSub}>{email}</div>
                 <div className={styles.quickBadges}>
                   {currentTier && (
@@ -460,7 +512,7 @@ export default function ProfilePage() {
               </div>
               <div className={styles.cleanRow}>
                 <Field label="Tên đăng nhập">
-                  <input className={styles.cleanInput} value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} placeholder="username" />
+                  <input className={styles.cleanInput} value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Nhập tên hiển thị..." />
                 </Field>
                 <Field label="Số điện thoại">
                   <input className={styles.cleanInput} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0xxx..." type="tel" />
@@ -471,7 +523,7 @@ export default function ProfilePage() {
                   <div className={styles.segmentedInput}>
                     <input 
                       ref={dayRef} 
-                      className={styles.segment} 
+                      className={`${styles.segment} focus:outline-none focus:ring-0`} 
                       value={day} 
                       placeholder="DD" 
                       maxLength={2} 
@@ -481,7 +533,7 @@ export default function ProfilePage() {
                     <span className={styles.divider}>/</span>
                     <input 
                       ref={monthRef} 
-                      className={styles.segment} 
+                      className={`${styles.segment} focus:outline-none focus:ring-0`} 
                       value={month} 
                       placeholder="MM" 
                       maxLength={2} 
@@ -491,7 +543,7 @@ export default function ProfilePage() {
                     <span className={styles.divider}>/</span>
                     <input 
                       ref={yearRef} 
-                      className={`${styles.segment} ${styles.segmentYear}`} 
+                      className={`${styles.segment} ${styles.segmentYear} focus:outline-none focus:ring-0`} 
                       value={year} 
                       placeholder="YYYY" 
                       maxLength={4} 
