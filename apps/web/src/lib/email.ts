@@ -53,7 +53,11 @@ async function dispatchEmail(options: {
   }
 
   const toList = Array.isArray(options.to) ? options.to : [options.to];
-  const finalTo = toList;
+  const finalTo = IS_PRODUCTION || HAS_VERIFIED_DOMAIN ? toList : [TEST_RECIPIENT];
+
+  if (!IS_PRODUCTION && !HAS_VERIFIED_DOMAIN) {
+    logger.info(`[SANDBOX MODE] Redirecting email originally meant for ${toList.join(', ')} to verified test email: ${TEST_RECIPIENT}`);
+  }
 
   const { data, error } = await resend.emails.send({
     ...options,

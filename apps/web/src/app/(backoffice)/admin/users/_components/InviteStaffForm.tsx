@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { Loader2, Send, X, UserPlus, CheckCircle, AlertTriangle } from 'lucide-react';
 import { inviteStaff } from '@/app/actions/staff';
 import shared from '../../admin-shared.module.css';
@@ -9,43 +9,55 @@ type Role = { id: string; name: string; display_name: string };
 
 type InviteState = { error?: string; success?: string } | undefined;
 
-const initialState: InviteState = undefined;
-
 export function InviteStaffForm({ roles }: { roles: Role[] }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(inviteStaff, initialState);
+  const [state, setState] = useState<InviteState>(undefined);
   const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  // Removed auto-close timeout to let user read success message
-  useEffect(() => {
-    if (state?.success) {
-      // Keep modal open so user can see success state
-    }
-  }, [state]);
+  const handleClose = () => {
+    setOpen(false);
+    setTimeout(() => setState(undefined), 300); // Reset state after animation
+  };
+
+  const handleOpen = () => {
+    setState(undefined);
+    setOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const result = await inviteStaff(undefined, formData);
+      setState(result);
+      if (result?.success && formRef.current) {
+        formRef.current.reset();
+      }
+    });
+  };
 
   return (
     <>
-      <button type="button" className={`${shared.btn} ${shared.btnPrimary}`} onClick={() => setOpen(true)}>
+      <button type="button" className={`${shared.btn} ${shared.btnPrimary}`} onClick={handleOpen}>
         <UserPlus size={14} /> Mời nhân sự
       </button>
 
       {open && (
-        <div className={shared.modalBackdrop} onClick={() => setOpen(false)}>
+        <div className={shared.modalBackdrop} onClick={handleClose}>
           <div className={shared.modalPanel} onClick={(e) => e.stopPropagation()}>
             <div className={shared.modalHeader}>
               <h3 className={shared.modalTitle}>Mời nhân sự mới</h3>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={handleClose}
                 className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
                 aria-label="Đóng"
               >
                 <X size={16} />
               </button>
             </div>
-            <form
-              action={(fd) => startTransition(() => formAction(fd))}
-            >
+            <form ref={formRef} onSubmit={handleSubmit}>
               <div className={shared.modalBody}>
                 <div className={shared.formField}>
                   <label className={shared.formLabel}>Họ tên</label>
@@ -86,7 +98,7 @@ export function InviteStaffForm({ roles }: { roles: Role[] }) {
                 {state?.success ? (
                   <button
                     type="button"
-                    onClick={() => setOpen(false)}
+                    onClick={handleClose}
                     className={`${shared.btn} ${shared.btnPrimary}`}
                     style={{ width: '100%' }}
                   >
@@ -96,7 +108,7 @@ export function InviteStaffForm({ roles }: { roles: Role[] }) {
                   <>
                     <button
                       type="button"
-                      onClick={() => setOpen(false)}
+                      onClick={handleClose}
                       className={`${shared.btn} ${shared.btnGhost}`}
                     >
                       Hủy
@@ -114,3 +126,4 @@ export function InviteStaffForm({ roles }: { roles: Role[] }) {
     </>
   );
 }
+
