@@ -80,8 +80,8 @@ BEGIN
       'terrybin50@gmail.com'
     ]) as email
   LOOP
-    INSERT INTO public.staff_invitations (email, role_id, invited_by, status)
-    VALUES (r.email, v_role_id, v_admin_id, 'pending')
+    INSERT INTO public.staff_invitations (email, full_name, role_id, invited_by, status)
+    VALUES (r.email, split_part(r.email, '@', 1), v_role_id, v_admin_id, 'pending')
     ON CONFLICT (email) WHERE status = 'pending' DO NOTHING;
   END LOOP;
 END $$;
