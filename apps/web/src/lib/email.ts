@@ -63,6 +63,22 @@ async function dispatchEmail(options: {
 
   if (error) {
     logger.error({ action: 'send_email_error', error, to: finalTo }, 'Resend API error');
+    
+    // FALLBACK FOR LOCAL TESTING:
+    // If Resend blocks the email (e.g., unverified domain in sandbox), 
+    // we save the exact HTML to the Desktop so the user can see it and click the links!
+    if (!IS_PRODUCTION) {
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const desktopPath = path.join(require('os').homedir(), 'Desktop', 'VeganGlow_Email_Preview.html');
+        fs.writeFileSync(desktopPath, options.html);
+        logger.info(`Email blocked by Resend. Saved preview to: ${desktopPath}`);
+      } catch (fsErr) {
+        console.error('Failed to save email preview to desktop', fsErr);
+      }
+    }
+
     throw error;
   }
 
