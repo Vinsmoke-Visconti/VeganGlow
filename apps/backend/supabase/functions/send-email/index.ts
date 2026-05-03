@@ -13,10 +13,16 @@ Deno.serve(async (req: Request) => {
   try {
     const { to, subject, html } = await req.json();
 
-    // Cấu hình nodemailer sử dụng Gmail SMTP
+    // Cấu hình nodemailer sử dụng Gmail SMTP / Google Cloud OAuth2
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: {
+      auth: Deno.env.get('GMAIL_CLIENT_ID') ? {
+        type: 'OAuth2',
+        user: Deno.env.get('GMAIL_USER'),
+        clientId: Deno.env.get('GMAIL_CLIENT_ID'),
+        clientSecret: Deno.env.get('GMAIL_CLIENT_SECRET'),
+        refreshToken: Deno.env.get('GMAIL_REFRESH_TOKEN'),
+      } : {
         user: Deno.env.get('GMAIL_USER'), // Email Gmail của dự án
         pass: Deno.env.get('GMAIL_APP_PASSWORD'), // App Password (16 ký tự)
       },

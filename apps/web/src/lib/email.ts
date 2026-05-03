@@ -2,10 +2,16 @@ import nodemailer from 'nodemailer';
 import { logger } from './logger';
 import { buildVietQrUrl, isBankTransferMethod, type PaymentMethod } from './payment';
 
-// Notification Service using Nodemailer (Gmail SMTP)
+// Notification Service using Nodemailer (Gmail SMTP / Google Cloud OAuth2)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
-  auth: {
+  auth: process.env.GMAIL_CLIENT_ID ? {
+    type: 'OAuth2',
+    user: process.env.GMAIL_USER || '',
+    clientId: process.env.GMAIL_CLIENT_ID,
+    clientSecret: process.env.GMAIL_CLIENT_SECRET,
+    refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+  } : {
     user: process.env.GMAIL_USER || '',
     pass: process.env.GMAIL_APP_PASSWORD || '',
   },
