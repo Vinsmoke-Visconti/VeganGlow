@@ -818,4 +818,40 @@
   .trustGrid {
     grid-template-columns: 1fr;
   }
+
+/* ============================================
+   Best Sellers Section
+   ============================================ */
+.bestSellersWrap {
+  width: 100%;
+  position: relative;
+}
+
+.salesBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--color-primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 5;
+  box-shadow: 0 4px 12px hsla(var(--color-primary-h), var(--color-primary-s), var(--color-primary-l), 0.25);
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--color-bg-alt);
+  border-radius: var(--radius-xl);
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
 }

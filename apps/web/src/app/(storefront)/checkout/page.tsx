@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft,
-  CheckCircle2,
   Loader2,
   Package,
   CreditCard,
@@ -17,22 +16,17 @@ import {
   Phone,
   Mail,
   FileText,
-  ArrowRight,
   Minus,
   Plus,
   Trash2,
-  Check,
-  ShoppingBag,
-  Ticket,
   Tag as TagIcon,
 } from 'lucide-react';
 import { validateVoucher } from '@/app/actions/vouchers';
 import styles from './checkout.module.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { createOrder, getOrderPaymentStatus } from '@/app/actions/checkout';
-import { usePaymentStatus } from '@/hooks/usePaymentStatus';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { createOrder } from '@/app/actions/checkout';
 import { VnAddressSelect, emptyVnAddress, type VnAddressValue } from '@/components/shared/VnAddressSelect';
 import { createBrowserClient } from '@/lib/supabase/client';
 import {
@@ -42,7 +36,6 @@ import {
   type BuyNowItem,
 } from '@/lib/buyNow';
 import { normalizeProductImage } from '@/lib/imageUrl';
-import { VEGANGLOW_BANK, buildVietQrUrl } from '@/lib/payment';
 
 interface ProfileRow {
   full_name: string | null;
@@ -63,22 +56,15 @@ function createCheckoutIdempotencyKey(): string {
 
 function CheckoutContent() {
   const cart = useCart();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const buyNowFlag = searchParams.get('buyNow') === '1';
   const idempotencyKeyRef = useRef(createCheckoutIdempotencyKey());
 
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [orderId, setOrderId] = useState<string>('');
-  const [orderCode, setOrderCode] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [address, setAddress] = useState<VnAddressValue>(emptyVnAddress);
   const [prefill, setPrefill] = useState<{ full_name: string; phone: string; email: string; address: string } | null>(null);
-  const [lastPaymentMethod, setLastPaymentMethod] = useState<'cod' | 'bank_transfer'>('cod');
-  const [lastTotal, setLastTotal] = useState<number>(0);
-  const [paymentStage, setPaymentStage] = useState<'summary' | 'qr' | 'verifying' | 'completed'>('summary');
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [paymentCheckMessage, setPaymentCheckMessage] = useState<string>('');
 
   const [buyNowItem, setBuyNowItem] = useState<BuyNowItem | null>(null);
   const [buyNowReady, setBuyNowReady] = useState(false);
@@ -93,7 +79,6 @@ function CheckoutContent() {
   const [checkingVoucher, setCheckingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState('');
 
-  // Load any buy-now item from session storage
   useEffect(() => {
     if (!buyNowFlag) {
       setBuyNowReady(true);
@@ -104,7 +89,6 @@ function CheckoutContent() {
     setBuyNowReady(true);
   }, [buyNowFlag]);
 
-  // Prefill from saved profile, if logged in
   useEffect(() => {
     let alive = true;
     const supabase = createBrowserClient();
@@ -176,23 +160,6 @@ function CheckoutContent() {
     return Math.max(0, baseTotal - discount);
   }, [subtotal, appliedVoucher]);
 
-  // Live payment-status: Supabase Realtime as primary, 10s polling fallback.
-  // Replaces the previous 7-second timer-based polling that issued a server
-  // action call every cycle; the hook now only polls when Realtime is silent.
-  const liveStatus = usePaymentStatus({
-    orderId: isSuccess && lastPaymentMethod === 'bank_transfer' ? orderId : null,
-    initial: 'pending',
-    enabled: isSuccess && lastPaymentMethod === 'bank_transfer' && paymentStage !== 'completed',
-  });
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (liveStatus === 'paid' && paymentStage !== 'completed') {
-      setPaymentStage('completed');
-      setPaymentCheckMessage('');
-    }
-  }, [liveStatus, paymentStage]);
-
   const updateItemQty = (id: string, nextQty: number) => {
     if (nextQty < 1) return;
     if (isBuyNowMode) {
@@ -220,7 +187,7 @@ function CheckoutContent() {
     if (!voucherInput.trim()) return;
     setCheckingVoucher(true);
     setVoucherError('');
-    
+
     try {
       const res = await validateVoucher(voucherInput, subtotal);
       if (res.ok) {
@@ -233,7 +200,7 @@ function CheckoutContent() {
       } else {
         setVoucherError(res.error || 'Mã không hợp lệ');
       }
-    } catch (err) {
+    } catch {
       setVoucherError('Lỗi kiểm tra mã giảm giá');
     } finally {
       setCheckingVoucher(false);
@@ -244,168 +211,6 @@ function CheckoutContent() {
     setAppliedVoucher(null);
     setVoucherError('');
   };
-
-  if (isSuccess) {
-    const isBankTransfer = lastPaymentMethod === 'bank_transfer';
-    const vietQrUrl = buildVietQrUrl(lastTotal, orderCode);
-
-    const handleVerifyPayment = async () => {
-      if (!orderId) return;
-      setIsVerifying(true);
-      setPaymentStage('verifying');
-      setPaymentCheckMessage('');
-
-      const result = await getOrderPaymentStatus(orderId);
-      setIsVerifying(false);
-
-      if (result.success && result.payment_status === 'paid') {
-        setPaymentStage('completed');
-        setPaymentCheckMessage('');
-        return;
-      }
-
-      setPaymentStage('qr');
-      setPaymentCheckMessage(
-        result.success
-          ? 'Hệ thống chưa nhận được giao dịch khớp đơn hàng. Vui lòng kiểm tra đúng số tiền và nội dung chuyển khoản, rồi thử lại sau vài giây.'
-          : result.error,
-      );
-    };
-
-    if (!isBankTransfer || paymentStage === 'completed') {
-      return (
-        <div className={styles.successContainer}>
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className={styles.successContent}
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: 'spring' }}
-              className={styles.successIcon}
-            >
-              <CheckCircle2 size={80} color="var(--color-primary)" />
-            </motion.div>
-            <h1 className={styles.successTitle}>
-              {isBankTransfer ? 'Thanh toán đã được xác nhận!' : 'Đặt hàng thành công!'}
-            </h1>
-            <p className={styles.successText}>
-              {isBankTransfer 
-                ? 'Giao dịch của bạn đã được xác nhận từ ngân hàng. Chúng tôi sẽ xử lý và giao hàng sớm nhất.'
-                : 'Cảm ơn bạn đã tin tưởng VeganGlow. Đơn hàng của bạn đang được xử lý và sẽ được giao sớm nhất.'}
-              <br />
-              Mã đơn hàng: <strong>#{orderCode}</strong>
-            </p>
-            <div className={styles.successActions}>
-              <Link href="/orders" className={styles.submitBtn} style={{ width: 'auto', padding: '1rem 2rem' }}>
-                Xem đơn hàng
-              </Link>
-              <Link href="/products" className={styles.cartBtn} style={{ width: 'auto', padding: '1rem 2rem' }}>
-                Tiếp tục mua sắm
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      );
-    }
-
-    return (
-      <div className={styles.successContainer}>
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className={styles.successContent}
-          style={{ maxWidth: '800px', padding: 0, overflow: 'hidden' }}
-        >
-          <div className={styles.paymentFlowLayout}>
-            {/* Left: Order Info */}
-            <div className={styles.orderSummarySide}>
-              <div className={styles.summaryHeader}>
-                <div className={styles.miniBadge}>ĐƠN HÀNG MỚI</div>
-                <h2 className={styles.orderCode}>#{orderCode}</h2>
-                <div className={styles.orderTotalDisplay}>
-                  <span>Tổng tiền:</span>
-                  <strong>{lastTotal.toLocaleString('vi-VN')}đ</strong>
-                </div>
-              </div>
-              
-              <div className={styles.summarySteps}>
-                <div className={`${styles.stepItem} ${paymentStage !== 'summary' ? styles.stepDone : styles.stepActive}`}>
-                  <div className={styles.stepDot}>{paymentStage !== 'summary' ? <Check size={14}/> : '1'}</div>
-                  <span>Xác nhận đơn hàng</span>
-                </div>
-                <div className={`${styles.stepItem} ${paymentStage === 'qr' ? styles.stepActive : (paymentStage === 'verifying' ? styles.stepDone : '')}`}>
-                  <div className={styles.stepDot}>{paymentStage === 'verifying' ? <Check size={14}/> : '2'}</div>
-                  <span>Thanh toán VietQR</span>
-                </div>
-                <div className={`${styles.stepItem} ${paymentStage === 'verifying' ? styles.stepActive : ''}`}>
-                  <div className={styles.stepDot}>3</div>
-                  <span>Xác thực giao dịch</span>
-                </div>
-              </div>
-
-              <div className={styles.summaryFooter}>
-                <p>Mã QR sẽ hết hạn sau 15 phút</p>
-              </div>
-            </div>
-
-            {/* Right: Dynamic Action Area */}
-            <div className={styles.paymentActionSide}>
-              {paymentStage === 'summary' && (
-                <div className={styles.initAction}>
-                  <div className={styles.actionIcon}><ShoppingBag size={48} color="var(--color-primary)"/></div>
-                  <h3>Đơn hàng đã được giữ chỗ</h3>
-                  <p>Vui lòng thanh toán đúng số tiền và nội dung chuyển khoản. Đơn chỉ được xác nhận khi hệ thống nhận được giao dịch từ ngân hàng.</p>
-                  <button onClick={() => setPaymentStage('qr')} className={styles.submitBtn}>
-                    Xem mã QR thanh toán
-                  </button>
-                </div>
-              )}
-
-              {paymentStage === 'qr' && (
-                <div className={styles.qrAction}>
-                  <p className={styles.qrLabel}>Quét mã bằng ứng dụng Ngân hàng</p>
-                  <div className={styles.qrWrapper}>
-                    <Image src={vietQrUrl} alt="VietQR" width={220} height={220} unoptimized />
-                  </div>
-                  <div className={styles.bankInfoLite}>
-                    <p>{VEGANGLOW_BANK.id} Bank • {VEGANGLOW_BANK.account}</p>
-                    <p>{VEGANGLOW_BANK.name}</p>
-                    <p>Nội dung: THANH TOAN DH {orderCode}</p>
-                  </div>
-                  {paymentCheckMessage && (
-                    <div className={styles.errorBox} style={{ marginBottom: '1rem' }}>
-                      <AlertCircle size={18} />
-                      {paymentCheckMessage}
-                    </div>
-                  )}
-                  <button onClick={handleVerifyPayment} className={styles.submitBtn} disabled={isVerifying}>
-                    Tôi đã chuyển khoản, kiểm tra lại
-                  </button>
-                  <button onClick={() => setPaymentStage('summary')} className={styles.backBtnLite}>
-                    Quay lại
-                  </button>
-                </div>
-              )}
-
-              {paymentStage === 'verifying' && (
-                <div className={styles.verifyingAction}>
-                  <div className={styles.loadingSpinner}></div>
-                  <h3>Đang kiểm tra giao dịch</h3>
-                  <p>Hệ thống chỉ xác nhận khi webhook ngân hàng đã ghi nhận tiền vào tài khoản MB {VEGANGLOW_BANK.account}. Nếu chưa thấy, vui lòng chờ thêm vài giây.</p>
-                  <div className={styles.verifyProgress}>
-                    <div className={styles.progressBar}></div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
 
   if (buyNowReady && items.length === 0) {
     return (
@@ -458,8 +263,6 @@ function CheckoutContent() {
     setSubmitting(true);
     const formData = new FormData(e.currentTarget);
     const paymentMethod = (formData.get('payment') as string) === 'bank_transfer' ? 'bank_transfer' : 'cod';
-    setLastPaymentMethod(paymentMethod);
-    setLastTotal(totalAmount);
 
     const result = await createOrder({
       items: items.map((it) => ({ id: it.id, quantity: it.quantity })),
@@ -477,24 +280,30 @@ function CheckoutContent() {
       voucher_code: appliedVoucher?.code,
     });
 
-    setSubmitting(false);
-
     if (!result.success) {
+      setSubmitting(false);
       setErrorMsg(result.error);
       return;
     }
 
-    setOrderId(result.order_id);
-    setOrderCode(result.order_code);
-    setPaymentStage(paymentMethod === 'bank_transfer' ? 'qr' : 'completed');
-    setPaymentCheckMessage('');
+    try {
+      sessionStorage.setItem('vg:lastOrderCode', result.order_code);
+    } catch {
+      // sessionStorage may be unavailable in private mode; non-fatal.
+    }
+
     if (isBuyNowMode) {
       clearBuyNow();
     } else {
       cart.clearCart();
     }
     idempotencyKeyRef.current = createCheckoutIdempotencyKey();
-    setIsSuccess(true);
+
+    router.replace(
+      paymentMethod === 'bank_transfer'
+        ? `/checkout/pending/${result.order_code}`
+        : `/checkout/success/${result.order_code}`,
+    );
   };
 
   return (
@@ -667,8 +476,8 @@ function CheckoutContent() {
               <div className={`${styles.summaryRow} ${styles.discountRow}`}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--vg-leaf-600)' }}>
                   <TagIcon size={16} /> Giảm giá ({appliedVoucher.code})
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={removeVoucher}
                     className={styles.removeVoucherBtn}
                   >

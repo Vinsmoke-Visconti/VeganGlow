@@ -53,14 +53,7 @@ async function dispatchEmail(options: {
   }
 
   const toList = Array.isArray(options.to) ? options.to : [options.to];
-  let finalTo = toList;
-
-  // If not production AND domain not verified, force all emails to the test recipient
-  // This avoids the 403 error from Resend
-  if (!IS_PRODUCTION && !HAS_VERIFIED_DOMAIN) {
-    logger.info({ originalTo: toList, redirectingTo: TEST_RECIPIENT }, 'Non-production: Redirecting email to test recipient');
-    finalTo = [TEST_RECIPIENT];
-  }
+  const finalTo = toList;
 
   const { data, error } = await resend.emails.send({
     ...options,
@@ -145,13 +138,17 @@ export async function sendOrderConfirmation(
                 <p style="margin-top: 24px; font-size: 15px; color: #166534; line-height: 1.6; font-weight: 500;">
                   Vui lòng hoàn tất chuyển khoản để đơn hàng được xác nhận nhanh nhất.
                 </p>
+                <a href="${siteUrl}/checkout/pending/${safeOrderId}"
+                   style="display: inline-block; margin-top: 20px; padding: 14px 32px; background-color: #059669; color: white; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 15px;">
+                  Mở trang thanh toán
+                </a>
               </div>
             ` : ''}
 
             <div style="text-align: center;">
-              <a href="${siteUrl}/account/orders" 
+              <a href="${isBankTransfer ? `${siteUrl}/checkout/pending/${safeOrderId}` : `${siteUrl}/checkout/success/${safeOrderId}`}"
                  style="display: inline-block; padding: 18px 40px; background-color: #064e3b; color: white; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 16px; box-shadow: 0 10px 20px rgba(6, 78, 59, 0.15); transition: transform 0.2s;">
-                Theo dõi trạng thái đơn hàng
+                ${isBankTransfer ? 'Tiếp tục thanh toán' : 'Xem chi tiết đơn hàng'}
               </a>
             </div>
           </div>

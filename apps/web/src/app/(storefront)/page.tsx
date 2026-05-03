@@ -20,7 +20,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
-import { ArrowRight, Leaf, Shield, Heart, Sparkles, Star, Users, Award, Recycle, Quote } from 'lucide-react';
+import { ArrowRight, Leaf, Shield, Heart, Sparkles, Star, Users, Award, Recycle, Quote, TrendingUp } from 'lucide-react';
 import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
 import { cacheGet, cacheSet } from '@/lib/redis';
 
@@ -33,39 +33,26 @@ type TestimonialRow = {
   avatar_initials: string;
 };
 
+import BestSellers from '@/components/products/BestSellers';
+
 export default async function Home() {
   const supabase = await createClient();
 
-  const cacheKey = 'featured_products';
-  let products = await cacheGet<ProductCardProduct[]>(cacheKey);
+  const cacheKey = 'best_selling_products';
+  let bestSellers = await cacheGet<ProductCardProduct[]>(cacheKey);
 
-  if (!products) {
-    const [dbProductsRes, flashSalesRes] = await Promise.all([
-      supabase.from('products').select('*, categories(name, slug)').limit(4),
-      (supabase.from('flash_sales') as any)
-      .select('*, products(id, name, slug, image, price, old_price)')
-      .eq('status', 'active')
-      .lte('starts_at', new Date().toISOString())
-      .gte('ends_at', new Date().toISOString())
-      .limit(8),
-    ]);
+  if (!bestSellers) {
+    const { data: bestSellersData } = await supabase.rpc('get_best_selling_products', {
+      p_days_ago: 30,
+      p_limit: 20
+    });
+    
+    bestSellers = (bestSellersData as any[] | null)?.map(p => ({
+      ...p,
+      categories: { name: 'Bán chạy', slug: 'best-seller' }
+    })) ?? [];
 
-    const activeFlashSales = (flashSalesRes.data as any[]) ?? [];
-
-    products = (dbProductsRes.data as any[] | null)?.map((p) => {
-      const flash = activeFlashSales.find((f) => f.product_id === p.id);
-      if (flash) {
-        return {
-          ...p,
-          original_price: p.price,
-          price: p.price * (1 - flash.discount_percent / 100),
-          flash_sale: flash,
-        };
-      }
-      return p;
-    }) ?? [];
-
-    await cacheSet(cacheKey, products, 1800);
+    await cacheSet(cacheKey, bestSellers, 1800);
   }
 
   const { data: testimonialsData, error: testimonialsError } = await supabase
@@ -231,27 +218,20 @@ export default async function Home() {
           </section>
         </FadeIn>
 
-        {/* Featured Products */}
+        {/* Best Sellers Products */}
         <FadeIn direction="up">
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Sản Phẩm Nổi Bật</h2>
-            <p className={styles.sectionSubtitle}>Những sản phẩm được yêu thích nhất</p>
-            <StaggerContainer className={styles.productsGrid}>
-              {products && products.length > 0 ? (
-                products.map((p, index) => (
-                  <StaggerItem key={p.id}>
-                    <ProductCard product={p} priority={index < 4} />
-                  </StaggerItem>
-                ))
-              ) : (
-                <p>Chưa có sản phẩm.</p>
-              )}
-            </StaggerContainer>
-            <div className={styles.viewAll}>
-              <Link href="/products" className={styles.btnSecondary}>
-                Xem tất cả sản phẩm
-              </Link>
+            <div className={styles.sectionHeader}>
+              <div>
+                <h2 className={styles.sectionTitle}>Sản Phẩm Bán Chạy</h2>
+                <p className={styles.sectionSubtitle}>Những sản phẩm được yêu thích nhất trong 30 ngày qua</p>
+              </div>
+              <div className={styles.heroBadge} style={{ background: 'var(--color-primary-100)', color: 'var(--color-primary-dark)' }}>
+                <TrendingUp size={16} /> Top Xu Hướng
+              </div>
             </div>
+            
+            <BestSellers products={bestSellers || []} />
           </section>
         </FadeIn>
       </div>

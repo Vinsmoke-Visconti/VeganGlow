@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { after } from 'next/server';
 import { sendOrderConfirmation } from '@/lib/email';
@@ -160,7 +160,7 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   revalidatePath('/orders');
   revalidatePath('/products');
 
-  if (!reused) {
+  if (!reused && paymentMethod === 'cod') {
     after(async () => {
       try {
         await sendOrderConfirmation(
@@ -208,5 +208,143 @@ export async function getOrderPaymentStatus(orderId: string): Promise<PaymentSta
     order_status: row.status,
     payment_status: row.payment_status ?? 'unpaid',
     paid_at: row.paid_at ?? null,
+  };
+}
+
+const ORDER_CODE_REGEX = /^VG-[A-F0-9]+-[A-F0-9]+$/i;
+
+export async function getOrderPaymentStatusByCode(code: string): Promise<PaymentStatusResult> {
+  if (typeof code !== 'string' || !ORDER_CODE_REGEX.test(code)) {
+    return { success: false, error: 'Mã đơn hàng không hợp lệ.' };
+  }
+
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from('orders')
+    .select('id, code, status, payment_status, paid_at')
+    .eq('code', code.toUpperCase())
+    .maybeSingle();
+
+  if (error) return { success: false, error: error.message };
+  if (!data) return { success: false, error: 'Không tìm thấy đơn hàng.' };
+
+  const row = data as {
+    id: string;
+    code: string;
+    status: string;
+    payment_status?: string | null;
+    paid_at?: string | null;
+  };
+
+  return {
+    success: true,
+    order_id: row.id,
+    order_code: row.code,
+    order_status: row.status,
+    payment_status: row.payment_status ?? 'unpaid',
+    paid_at: row.paid_at ?? null,
+  };
+}
+
+
+export type PublicOrderItem = {
+  product_name: string;
+  product_image: string | null;
+  unit_price: number;
+  quantity: number;
+};
+
+export type PublicOrderView = {
+  id: string;
+  code: string;
+  status: 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled';
+  payment_status: 'unpaid' | 'pending' | 'paid' | 'failed' | 'refunded';
+  payment_method: 'cod' | 'bank_transfer' | 'card';
+  payment_due_at: string | null;
+  paid_at: string | null;
+  total_amount: number;
+  customer_name: string;
+  phone: string;
+  address: string;
+  ward: string | null;
+  province: string | null;
+  created_at: string;
+  items: PublicOrderItem[];
+};
+
+type PublicOrderResult =
+  | { ok: true; order: PublicOrderView }
+  | { ok: false; reason: 'INVALID' | 'NOT_FOUND' };
+
+export async function getPublicOrderByCode(code: string): Promise<PublicOrderResult> {
+  if (typeof code !== 'string' || !ORDER_CODE_REGEX.test(code)) {
+    return { ok: false, reason: 'INVALID' };
+  }
+
+  const supabase = createServiceClient();
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select(
+      `id, code, status, payment_status, payment_method, payment_due_at, paid_at,
+       total_amount, customer_name, phone, address, ward, province, created_at,
+       order_items(product_name, product_image, unit_price, quantity)`,
+    )
+    .eq('code', code.toUpperCase())
+    .maybeSingle();
+
+  if (error || !data) return { ok: false, reason: 'NOT_FOUND' };
+
+  type Row = {
+    id: string;
+    code: string;
+    status: PublicOrderView['status'];
+    payment_status: PublicOrderView['payment_status'] | null;
+    payment_method: PublicOrderView['payment_method'];
+    payment_due_at: string | null;
+    paid_at: string | null;
+    total_amount: number | string;
+    customer_name: string;
+    phone: string;
+    address: string;
+    ward: string | null;
+    province: string | null;
+    created_at: string;
+    order_items:
+      | {
+          product_name: string;
+          product_image: string | null;
+          unit_price: number | string;
+          quantity: number;
+        }[]
+      | null;
+  };
+
+  const row = data as unknown as Row;
+
+  return {
+    ok: true,
+    order: {
+      id: row.id,
+      code: row.code,
+      status: row.status,
+      payment_status: (row.payment_status ?? 'unpaid') as PublicOrderView['payment_status'],
+      payment_method: row.payment_method,
+      payment_due_at: row.payment_due_at,
+      paid_at: row.paid_at,
+      total_amount: Number(row.total_amount),
+      customer_name: row.customer_name,
+      phone: row.phone,
+      address: row.address,
+      ward: row.ward,
+      province: row.province,
+      created_at: row.created_at,
+      items: (row.order_items ?? []).map((it) => ({
+        product_name: it.product_name,
+        product_image: it.product_image ?? null,
+        unit_price: Number(it.unit_price),
+        quantity: it.quantity,
+      })),
+    },
   };
 }

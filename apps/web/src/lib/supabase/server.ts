@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types/database';
 
@@ -25,5 +26,16 @@ export async function createClient() {
         },
       },
     }
+  );
+}
+
+// Service-role client. Bypasses RLS — only call from server actions / route
+// handlers that have already validated their inputs and are returning a
+// hand-picked, public-safe projection of rows.
+export function createServiceClient() {
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } },
   );
 }

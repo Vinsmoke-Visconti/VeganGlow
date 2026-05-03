@@ -35,7 +35,7 @@ const storefrontCSP = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
-  ...(isProd ? ['upgrade-insecure-requests'] : []),
+  ...(isProd && process.env.FEATURE_CSP_ENFORCE === 'true' ? ['upgrade-insecure-requests'] : []),
 ].join('; ');
 
 const cspHeaderName =

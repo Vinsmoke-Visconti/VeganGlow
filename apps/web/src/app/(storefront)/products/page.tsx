@@ -198,26 +198,7 @@ export default async function ProductsPage({
           </div>
 
           <div className={styles.filterGroup}>
-            <div className={styles.filterLabel}>Khoảng giá</div>
-            <div className={styles.priceBrackets}>
-              {PRICE_BRACKETS.map((bracket, idx) => {
-                const isActive = (minPrice === bracket.min && (maxPrice === bracket.max || (bracket.max === Infinity && !Number.isFinite(maxPrice))));
-                return (
-                  <Link
-                    key={idx}
-                    href={`/products${buildQueryString(params, {
-                      min: bracket.min.toString(),
-                      max: bracket.max === Infinity ? '' : bracket.max.toString()
-                    })}`}
-                    className={`${styles.priceBracket} ${isActive ? styles.priceBracketActive : ''}`}
-                  >
-                    {bracket.label}
-                  </Link>
-                );
-              })}
-            </div>
-
-            <PriceFilter 
+            <div className={styles.filterLabel}>Khoảng giá</div>            <PriceFilter 
               initialMin={minPrice} 
               initialMax={maxPrice} 
               absoluteMin={absoluteMin}

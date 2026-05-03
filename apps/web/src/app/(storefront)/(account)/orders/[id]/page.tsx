@@ -18,6 +18,7 @@ import {
   Mail,
   CreditCard,
   Loader2,
+  ArrowRight,
 } from 'lucide-react';
 
 type OrderItem = {
@@ -126,6 +127,10 @@ export default function OrderDetailPage() {
         : order.payment_status === 'failed'
           ? 'Thanh toán thất bại'
           : 'Chưa thanh toán';
+  const canResumePayment =
+    isBankTransfer
+    && order.status === 'pending'
+    && (order.payment_status === 'pending' || order.payment_status === 'unpaid');
 
   return (
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '3rem 1.5rem' }}>
@@ -332,6 +337,29 @@ export default function OrderDetailPage() {
               <div style={{ marginTop: 4, fontSize: '0.8rem', color: '#6b7280' }}>
                 Đã ghi nhận lúc {new Date(order.paid_at).toLocaleString('vi-VN')}
               </div>
+            )}
+            {canResumePayment && (
+              <Link
+                href={`/checkout/pending/${order.code}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  width: '100%',
+                  marginTop: 14,
+                  padding: '0.75rem 1rem',
+                  background: 'linear-gradient(135deg, #064e3b, #059669)',
+                  color: 'white',
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 8px 18px rgba(6, 78, 59, 0.18)',
+                }}
+              >
+                Tiếp tục thanh toán <ArrowRight size={16} />
+              </Link>
             )}
           </div>
 
