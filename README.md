@@ -323,7 +323,7 @@ npm run docker:prod      # Build Docker image cho production
 ## 👥 Đội ngũ phát triển
 
 Dự án được thực hiện bởi nhóm sinh viên ngành **Hệ Thống Thông Tin Quản Lý (MIS)** — Đại học Tôn Đức Thắng.  
-⚠️ Đây là sản phẩm demo cho giải pháp doanh nghiệp, nghiêm cấm các hành vi sao chép và sử dụng trái phép.
+Đây là sản phẩm demo phục vụ mục đích học thuật và nghiên cứu giải pháp doanh nghiệp TMĐT.
 
 | Thành viên | MSSV | Email | GitHub |
 |---|---|---|---|
