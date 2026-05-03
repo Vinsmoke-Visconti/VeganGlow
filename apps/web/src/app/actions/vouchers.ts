@@ -5,8 +5,8 @@ import { createClient } from '@/lib/supabase/server';
 export async function validateVoucher(code: string, orderTotal: number) {
   const supabase = await createClient();
 
-  const { data: voucher, error } = await supabase
-    .from('vouchers')
+  const { data: voucher, error } = await (supabase
+    .from('vouchers') as any)
     .select('*')
     .eq('code', code.trim().toUpperCase())
     .single();

@@ -17,14 +17,13 @@ type BlogListRow = {
 export default async function BlogPage() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('blog_posts')
+  const { data, error } = await (supabase.from('blog_posts') as any)
     .select('slug,title,excerpt,category,read_time_minutes,published_at,cover_image')
     .eq('is_published', true)
     .lte('published_at', new Date().toISOString())
     .order('published_at', { ascending: false });
 
-  const posts: BlogListRow[] = error || !data ? [] : (data as unknown as BlogListRow[]);
+  const posts: BlogListRow[] = error || !data ? [] : (data as BlogListRow[]);
 
   return (
     <div className={styles.page}>

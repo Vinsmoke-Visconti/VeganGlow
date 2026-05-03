@@ -373,7 +373,7 @@ export async function adminLogin(_prevState: AuthFormState, formData: FormData) 
   
   // Send email alert for admin login
   const adminName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || 'Admin';
-  sendAdminLoginAlert(identifier, adminName, { ip, userAgent }).catch(err => {
+  sendAdminLoginAlert(identifier, adminName, { ip: ip ?? undefined, userAgent: userAgent ?? undefined }).catch(err => {
     console.error('Failed to send admin login alert:', err);
   });
 

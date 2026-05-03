@@ -61,7 +61,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   // Fetch product variants (if any) and the freeship threshold in parallel.
   // RPC `get_freeship_threshold` is from migration 20260502000002 — types may
   // be stale until `npm run db:types` is run, so we cast.
-  const [variantsRes, freeshipRes] = await Promise.all([
+  const [variantsRes, freeshipRes, flashSaleRes] = await Promise.all([
     supabase
       .from('product_variants')
       .select('id, sku, name, attributes, price, compare_at_price, stock, image_url, position, is_active')
@@ -71,8 +71,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     (supabase.rpc as unknown as (fn: string) => Promise<{ data: number | null }>)(
       'get_freeship_threshold',
     ),
-    supabase
-      .from('flash_sales')
+    (supabase.from('flash_sales') as any)
       .select('*')
       .eq('product_id', typedProduct.id)
       .eq('status', 'active')
@@ -84,7 +83,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const variants = (variantsRes.data ?? []) as unknown as Variant[];
   const freeshipThreshold =
     typeof freeshipRes.data === 'number' ? freeshipRes.data : 500000;
-  const flashSale = freeshipRes[2]?.data;
+  const flashSale = flashSaleRes.data;
 
   // Apply flash sale to price if active
   let currentPrice = Number(typedProduct.price);

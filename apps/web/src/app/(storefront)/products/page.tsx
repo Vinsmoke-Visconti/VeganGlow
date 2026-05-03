@@ -6,6 +6,7 @@ import { Filter, Leaf, Search, ShoppingBag, X } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { PRICE_BRACKETS, SORT_OPTIONS } from './constants';
+import PriceFilter from './PriceFilter';
 import styles from './products.module.css';
 
 type CategoryRow = { id: string; name: string; slug: string };
@@ -40,11 +41,11 @@ function sanitizeSearchTerm(raw: string): string {
     .slice(0, 80);
 }
 
-function parsePriceFilter(value: string | string[] | undefined): number {
-  if (typeof value !== 'string' || value === '') return NaN;
+function parsePriceFilter(value: string | string[] | undefined, defaultValue: number): number {
+  if (typeof value !== 'string' || value === '') return defaultValue;
   const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) return NaN;
-  return Math.min(parsed, 100_000_000);
+  if (!Number.isFinite(parsed) || parsed < 0) return defaultValue;
+  return Math.min(parsed, 1000000000);
 }
 
 export default async function ProductsPage({
@@ -57,18 +58,15 @@ export default async function ProductsPage({
 
   const query = typeof params.q === 'string' ? sanitizeSearchTerm(params.q) : '';
   const categorySlug = typeof params.category === 'string' ? params.category : '';
-  const minPrice = parsePriceFilter(params.min);
-  const maxPrice = parsePriceFilter(params.max);
   const sortValue = typeof params.sort === 'string' ? params.sort : 'newest';
   const sort = SORT_OPTIONS.find((s) => s.value === sortValue) || SORT_OPTIONS[0];
 
   // 1. Fetch Categories and all active products to compute counts accurately in-memory
   // This avoids complex nested Supabase filtering for counts.
-  const [categoriesRes, allActiveProductsRes] = await Promise.all([
+  const [categoriesRes, allActiveProductsRes, flashSalesRes] = await Promise.all([
     supabase.from('categories').select('id, name, slug').order('name'),
-    supabase.from('products').select('category_id').eq('is_active', true),
-    supabase
-      .from('flash_sales')
+    supabase.from('products').select('category_id, price').eq('is_active', true),
+    (supabase.from('flash_sales') as any)
       .select('*')
       .eq('status', 'active')
       .lte('starts_at', new Date().toISOString())
@@ -76,8 +74,8 @@ export default async function ProductsPage({
   ]);
 
   const rawCategories: CategoryRow[] = (categoriesRes.data as CategoryRow[] | null) ?? [];
-  const activeProductRows: { category_id: string | null }[] =
-    (allActiveProductsRes.data as { category_id: string | null }[] | null) ?? [];
+  const activeProductRows: { category_id: string | null; price: number }[] =
+    (allActiveProductsRes.data as any) ?? [];
 
   const categories: CategoryWithCount[] = rawCategories.map((cat) => ({
     ...cat,
@@ -86,6 +84,18 @@ export default async function ProductsPage({
 
   const totalCount = activeProductRows.length;
   const activeCategory = categories.find((c) => c.slug === categorySlug);
+
+  // Compute dynamic min/max for the slider
+  const categoryProducts = activeCategory 
+    ? activeProductRows.filter(p => p.category_id === activeCategory.id)
+    : activeProductRows;
+
+  const absoluteMin = categoryProducts.length > 0 ? Math.min(...categoryProducts.map(p => p.price)) : 0;
+  const absoluteMax = categoryProducts.length > 0 ? Math.max(...categoryProducts.map(p => p.price)) : 1000000;
+
+  // Use the parsed values but ensure they are within absolute bounds if provided
+  const minPrice = parsePriceFilter(params.min, absoluteMin);
+  const maxPrice = parsePriceFilter(params.max, absoluteMax);
 
   // 2. Build the main products query (includes M2M tags via product_tags junction)
   let dbQuery = supabase
@@ -121,7 +131,7 @@ export default async function ProductsPage({
     console.error('Products query error:', error);
   }
 
-  const activeFlashSales = (allActiveProductsRes[2]?.data as any[]) ?? [];
+  const activeFlashSales = (flashSalesRes.data as any[]) ?? [];
 
   const list: ProductCardProduct[] = (products as any[] | null)?.map(p => {
     const flash = activeFlashSales.find(f => f.product_id === p.id);
@@ -207,41 +217,12 @@ export default async function ProductsPage({
               })}
             </div>
 
-            <form action="/products" method="GET" className={styles.priceRange}>
-              {Object.entries(params).map(([k, v]) =>
-                typeof v === 'string' && k !== 'min' && k !== 'max' ? (
-                  <input key={k} type="hidden" name={k} value={v} />
-                ) : null,
-              )}
-              <div className={styles.priceInputs}>
-                <div className={styles.inputWithUnit}>
-                  <input
-                    type="number"
-                    name="min"
-                    placeholder="Tối thiểu"
-                    defaultValue={Number.isFinite(minPrice) ? minPrice : ''}
-                    className={styles.priceInput}
-                    min="0"
-                  />
-                  <span className={styles.unit}>₫</span>
-                </div>
-                <span className={styles.priceDash}>—</span>
-                <div className={styles.inputWithUnit}>
-                  <input
-                    type="number"
-                    name="max"
-                    placeholder="Tối đa"
-                    defaultValue={Number.isFinite(maxPrice) ? maxPrice : ''}
-                    className={styles.priceInput}
-                    min="0"
-                  />
-                  <span className={styles.unit}>₫</span>
-                </div>
-              </div>
-              <button type="submit" className={styles.applyBtn}>
-                Áp dụng
-              </button>
-            </form>
+            <PriceFilter 
+              initialMin={minPrice} 
+              initialMax={maxPrice} 
+              absoluteMin={absoluteMin}
+              absoluteMax={absoluteMax}
+            />
           </div>
         </aside>
 

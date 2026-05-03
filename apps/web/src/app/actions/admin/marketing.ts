@@ -32,7 +32,7 @@ export async function upsertVoucher(input: VoucherInput): Promise<Result> {
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
-    const { error } = await supabase.from('vouchers').update(rest as never).eq('id', id);
+    const { error } = await (supabase.from('vouchers') as any).update(rest as never).eq('id', id);
     if (error) return { ok: false, error: error.message };
     revalidatePath('/admin/marketing');
     await audit({ action: 'voucher.updated', severity: 'info', entity: 'voucher', entity_id: id, details: { code: input.code } }, await auditCtx());
@@ -40,7 +40,7 @@ export async function upsertVoucher(input: VoucherInput): Promise<Result> {
   }
   const { id: _ignored, ...rest } = input;
   void _ignored;
-  const { data, error } = await supabase.from('vouchers').insert(rest as never).select('id').single();
+  const { data, error } = await (supabase.from('vouchers') as any).insert(rest as never).select('id').single();
   if (error) return { ok: false, error: error.message };
   const newId = (data as { id: string }).id;
   revalidatePath('/admin/marketing');
@@ -50,7 +50,7 @@ export async function upsertVoucher(input: VoucherInput): Promise<Result> {
 
 export async function deleteVoucher(id: string): Promise<Result> {
   const supabase = await createClient();
-  const { error } = await supabase.from('vouchers').delete().eq('id', id);
+  const { error } = await (supabase.from('vouchers') as any).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/admin/marketing');
   await audit({ action: 'voucher.disabled', severity: 'info', entity: 'voucher', entity_id: id }, await auditCtx());
@@ -75,7 +75,7 @@ export async function upsertBanner(input: BannerInput): Promise<Result> {
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
-    const { error } = await supabase.from('banners').update(rest as never).eq('id', id);
+    const { error } = await (supabase.from('banners') as any).update(rest as never).eq('id', id);
     if (error) return { ok: false, error: error.message };
     revalidatePath('/admin/marketing');
     await audit({ action: 'banner.updated', severity: 'info', entity: 'banner', entity_id: id }, await auditCtx());
@@ -83,7 +83,7 @@ export async function upsertBanner(input: BannerInput): Promise<Result> {
   }
   const { id: _ignored, ...rest } = input;
   void _ignored;
-  const { data, error } = await supabase.from('banners').insert(rest as never).select('id').single();
+  const { data, error } = await (supabase.from('banners') as any).insert(rest as never).select('id').single();
   if (error) return { ok: false, error: error.message };
   const newId = (data as { id: string }).id;
   revalidatePath('/admin/marketing');
@@ -93,7 +93,7 @@ export async function upsertBanner(input: BannerInput): Promise<Result> {
 
 export async function deleteBanner(id: string): Promise<Result> {
   const supabase = await createClient();
-  const { error } = await supabase.from('banners').delete().eq('id', id);
+  const { error } = await (supabase.from('banners') as any).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/admin/marketing');
   await audit({ action: 'banner.deactivated', severity: 'info', entity: 'banner', entity_id: id }, await auditCtx());
@@ -113,14 +113,14 @@ export async function upsertFlashSale(input: FlashSaleInput): Promise<Result> {
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
-    const { error } = await supabase.from('flash_sales').update(rest as never).eq('id', id);
+    const { error } = await (supabase.from('flash_sales') as any).update(rest as never).eq('id', id);
     if (error) return { ok: false, error: error.message };
     revalidatePath('/admin/marketing');
     return { ok: true, id };
   }
   const { id: _ignored, ...rest } = input;
   void _ignored;
-  const { data, error } = await supabase.from('flash_sales').insert(rest as never).select('id').single();
+  const { data, error } = await (supabase.from('flash_sales') as any).insert(rest as never).select('id').single();
   if (error) return { ok: false, error: error.message };
   revalidatePath('/admin/marketing');
   return { ok: true, id: (data as { id: string }).id };
@@ -128,7 +128,7 @@ export async function upsertFlashSale(input: FlashSaleInput): Promise<Result> {
 
 export async function deleteFlashSale(id: string): Promise<Result> {
   const supabase = await createClient();
-  const { error } = await supabase.from('flash_sales').delete().eq('id', id);
+  const { error } = await (supabase.from('flash_sales') as any).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/admin/marketing');
   return { ok: true };

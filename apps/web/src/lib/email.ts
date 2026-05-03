@@ -44,6 +44,7 @@ async function dispatchEmail(options: {
   to: string | string[];
   subject: string;
   html: string;
+  text?: string;
   tags?: { name: string; value: string }[];
 }) {
   if (!process.env.RESEND_API_KEY) {
@@ -64,7 +65,8 @@ async function dispatchEmail(options: {
   const { data, error } = await resend.emails.send({
     ...options,
     to: finalTo,
-  });
+    text: options.text || (options.html as string).replace(/<[^>]*>/g, ''),
+  } as any);
 
   if (error) {
     logger.error({ action: 'send_email_error', error, to: finalTo }, 'Resend API error');
@@ -98,7 +100,7 @@ export async function sendOrderConfirmation(
       ? buildVietQrUrl(totalAmount, orderId)
       : null;
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: DEFAULT_FROM,
       to: [email],
       subject: `🌱 Cảm ơn bạn đã đồng hành cùng VeganGlow - Đơn hàng #${safeOrderId} đã đặt thành công`,
@@ -167,7 +169,7 @@ export async function sendOrderConfirmation(
       `,
     });
 
-    if (error) throw error;
+
     logger.info({ action: 'send_email_success', id: data?.id }, 'Email sent successfully');
     return data;
   } catch (error) {
@@ -191,7 +193,7 @@ export async function sendAdminLoginAlert(email: string, name: string | null, me
     const safeIp = escapeHtml(metadata.ip || 'Không xác định');
     const safeUserAgent = escapeHtml(metadata.userAgent || 'Không xác định');
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: SECURITY_FROM,
       to: [email],
       subject: '🛡️ [VeganGlow Security] Phát hiện đăng nhập mới',
@@ -246,7 +248,7 @@ export async function sendAdminLoginAlert(email: string, name: string | null, me
       `,
     });
 
-    if (error) throw error;
+
     return data;
   } catch (error) {
     logger.error({ action: 'admin_login_alert_error', error }, 'Failed to send admin login alert');
@@ -274,7 +276,7 @@ export async function sendPasswordOtpEmail(
       ? 'Mã xác nhận thiết lập mật khẩu của bạn là:' 
       : 'Có yêu cầu thay đổi mật khẩu, mã xác nhận của bạn là:';
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: SECURITY_FROM,
       to: [email],
       subject: `🛡️ Mã xác nhận bảo mật [${code}] - VeganGlow`,
@@ -308,7 +310,7 @@ export async function sendPasswordOtpEmail(
       `,
     });
 
-    if (error) throw error;
+
     return data;
   } catch (error) {
     logger.error({ action: 'send_otp_email_error', error }, 'Failed to send OTP email');
@@ -329,7 +331,7 @@ export async function sendPaymentSuccessEmail(email: string, orderId: string, am
     const safeOrderId = escapeHtml(orderId);
     const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: DEFAULT_FROM,
       to: [email],
       subject: `💰 Xác nhận thanh toán thành công đơn hàng #${safeOrderId} - VeganGlow`,
@@ -367,7 +369,7 @@ export async function sendPaymentSuccessEmail(email: string, orderId: string, am
       `,
     });
 
-    if (error) throw error;
+
     logger.info({ action: 'send_payment_success_email', orderId }, 'Payment success email sent');
     return data;
   } catch (error) {
@@ -389,7 +391,7 @@ export async function sendOrderShippedEmail(email: string, orderId: string, trac
     const safeOrderId = escapeHtml(orderId);
     const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: DEFAULT_FROM,
       to: [email],
       subject: `🚚 Đơn hàng #${safeOrderId} đang trên đường tới bạn - VeganGlow`,
@@ -431,7 +433,7 @@ export async function sendOrderShippedEmail(email: string, orderId: string, trac
       `,
     });
 
-    if (error) throw error;
+
     logger.info({ action: 'send_shipped_email', orderId }, 'Shipped email sent');
     return data;
   } catch (error) {
@@ -461,7 +463,7 @@ export async function sendStaffInvitationEmail(
     const safeName = escapeHtml(fullName);
     const safeRole = escapeHtml(roleName);
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: DEFAULT_FROM,
       to: [email],
       subject: `✉️ Lời mời tham gia quản trị hệ thống VeganGlow`,
@@ -502,7 +504,7 @@ export async function sendStaffInvitationEmail(
       `,
     });
 
-    if (error) throw error;
+
     logger.info({ action: 'send_invitation_email_success', email }, 'Staff invitation email sent');
     return data;
   } catch (error) {
@@ -524,7 +526,7 @@ export async function sendWelcomeEmail(email: string, name: string | null) {
     const displayName = escapeHtml(name || 'bạn');
     const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vercel.app');
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: DEFAULT_FROM,
       to: [email],
       subject: `🌱 Chào mừng ${displayName} gia nhập gia đình VeganGlow!`,
@@ -580,7 +582,7 @@ export async function sendWelcomeEmail(email: string, name: string | null) {
       `,
     });
 
-    if (error) throw error;
+
     return data;
   } catch (error) {
     logger.error({ action: 'send_welcome_email_error', error }, 'Failed to send welcome email');
@@ -596,7 +598,7 @@ export async function sendContactConfirmationEmail(email: string, name: string, 
     const safeName = escapeHtml(name);
     const safeSubject = escapeHtml(subject);
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: DEFAULT_FROM,
       to: [email],
       subject: `📬 VeganGlow đã nhận được lời nhắn từ bạn: ${safeSubject}`,
@@ -648,7 +650,7 @@ export async function sendAdminContactAlert(input: { name: string; email: string
     const safeSubject = escapeHtml(input.subject);
     const safeMessage = escapeHtml(input.message);
 
-    return await dispatchEmail({
+    const data = await dispatchEmail({
       from: SECURITY_FROM,
       to: [adminEmail],
       subject: `🚨 [Contact Form] Tin nhắn mới từ ${safeName}`,

@@ -42,12 +42,12 @@ export default async function Home() {
   if (!products) {
     const [dbProductsRes, flashSalesRes] = await Promise.all([
       supabase.from('products').select('*, categories(name, slug)').limit(4),
-      supabase
-        .from('flash_sales')
-        .select('*')
-        .eq('status', 'active')
-        .lte('starts_at', new Date().toISOString())
-        .gte('ends_at', new Date().toISOString()),
+      (supabase.from('flash_sales') as any)
+      .select('*, products(id, name, slug, image, price, old_price)')
+      .eq('status', 'active')
+      .lte('starts_at', new Date().toISOString())
+      .gte('ends_at', new Date().toISOString())
+      .limit(8),
     ]);
 
     const activeFlashSales = (flashSalesRes.data as any[]) ?? [];

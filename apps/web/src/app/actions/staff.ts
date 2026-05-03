@@ -176,9 +176,9 @@ export async function declineStaffInvitation(token: string) {
   const supabase = await createClient();
 
   // Find invitation first to audit it
-  const { data: invite } = await supabase
-    .from('staff_invitations')
-    .select('id, email, full_name')
+  const { data: invite, error: fetchError } = await (supabase
+    .from('staff_invitations') as any)
+    .select('*')
     .eq('token', token)
     .single();
 
@@ -195,7 +195,7 @@ export async function declineStaffInvitation(token: string) {
   await audit(
     {
       action: 'rbac.staff_invitation_declined',
-      severity: 'info',
+      severity: 'warn',
       entity: 'staff',
       entity_id: invite.email,
       details: { full_name: invite.full_name },

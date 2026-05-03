@@ -161,6 +161,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .priceInput {
@@ -177,6 +178,17 @@
   border-color: var(--color-primary);
   background: white;
   outline: none;
+}
+
+/* Hide Spinners */
+.priceInput::-webkit-inner-spin-button,
+.priceInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.priceInput[type=number] {
+  -moz-appearance: textfield;
 }
 
 .inputWithUnit {
@@ -330,6 +342,70 @@
 
 .filterChip a:hover {
   opacity: 1;
+}
+
+/* ============================================
+   Price Slider Styles
+   ============================================ */
+.sliderRoot {
+  position: relative;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  margin: var(--space-4) 0 var(--space-8);
+  user-select: none;
+  touch-action: none;
+}
+
+.sliderTrack {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+}
+
+.sliderRange {
+  position: absolute;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.sliderThumb {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, border-width 0.1s ease;
+}
+
+.sliderThumb:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  border-width: 3px;
+}
+
+.sliderThumb:active {
+  transform: translate(-50%, -50%) scale(0.95);
+  background: var(--color-primary-50);
+}
+
+.sliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-top: -12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* ============================================

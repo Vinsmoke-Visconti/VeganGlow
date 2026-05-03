@@ -9,13 +9,24 @@ export const metadata = {
   title: 'Quản lý Bài viết - Admin',
 };
 
+interface BlogPost {
+  id: string;
+  title: string | null;
+  slug: string | null;
+  category: string | null;
+  read_time_minutes: number | null;
+  is_published: boolean | null;
+  published_at: string | null;
+  excerpt: string | null;
+}
+
 export default async function AdminBlogsPage() {
   const supabase = await createClient();
 
   const { data: blogs, error } = await supabase
     .from('blog_posts')
     .select('id, title, slug, category, read_time_minutes, is_published, published_at, excerpt')
-    .order('published_at', { ascending: false });
+    .order('published_at', { ascending: false }) as { data: BlogPost[] | null, error: any };
 
   if (error) {
     return <div className={shared.page}><p className={shared.formError}>Lỗi tải bài viết: {error.message}</p></div>;
@@ -82,7 +93,7 @@ export default async function AdminBlogsPage() {
                     </td>
                     <td>
                       <span style={{ fontSize: 13, color: 'var(--vg-ink-600)' }}>
-                        {formatDate(blog.published_at)}
+                        {blog.published_at ? formatDate(blog.published_at) : 'Chưa xuất bản'}
                       </span>
                     </td>
                     <td style={{ textAlign: 'right' }}>

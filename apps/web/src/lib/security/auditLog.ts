@@ -57,9 +57,13 @@ export type AuditEvent =
       severity: 'info'; entity: 'banner'; entity_id: string }
   | { action: 'customer.banned' | 'customer.unbanned' | 'customer.note_added' | 'customer.address_edited_by_staff';
       severity: 'warn'; entity: 'customer'; entity_id: string; details?: Record<string, unknown> }
-  | { action: 'rbac.role_assigned' | 'rbac.role_revoked' | 'rbac.permission_changed' | 'rbac.staff_invited' | 'rbac.staff_disabled';
+  | { action: 'rbac.role_assigned' | 'rbac.role_revoked' | 'rbac.permission_changed' | 'rbac.staff_invited' | 'rbac.staff_disabled' | 'rbac.staff_invitation_declined';
       severity: 'warn'; entity: 'staff'; entity_id: string; details?: Record<string, unknown> }
   | { action: 'setting.updated'; severity: 'info'; entity: 'setting'; details: { key: string; old?: unknown; new: unknown } }
+  | { action: 'blog.created' | 'blog.updated' | 'blog.deleted';
+      severity: 'info'; entity: 'blog_post'; entity_id?: string; summary: string; details?: Record<string, unknown> }
+  | { action: 'support.message_resolved' | 'support.message_reopened';
+      severity: 'info'; entity: 'contact_message'; entity_id: string; summary: string; details?: Record<string, unknown> }
   | { action: 'gdpr.user_anonymized'; severity: 'critical'; entity: 'user'; entity_id: string };
 
 export type AuditContext = {
@@ -104,8 +108,8 @@ export async function audit(event: AuditEvent, ctx?: AuditContext): Promise<void
       p_action: event.action,
       p_severity: event.severity,
       p_entity: entity,
-      p_entity_id: entity_id,
-      p_summary: summary,
+      p_entity_id: entity_id ?? null,
+      p_summary: summary ?? null,
       p_details: details,
       p_ip_hash: ipHash,
       p_user_agent: ctx?.userAgent ?? null,

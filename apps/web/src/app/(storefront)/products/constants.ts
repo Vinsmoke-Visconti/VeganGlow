@@ -7,8 +7,8 @@ export const SORT_OPTIONS = [
 ] as const;
 
 export const PRICE_BRACKETS = [
-  { label: 'Dưới 100k', min: 0, max: 100000 },
-  { label: '100k - 200k', min: 100000, max: 200000 },
-  { label: '200k - 500k', min: 200000, max: 500000 },
-  { label: 'Trên 500k', min: 500000, max: Infinity },
+  { label: 'Dưới 100.000đ', min: 0, max: 100000 },
+  { label: '100.000đ - 200.000đ', min: 100000, max: 200000 },
+  { label: '200.000đ - 500.000đ', min: 200000, max: 500000 },
+  { label: 'Trên 500.000đ', min: 500000, max: Infinity },
 ] as const;

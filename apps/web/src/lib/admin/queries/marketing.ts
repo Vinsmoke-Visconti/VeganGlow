@@ -53,14 +53,13 @@ export async function listVouchers(): Promise<Voucher[]> {
 
 export async function getVoucher(id: string): Promise<Voucher | null> {
   const supabase = await createClient();
-  const { data } = await supabase.from('vouchers').select('*').eq('id', id).maybeSingle();
+  const { data } = await (supabase.from('vouchers') as any).select('*').eq('id', id).maybeSingle();
   return (data as Voucher | null) ?? null;
 }
 
 export async function listBanners(): Promise<Banner[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('banners')
+  const { data } = await (supabase.from('banners') as any)
     .select('*')
     .order('created_at', { ascending: false });
   return (data ?? []) as Banner[];
@@ -68,7 +67,7 @@ export async function listBanners(): Promise<Banner[]> {
 
 export async function getBanner(id: string): Promise<Banner | null> {
   const supabase = await createClient();
-  const { data } = await supabase.from('banners').select('*').eq('id', id).maybeSingle();
+  const { data } = await (supabase.from('banners') as any).select('*').eq('id', id).maybeSingle();
   return (data as Banner | null) ?? null;
 }
 
@@ -84,8 +83,7 @@ export async function listFlashSales(): Promise<FlashSale[]> {
     created_at: string;
     product: { name: string; image: string | null } | null;
   };
-  const { data } = await supabase
-    .from('flash_sales')
+  const { data } = await (supabase.from('flash_sales') as any)
     .select('id, product_id, discount_percent, starts_at, ends_at, status, created_at, product:products(name, image)')
     .order('starts_at', { ascending: false });
   return ((data ?? []) as unknown as RawFlashRow[]).map((r) => ({

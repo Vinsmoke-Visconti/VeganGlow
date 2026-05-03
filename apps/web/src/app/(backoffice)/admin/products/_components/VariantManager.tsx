@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, Edit3, Save, X, Loader2, ImagePlus } from 'lucide-react';
+import { Plus, Trash2, Edit3, Save, X, Loader2, ImagePlus, Upload } from 'lucide-react';
 import { upsertVariant, deleteVariant, type VariantInput } from '@/app/actions/admin/variants';
 import { uploadAdminImage } from '@/lib/admin/storage';
 import { SafeImage } from '@/components/ui/SafeImage';

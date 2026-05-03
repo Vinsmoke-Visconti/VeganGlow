@@ -40,15 +40,15 @@ export default async function AcceptInvitePage({
   const supabase = await createClient();
 
   // Find invitation
-  const { data: invite, error } = await supabase
-    .from('staff_invitations')
+  const { data: invite, error } = await (supabase
+    .from('staff_invitations') as any)
     .select(`
       *,
       role:roles(display_name, name),
       inviter:profiles!staff_invitations_invited_by_fkey(full_name)
     `)
     .eq('token', token)
-    .single<InviteRow>();
+    .single();
 
   if (error || !invite) {
     return (

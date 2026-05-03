@@ -108,7 +108,7 @@ export async function GET(request: Request) {
   await supabase.auth.refreshSession();
 
   // Send login alert
-  const { ip, userAgent } = await getAuditContext(request);
+  const { ip, userAgent } = await getAuditContext();
   const adminName = user.user_metadata?.full_name || user.user_metadata?.name || 'Admin';
   sendAdminLoginAlert(user.email!, adminName, { ip: ip || undefined, userAgent: userAgent || undefined }).catch(err => {
     console.error('Failed to send admin login alert:', err);

@@ -8,14 +8,23 @@ export const metadata = {
   title: 'Quản lý tin nhắn liên hệ - Admin',
 };
 
+interface ContactMessage {
+  id: string;
+  name: string | null;
+  email: string | null;
+  subject: string | null;
+  message: string | null;
+  created_at: string | null;
+  resolved_at: string | null;
+}
+
 export default async function AdminContactsPage() {
   const supabase = await createClient();
 
   // Fetch contact messages
-  const { data: messages, error } = await supabase
-    .from('contact_messages')
+  const { data: messages, error } = await (supabase.from('contact_messages') as any)
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }) as { data: ContactMessage[] | null, error: any };
 
   if (error) {
     return <div className={shared.page}><p className={shared.formError}>Lỗi tải tin nhắn: {error.message}</p></div>;
@@ -68,7 +77,7 @@ export default async function AdminContactsPage() {
                     </td>
                     <td>
                       <span style={{ fontSize: 13, color: 'var(--vg-ink-500)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Clock size={12} /> {formatDate(msg.created_at)}
+                        <Clock size={12} /> {msg.created_at ? formatDate(msg.created_at) : '—'}
                       </span>
                     </td>
                     <td>

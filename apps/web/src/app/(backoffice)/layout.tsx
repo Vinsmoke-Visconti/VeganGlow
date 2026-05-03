@@ -39,10 +39,10 @@ export default async function BackofficeLayout({
 
   if (user) {
     const [staffResult, pendingOrdersResult, lowStockResult] = await Promise.all([
-      supabase
+      (supabase
         .from('profiles')
         .select('full_name, username, role:roles(id, name, display_name)')
-        .eq('id', user.id)
+        .eq('id', user.id) as any)
         .maybeSingle(),
       supabase
         .from('orders')
@@ -68,14 +68,13 @@ export default async function BackofficeLayout({
     }
 
     if (roleId) {
-      const { data: rolePerms } = await supabase
-        .from('role_permissions')
+      const { data: rolePerms } = await (supabase
+        .from('role_permissions') as any)
         .select('permission:permissions(module, action)')
-        .eq('role_id', roleId)
-        .returns<RolePermissionRow[]>();
+        .eq('role_id', roleId);
 
-      permissions = (rolePerms ?? [])
-        .map((rp) => rp.permission)
+      permissions = ((rolePerms ?? []) as any[])
+        .map((rp: any) => rp.permission)
         .filter((p): p is { module: string; action: string } => Boolean(p))
         .map((p) => `${p.module}:${p.action}`);
     }

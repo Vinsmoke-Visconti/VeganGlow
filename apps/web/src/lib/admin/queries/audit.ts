@@ -26,8 +26,8 @@ export async function listAuditEntries(filters: AuditFilters = {}): Promise<Audi
   const supabase = await createClient();
   const limit = filters.limit ?? 100;
   const offset = filters.offset ?? 0;
-  let q = supabase
-    .from('audit_logs')
+  let q = (supabase
+    .from('audit_logs') as any)
     .select('id, actor_id, resource_type, resource_id, action, entity, entity_id, summary, ip_address, created_at')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
@@ -43,8 +43,8 @@ export async function listMyAuditEntries(limit = 50): Promise<AuditEntry[]> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
-  const { data } = await supabase
-    .from('audit_logs')
+  const { data } = await (supabase
+    .from('audit_logs') as any)
     .select('id, actor_id, resource_type, resource_id, action, entity, entity_id, summary, ip_address, created_at')
     .eq('actor_id', user.id)
     .order('created_at', { ascending: false })

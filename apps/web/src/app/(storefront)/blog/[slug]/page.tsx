@@ -21,17 +21,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from('blog_posts')
+  const { data: post, error } = await (supabase.from('blog_posts') as any)
     .select('slug,title,category,read_time_minutes,published_at,lead,sections')
     .eq('slug', slug)
     .eq('is_published', true)
     .lte('published_at', new Date().toISOString())
     .maybeSingle();
 
-  if (error || !data) notFound();
+  if (error || !post) notFound();
 
-  const post = data as unknown as BlogPostRow;
   const sections: BlogSection[] = Array.isArray(post.sections) ? post.sections : [];
 
   return (

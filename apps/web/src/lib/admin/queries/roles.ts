@@ -18,8 +18,7 @@ export type RoleWithPermissions = {
 
 export async function listAllRoles() {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('roles')
+  const { data } = await (supabase.from('roles') as any)
     .select('id, name, display_name, description, weight')
     .order('weight', { ascending: true })
     .order('display_name');
@@ -28,8 +27,7 @@ export async function listAllRoles() {
 
 export async function listPermissions(): Promise<Permission[]> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from('permissions')
+  const { data } = await (supabase.from('permissions') as any)
     .select('id, module, action, description')
     .order('module')
     .order('action');
@@ -39,8 +37,7 @@ export async function listPermissions(): Promise<Permission[]> {
 export async function getRolePermissions(roleId: string): Promise<string[]> {
   const supabase = await createClient();
   type RpRow = { permission_id: string };
-  const { data } = await supabase
-    .from('role_permissions')
+  const { data } = await (supabase.from('role_permissions') as any)
     .select('permission_id')
     .eq('role_id', roleId);
   return ((data ?? []) as RpRow[]).map((r) => r.permission_id);

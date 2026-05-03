@@ -50,7 +50,7 @@ export async function createBlogPost(_prev: unknown, formData: FormData) {
   const slug = slugify(title) || `post-${Date.now()}`;
   const supabase = await createClient();
 
-  const { error } = await supabase.from('blog_posts').insert({
+  const { error } = await (supabase.from('blog_posts') as any).insert({
     slug,
     title,
     excerpt,
@@ -74,7 +74,7 @@ export async function createBlogPost(_prev: unknown, formData: FormData) {
   const ip = h.get('x-forwarded-for')?.split(',')[0] ?? null;
   const userAgent = h.get('user-agent');
   await audit(
-    { action: 'blog.create', severity: 'info', entity: 'blog_post', summary: title },
+    { action: 'blog.created', severity: 'info', entity: 'blog_post', summary: title },
     { ip, userAgent }
   );
 
@@ -130,7 +130,7 @@ export async function updateBlogPost(_prev: unknown, formData: FormData) {
   const ip = h.get('x-forwarded-for')?.split(',')[0] ?? null;
   const userAgent = h.get('user-agent');
   await audit(
-    { action: 'blog.update', severity: 'info', entity: 'blog_post', entity_id: id, summary: title },
+    { action: 'blog.updated', severity: 'info', entity: 'blog_post', entity_id: id, summary: title },
     { ip, userAgent }
   );
 
@@ -158,13 +158,19 @@ export async function toggleBlogPublish(formData: FormData) {
 export async function deleteBlogPost(formData: FormData) {
   const id = formData.get('id') as string;
   const supabase = await createClient();
-  await supabase.from('blog_posts').delete().eq('id', id);
+  await (supabase.from('blog_posts') as any).delete().eq('id', id);
 
   const h = await headers();
   const ip = h.get('x-forwarded-for')?.split(',')[0] ?? null;
   const userAgent = h.get('user-agent');
   await audit(
-    { action: 'blog.delete', severity: 'warning', entity: 'blog_post', entity_id: id },
+    { 
+      action: 'blog.deleted', 
+      severity: 'info', 
+      entity: 'blog_post', 
+      entity_id: id, 
+      summary: `Xóa bài viết ID: ${id}` 
+    },
     { ip, userAgent }
   );
 

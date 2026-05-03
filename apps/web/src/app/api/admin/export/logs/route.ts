@@ -16,8 +16,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const days = parseInt(searchParams.get('days') || '30', 10);
 
-  let query = supabase
-    .from('audit_logs')
+  let query = (supabase.from('audit_logs') as any)
     .select('id, created_at, actor_id, actor_name, action, entity, entity_id, summary, ip_address, user_agent, severity')
     .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
     .order('created_at', { ascending: false });
@@ -34,7 +33,7 @@ export async function GET(request: Request) {
 
   // Generate CSV
   const header = ['ID,Date,Actor,Action,Entity,EntityID,Summary,IP,Severity'];
-  const rows = (data || []).map(row => {
+  const rows = (data || []).map((row: any) => {
     return [
       row.id,
       new Date(row.created_at).toISOString(),

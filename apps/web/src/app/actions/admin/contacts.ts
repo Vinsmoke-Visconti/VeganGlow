@@ -9,7 +9,7 @@ export async function resolveContactAction(formData: FormData) {
   const id = formData.get('id') as string;
   const resolve = formData.get('resolve') === 'true';
 
-  if (!id) return { error: 'Thiếu ID' };
+  if (!id) return;
 
   const supabase = await createClient();
   const { error } = await (supabase.from('contact_messages') as any)
@@ -17,7 +17,7 @@ export async function resolveContactAction(formData: FormData) {
     .eq('id', id);
 
   if (error) {
-    return { error: error.message };
+    return;
   }
 
   // Ghi log
@@ -30,11 +30,11 @@ export async function resolveContactAction(formData: FormData) {
       action: resolve ? 'support.message_resolved' : 'support.message_reopened', 
       severity: 'info', 
       entity: 'contact_message', 
-      entity_id: id 
+      entity_id: id,
+      summary: resolve ? `Đã giải quyết liên hệ ID: ${id}` : `Mở lại liên hệ ID: ${id}`
     },
     { ip, userAgent }
   );
 
   revalidatePath('/admin/contacts');
-  return { success: true };
 }
