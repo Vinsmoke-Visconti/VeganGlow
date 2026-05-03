@@ -1,132 +1,239 @@
-# VeganGlow — Fullstack Monorepo
+# 🌿 VeganGlow — B2C eCommerce Platform
 
-> Mỹ phẩm thuần chay Việt Nam — B2C eCommerce Platform
+> **Mỹ phẩm thuần chay Việt Nam** — Fullstack Monorepo  
+> Dự án cuối kỳ môn **Hệ Thống Thông Tin Quản Lý (MIS)** — Đại học Tôn Đức Thắng
 
-## Cấu trúc dự án
+[![Deploy](https://img.shields.io/badge/Production-veganglow.vercel.app-brightgreen?style=flat-square&logo=vercel)](https://veganglow.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=flat-square&logo=next.js)](https://nextjs.org)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript)](https://typescriptlang.org)
+
+---
+
+## 📋 Giới thiệu
+
+**VeganGlow** là nền tảng thương mại điện tử B2C chuyên kinh doanh mỹ phẩm thuần chay, 100% không thử nghiệm trên động vật, sử dụng nguyên liệu thiên nhiên Việt Nam. Website phục vụ hai nhóm người dùng chính:
+
+- **Khách hàng (Storefront):** Duyệt sản phẩm, tìm kiếm & lọc, giỏ hàng, thanh toán đa phương thức (Stripe, PayOS/VietQR, COD), theo dõi đơn hàng, đánh giá sản phẩm, quản lý hồ sơ cá nhân.
+- **Quản trị viên (Admin Dashboard):** CRUD sản phẩm & danh mục, quản lý đơn hàng, CRM khách hàng, thống kê doanh thu, quản lý nhân sự (mời staff qua email + phân quyền RBAC).
+
+---
+
+## 🏗️ Cấu trúc dự án
 
 ```
 VeganGlow/
 │
-├── apps/                          # 🚀 CÁC ỨNG DỤNG CHẠY ĐƯỢC
-│   ├── web/                       # 🌐 Next.js Web App (User + Admin)
+├── apps/
+│   ├── web/                        # 🌐 Next.js 16 Web App (Storefront + Admin)
 │   │   └── src/
-│   │       ├── app/               #   App Router — Trang User (Home, Cart, Checkout)
-│   │       │   ├── (auth)/        #     Đăng nhập / Đăng ký
-│   │       │   ├── cart/          #     Giỏ hàng
-│   │       │   ├── checkout/      #     Thanh toán
-│   │       │   ├── products/      #     Chi tiết sản phẩm (slug)
-│   │       │   ├── orders/        #     Lịch sử đơn hàng
-│   │       │   └── profile/       #     Trang cá nhân
-│   │       └── pages/             #   Pages Router — Admin Panel
-│   │           ├── admin/         #     🔐 Quản trị (Products, Orders, Users)
-│   │           │   ├── products/  #       CRUD Sản phẩm
-│   │           │   ├── orders/    #       Quản lý đơn hàng
-│   │           │   └── users/     #       Quản lý người dùng
-│   │           └── api/           #     API Routes (server-side logic)
+│   │       ├── app/                #   App Router — Storefront Pages
+│   │       │   ├── (auth)/         #     Đăng nhập / Đăng ký (Google OAuth + Email)
+│   │       │   ├── (backoffice)/   #     🔐 Admin Dashboard (RBAC protected)
+│   │       │   ├── cart/           #     Giỏ hàng
+│   │       │   ├── checkout/       #     Thanh toán đa phương thức
+│   │       │   ├── products/       #     Danh sách & Chi tiết sản phẩm
+│   │       │   ├── orders/         #     Lịch sử đơn hàng
+│   │       │   └── profile/        #     Quản lý tài khoản cá nhân
+│   │       ├── lib/                #   Core Libraries
+│   │       │   ├── supabase/       #     Supabase Client + Middleware
+│   │       │   ├── security/       #     JWT Claims, RBAC logic
+│   │       │   └── email.ts        #     Email Service (Gmail OAuth2)
+│   │       └── components/         #   Shared UI Components
 │   │
-│   ├── mobile/                    # 📱 Mobile App (Capacitor — iOS & Android)
-│   │   └── capacitor.config.ts    #   Cấu hình Capacitor
+│   ├── mobile/                     # 📱 Capacitor (iOS & Android) — planned
 │   │
-│   └── backend/                   # 🗄️  Supabase Backend
-│       ├── supabase/
-│       │   ├── functions/         #   Edge Functions (Deno)
-│       │   └── migrations/        #   Database migrations
-│       ├── schema.sql             #   Schema đầy đủ (Tables + RLS)
-│       └── seed.sql               #   Dữ liệu mẫu 6 sản phẩm
+│   └── backend/                    # 🗄️  Supabase Backend
+│       └── supabase/
+│           ├── functions/          #   Edge Functions (Deno)
+│           │   ├── send-email/     #     Transactional Email Service
+│           │   └── bank-transfer-webhook/  #   Payment webhook
+│           └── migrations/         #   Database Migrations (versioned)
 │
-├── packages/                      # 📦 CODE DÙNG CHUNG (Shared Libraries)
-│   ├── database/                  # 🔌 @veganglow/database
-│   │   └── src/
-│   │       ├── index.ts           #   Entry point — export tất cả
-│   │       ├── database.ts        #   TypeScript types (Auto-generated từ Supabase)
-│   │       ├── helpers.ts         #   Tables<T>, TablesInsert<T>, TablesUpdate<T>
-│   │       └── clients/           #   Supabase Clients cho từng môi trường
-│   │           ├── client.ts      #     Browser Client (use client)
-│   │           ├── server.ts      #     Server Client (Server Components)
-│   │           └── middleware.ts  #     Middleware Client (session refresh)
-│   │
-│   ├── ui/                        # 🎨 @veganglow/ui
-│   │   └── src/
-│   │       ├── index.ts           #   Entry point — export tất cả components
-│   │       └── components/        #   Shared UI Components
-│   │           ├── Navbar.js      #     Thanh điều hướng
-│   │           ├── Footer.js      #     Footer
-│   │           ├── Layout.js      #     Layout User
-│   │           ├── AdminLayout.js #     Layout Admin
-│   │           └── AdminSidebar.js#     Sidebar Admin
-│   │
-│   └── typescript-config/         # ⚙️  @veganglow/typescript-config
-│       ├── base.json              #   Config gốc (Strict mode)
-│       └── nextjs.json            #   Config cho Next.js
+├── packages/                       # 📦 Shared Libraries
+│   ├── database/                   #   @veganglow/database — DB Types & Clients
+│   ├── ui/                         #   @veganglow/ui — Design System Components
+│   └── typescript-config/          #   Shared TS configs
 │
-├── docker/                        # 🐳 Docker
-│   ├── Dockerfile.frontend        #   Build image cho Web App
-│   ├── docker-compose.yml         #   Dev environment
-│   └── docker-compose.prod.yml    #   Production environment
+├── docker/                         # 🐳 Docker (Dev + Production)
 │
-├── .github/workflows/             # ⚡ CI/CD (GitHub Actions)
-│   ├── ci.yml                     #   Lint + Type-check + Build on PR
-│   ├── deploy-frontend.yml        #   Auto-deploy lên Vercel khi push main
-│   └── deploy-docker.yml          #   Auto-push Docker image lên Docker Hub
+├── .github/workflows/              # ⚡ CI/CD Pipelines
+│   ├── ci.yml                      #   Lint + Type-check + Build on PR
+│   ├── deploy-frontend.yml         #   Auto-deploy Web → Vercel
+│   ├── deploy-database.yml         #   Auto-push DB migrations → Supabase
+│   ├── deploy-functions.yml        #   Auto-deploy Edge Functions
+│   └── deploy-docker.yml           #   Auto-push Docker image → Docker Hub
 │
-├── package.json                   # 📋 Monorepo root — npm workspaces
-├── pnpm-workspace.yaml            # 📋 pnpm workspace config (khuyên dùng)
-└── vercel.json                    # ▲  Vercel deployment config
+├── package.json                    # Monorepo root (npm workspaces)
+└── vercel.json                     # Vercel deployment config
 ```
-
-## Phân vai trò
-
-| Vai trò | Nhìn vào đâu | Làm gì |
-|---|---|---|
-| **Frontend Dev** | `apps/web/src/app/` | Xây dựng trang User (Next.js App Router) |
-| **Admin Dev** | `apps/web/src/pages/admin/` | Xây dựng trang Quản trị |
-| **Mobile Dev** | `apps/mobile/` | Phát triển iOS/Android với Capacitor |
-| **Backend/DB Dev** | `apps/backend/` | Viết Edge Functions, quản lý migrations |
-| **UI/Design Dev** | `packages/ui/` | Tạo design system, shared components |
-| **DevOps** | `docker/`, `.github/workflows/` | CI/CD, containers, deployment |
-
-## Lệnh hay dùng
-
-```bash
-# Chạy web local
-npm run dev
-
-# Rebuild database types từ Supabase
-npm run db:types
-
-# Deploy Supabase Edge Functions
-npm run functions:deploy
-
-# Build Docker image
-npm run docker:prod
-```
-
-## Tech Stack
-
-- **Web:** Next.js 16 (App Router + Pages Router), TypeScript, Supabase SSR
-- **Mobile:** Capacitor (iOS + Android), chia sẻ DB types với Web
-- **Backend:** Supabase (PostgreSQL, Auth, Edge Functions, RLS)
-- **Deploy:** Vercel (Web), Docker Hub (Container), GitHub Actions (CI/CD)
-- **AI-Driven Development:** Claude (Anthropic), GitHub Copilot
-
-## AI-Driven Development & Automation
-
-Dự án ứng dụng quy trình **AI-Driven Development** hiện đại để tối ưu hóa hiệu suất và độ chính xác:
-
-- **AI Assistants:** Sử dụng các mô hình ngôn ngữ lớn (LLMs) như Claude để hỗ trợ thiết kế hệ thống, tối ưu hóa database schema và hỗ trợ viết mã nguồn nhanh chóng.
-- **Automated Workflows:** Hệ thống tự động hóa toàn diện từ CI/CD (GitHub Actions) đến việc tự động deploy đa nền tảng (Vercel, Supabase Edge Functions, Docker Hub).
-- **AI Git Flow:** Các quy trình commit và xử lý logic phức tạp (như SMTP OAuth2, Staff RBAC) được AI hỗ trợ kiểm soát chất lượng mã nguồn trước khi deploy.
-
-## Đội ngũ phát triển (Development Team)
-
-Dự án được thực hiện bởi nhóm sinh viên MIS - Đại học Tôn Đức Thắng. Đây là sản phẩm demo cho giải pháp doanh nghiệp, nghiêm cấm các hành vi sao chép và sử dụng trái phép.
-
-| Thành viên | MSSV | Vai trò & Liên hệ | Công cụ |
-|---|---|---|---|
-| **Trần Thảo My** | 52300129 | pascallaem@gmail.com | Github/Supabase/Vercel/Docker/Snyk: `tranthaomy901`<br/>Redis: `22 .Trần Thảo` |
-| **Huỳnh Nguyễn Quốc Việt** | 52300267 | quocvietcndc@gmail.com | Github/Supabase/Sentry/Snyk: `Vinsmoke-Visconti`<br/>Vercel: `vinsmoke-visconti`<br/>Redis: `viet quoc`<br/>Docker: `viscontivinsmoke` |
-| **Phạm Hoài Thương** | 52300262 | binmin81@gmail.com | Github/Supabase/Vercel/Redis/Docker/Snyk: `Terrykozte` |
-| **Trần Quỳnh Trâm** | 52300071 | quynhtram5358@gmail.com | Github/Supabase/Vercel/Snyk: `chickndot`<br/>Redis: `Tran #2920853`<br/>Docker: `tranquynhtram` |
 
 ---
-*© 2026 VeganGlow. All rights reserved.*
+
+## 🚀 Tech Stack
+
+| Layer | Công nghệ |
+|---|---|
+| **Frontend** | Next.js 16 (App Router), TypeScript (Strict), Framer Motion |
+| **Backend** | Supabase (PostgreSQL, Auth, Edge Functions, RLS, Realtime) |
+| **Auth** | Supabase Auth — Google OAuth 2.0 + Email/Password + JWT RBAC |
+| **Payments** | Stripe (Quốc tế), PayOS/VietQR (Nội địa), COD |
+| **Email** | Nodemailer + Gmail API (Google Cloud OAuth2) |
+| **Cache** | Upstash Redis |
+| **Deploy** | Vercel (Web), Docker Hub (Container), Supabase Cloud (DB & Functions) |
+| **CI/CD** | GitHub Actions — 5 pipelines tự động |
+| **Security** | CSP Headers, MFA (TOTP), Idle Timeout, Staff Invitation RBAC |
+
+---
+
+## ⚙️ Hướng dẫn cài đặt
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/Vinsmoke-Visconti/VeganGlow.git
+cd VeganGlow
+```
+
+### 2. Cài đặt dependencies
+
+```bash
+npm install
+```
+
+### 3. Cấu hình biến môi trường
+
+Tạo file `apps/web/.env.local` với nội dung:
+
+```env
+# --- Supabase ---
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+DATABASE_URL=<your-database-connection-string>
+
+# --- Email (Gmail API via Google Cloud Console) ---
+GMAIL_USER=<your-project-gmail@gmail.com>
+GMAIL_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
+GMAIL_CLIENT_SECRET=<GOCSPX-xxxxx>
+GMAIL_REFRESH_TOKEN=<your-refresh-token>
+
+# --- Payments ---
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<pk_test_xxx>
+STRIPE_SECRET_KEY=<sk_test_xxx>
+PAYOS_CLIENT_ID=<your-payos-client-id>
+PAYOS_API_KEY=<your-payos-api-key>
+PAYOS_CHECKSUM_KEY=<your-payos-checksum-key>
+
+# --- Cache ---
+UPSTASH_REDIS_REST_URL=<your-upstash-url>
+UPSTASH_REDIS_REST_TOKEN=<your-upstash-token>
+
+# --- Security Feature Flags ---
+FEATURE_IDLE_TIMEOUT_ENABLED=true
+FEATURE_MFA_ENFORCED=false
+```
+
+### 4. Chạy dự án ở chế độ phát triển (Development)
+
+```bash
+npm run dev
+```
+
+Mở trình duyệt tại: `http://localhost:3000`
+
+### 5. Các lệnh thường dùng
+
+```bash
+npm run dev              # Chạy web local (development)
+npm run build            # Build production bundle
+npm run db:types         # Tự động sinh TypeScript types từ Supabase schema
+npm run functions:deploy # Deploy Edge Functions lên Supabase Cloud
+npm run docker:prod      # Build Docker image cho production
+```
+
+---
+
+## 🔐 Hệ thống bảo mật
+
+| Tính năng | Mô tả |
+|---|---|
+| **JWT RBAC** | Phân quyền dựa trên `app_metadata` trong JWT — `super_admin`, `admin`, `staff` |
+| **Staff Invitation** | Mời nhân sự qua email, hệ thống kiểm tra email đăng nhập khớp chính xác với email được mời |
+| **Idle Timeout** | Tự động đăng xuất Admin sau 30 phút không hoạt động |
+| **CSP Headers** | Content Security Policy với nonce động cho Admin pages |
+| **MFA/TOTP** | Xác thực 2 yếu tố cho Super Admin (tùy chọn bật/tắt) |
+| **Strict Isolation** | Khách hàng truy cập `/admin` bị đá ra và ép đăng nhập lại ngay lập tức |
+| **RLS** | Row Level Security trên toàn bộ bảng dữ liệu Supabase |
+
+---
+
+## 🔄 CI/CD Pipelines
+
+Dự án sử dụng **5 GitHub Actions workflows** tự động hóa toàn bộ quy trình từ kiểm tra mã nguồn đến triển khai:
+
+| Workflow | Trigger | Chức năng |
+|---|---|---|
+| `ci.yml` | Pull Request | Lint → Type-check → Build |
+| `deploy-frontend.yml` | Push `main` | Auto-deploy Web → Vercel Production |
+| `deploy-database.yml` | Push `main` (migrations changed) | Auto-push DB migrations → Supabase |
+| `deploy-functions.yml` | Push `main` (functions changed) | Auto-deploy Edge Functions |
+| `deploy-docker.yml` | Push `main` | Auto-build & push Docker image → Docker Hub |
+
+---
+
+## 🤖 AI-Assisted Development
+
+Dự án sử dụng công cụ AI như một **trợ lý phát triển** (AI coding assistant) nhằm tăng tốc quá trình xây dựng sản phẩm. Toàn bộ mã nguồn được nhóm kiểm duyệt, chỉnh sửa và chịu trách nhiệm.
+
+**Mục đích sử dụng AI:**
+- Tăng tốc thiết lập cấu hình CI/CD pipelines và GitHub Actions workflows.
+- Hỗ trợ viết database migrations, RLS policies và các hàm SQL phức tạp.
+- Tự động hóa quy trình commit, kiểm tra lỗi TypeScript và deploy lên Vercel/Supabase.
+- Hỗ trợ thiết kế kiến trúc bảo mật (JWT RBAC, Staff Invitation, Idle Timeout).
+- Tăng tốc debug và xử lý lỗi build trong quá trình phát triển.
+
+> **Lưu ý:** AI được sử dụng như một công cụ hỗ trợ, không thay thế vai trò của nhóm phát triển. Tất cả quyết định về kiến trúc, logic nghiệp vụ và thiết kế hệ thống đều do nhóm thực hiện.
+
+---
+
+## 📧 Hệ thống Email Transactional
+
+Sử dụng **Gmail API (Google Cloud Console OAuth2)** qua Nodemailer. Hệ thống hỗ trợ các loại email:
+
+| Loại email | Mô tả |
+|---|---|
+| **Welcome** | Chào mừng khách hàng đăng ký mới |
+| **Order Confirmation** | Xác nhận đơn hàng (hỗ trợ VietQR cho chuyển khoản) |
+| **Payment Success** | Thông báo thanh toán thành công |
+| **Shipping Update** | Cập nhật trạng thái giao hàng |
+| **Staff Invitation** | Mời nhân sự tham gia hệ thống quản trị |
+| **Login Alert** | Cảnh báo đăng nhập Admin bất thường |
+| **Contact Confirmation** | Xác nhận đã nhận liên hệ từ khách hàng |
+
+---
+
+## 🌍 Demo & Links
+
+| Tài nguyên | URL |
+|---|---|
+| **🌐 Production Website** | [veganglow.vercel.app](https://veganglow.vercel.app) |
+| **📦 GitHub Repository** | [github.com/Vinsmoke-Visconti/VeganGlow](https://github.com/Vinsmoke-Visconti/VeganGlow) |
+
+---
+
+## 👥 Đội ngũ phát triển
+
+Dự án được thực hiện bởi nhóm sinh viên ngành **Hệ Thống Thông Tin Quản Lý (MIS)** — Đại học Tôn Đức Thắng.  
+Đây là sản phẩm demo cho giải pháp doanh nghiệp, nghiêm cấm các hành vi sao chép và sử dụng trái phép.
+
+| Thành viên | MSSV | Email | Công cụ |
+|---|---|---|---|
+| **Trần Thảo My** | 52300129 | pascallaem@gmail.com | GitHub/Supabase/Vercel/Docker/Snyk: `tranthaomy901` |
+| **Huỳnh Nguyễn Quốc Việt** | 52300267 | quocvietcndc@gmail.com | GitHub/Supabase/Sentry/Snyk: `Vinsmoke-Visconti` |
+| **Phạm Hoài Thương** | 52300262 | binmin81@gmail.com | GitHub/Supabase/Vercel/Redis/Docker/Snyk: `Terrykozte` |
+| **Trần Quỳnh Trâm** | 52300071 | quynhtram5358@gmail.com | GitHub/Supabase/Vercel/Snyk: `chickndot` |
+
+---
+
+*© 2026 VeganGlow — Đại học Tôn Đức Thắng. All rights reserved.*
