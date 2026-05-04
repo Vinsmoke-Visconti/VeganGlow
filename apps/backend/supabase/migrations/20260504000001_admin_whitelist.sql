@@ -24,7 +24,6 @@ BEGIN
     'quocvietcndc@gmail.com',
     'terrybin123@gmail.com',
     'quynhtram5358@gmail.com',
-    'terrybin50@gmail.com',
     'binmin81@gmail.com'
   );
 
