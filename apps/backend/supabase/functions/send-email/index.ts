@@ -3,7 +3,7 @@
 // Body: { to, subject, html }
 
 import { corsHeaders } from '../_shared/cors.ts';
-import nodemailer from 'npm:nodemailer';
+import nodemailer from 'nodemailer';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
