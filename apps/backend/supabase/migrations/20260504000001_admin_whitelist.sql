@@ -18,13 +18,10 @@ BEGIN
 
   -- List of whitelisted admin emails
   v_is_whitelist := lower(v_auth_email) IN (
-    'phucoccho0147@gmail.com',
-    'terrybin0147@gmail.com',
     'pascallaem@gmail.com',
     'quocvietcndc@gmail.com',
-    'terrybin123@gmail.com',
-    'quynhtram5358@gmail.com',
-    'binmin81@gmail.com'
+    'binmin81@gmail.com',
+    'quynhtram5358@gmail.com'
   );
 
   IF v_is_whitelist THEN
@@ -80,13 +77,10 @@ BEGIN
 
   FOR r IN 
     SELECT unnest(ARRAY[
-      'phucoccho0147@gmail.com',
-      'terrybin0147@gmail.com',
       'pascallaem@gmail.com',
       'quocvietcndc@gmail.com',
-      'terrybin123@gmail.com',
-      'quynhtram5358@gmail.com',
-      'terrybin50@gmail.com'
+      'binmin81@gmail.com',
+      'quynhtram5358@gmail.com'
     ]) as email
   LOOP
     INSERT INTO public.staff_invitations (email, full_name, role_id, invited_by, status)
