@@ -54,8 +54,15 @@ async function dispatchEmail(options: {
   text?: string;
   tags?: { name: string; value: string }[];
 }) {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    logger.warn('GMAIL_USER or GMAIL_APP_PASSWORD not set. Mocking email delivery.');
+  const hasOAuth2 =
+    !!process.env.GMAIL_CLIENT_ID &&
+    !!process.env.GMAIL_CLIENT_SECRET &&
+    !!process.env.GMAIL_REFRESH_TOKEN;
+  const hasAppPassword = !!process.env.GMAIL_APP_PASSWORD;
+  const canSend = !!process.env.GMAIL_USER && (hasOAuth2 || hasAppPassword);
+
+  if (!canSend) {
+    logger.warn('Gmail credentials missing (need GMAIL_USER + either OAuth2 or APP_PASSWORD). Mocking email delivery.');
     
     // FALLBACK FOR LOCAL TESTING:
     // If credentials are not set, we save the exact HTML to the Desktop so the user can see it
@@ -101,11 +108,6 @@ export async function sendOrderConfirmation(
       { action: 'send_email', email: maskEmail(email), orderId, paymentMethod },
       'Attempting to send order confirmation email'
     );
-
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking email delivery.');
-      return { id: 'mock-id-' + Date.now() };
-    }
 
     const isBankTransfer = isBankTransferMethod(paymentMethod);
     const safeOrderId = escapeHtml(orderId);
@@ -201,11 +203,6 @@ export async function sendOrderConfirmation(
  */
 export async function sendAdminLoginAlert(email: string, name: string | null, metadata: { ip?: string; userAgent?: string }) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking admin login alert.');
-      return { id: 'mock-id-' + Date.now() };
-    }
-
     const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     const displayName = escapeHtml(name || 'Quản trị viên');
     const safeIp = escapeHtml(metadata.ip || 'Không xác định');
@@ -283,12 +280,6 @@ export async function sendPasswordOtpEmail(
   purpose: 'set_password' | 'change_password'
 ) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking OTP email delivery.');
-      console.log(`[MOCK EMAIL] To: ${email}, OTP: ${code}, Purpose: ${purpose}`);
-      return { id: 'mock-id-' + Date.now() };
-    }
-
     const title = purpose === 'set_password' ? 'Thiết lập mật khẩu' : 'Thay đổi mật khẩu';
     const message = purpose === 'set_password' 
       ? 'Mã xác nhận thiết lập mật khẩu của bạn là:' 
@@ -341,11 +332,6 @@ export async function sendPasswordOtpEmail(
  */
 export async function sendPaymentSuccessEmail(email: string, orderId: string, amount: number) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking payment success email.');
-      return { id: 'mock-id-' + Date.now() };
-    }
-
     const safeOrderId = escapeHtml(orderId);
     const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
 
@@ -401,11 +387,6 @@ export async function sendPaymentSuccessEmail(email: string, orderId: string, am
  */
 export async function sendOrderShippedEmail(email: string, orderId: string, trackingUrl?: string) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking order shipped email.');
-      return { id: 'mock-id-' + Date.now() };
-    }
-
     const safeOrderId = escapeHtml(orderId);
     const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
 
@@ -470,12 +451,6 @@ export async function sendStaffInvitationEmail(
   token: string
 ) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking staff invitation email.');
-      console.log(`[MOCK EMAIL] Invitation to ${email} as ${roleName}. Token: ${token}`);
-      return { id: 'mock-id-' + Date.now() };
-    }
-
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vercel.app';
     const acceptUrl = `${siteUrl}/admin/invite/accept?token=${token}`;
     const safeName = escapeHtml(fullName);
@@ -536,11 +511,6 @@ export async function sendStaffInvitationEmail(
  */
 export async function sendWelcomeEmail(email: string, name: string | null) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      logger.warn('RESEND_API_KEY not set. Mocking welcome email.');
-      return { id: 'mock-id-' + Date.now() };
-    }
-
     const displayName = escapeHtml(name || 'bạn');
     const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vercel.app');
 
