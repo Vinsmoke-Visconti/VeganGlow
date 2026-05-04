@@ -46,6 +46,10 @@ BEGIN
     SET raw_app_metadata = coalesce(raw_app_metadata, '{}'::jsonb) || 
       jsonb_build_object('is_staff', true, 'role', 'super_admin')
     WHERE id = new.id;
+    -- 3. Mark any pending invitations as accepted
+    UPDATE public.staff_invitations
+    SET status = 'accepted'
+    WHERE email = new.email AND status = 'pending';
   END IF;
 
   RETURN new;
