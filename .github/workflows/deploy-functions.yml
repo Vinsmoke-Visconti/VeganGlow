@@ -34,7 +34,7 @@ jobs:
       - name: Deploy Backend Functions
         working-directory: apps/backend
         run: |
-          if [ -d "supabase/functions" ]; then
+          if [ -d "supabase/functions" ] && [ -n "$(ls -d supabase/functions/*/ 2>/dev/null)" ]; then
             supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
           fi
         env:
@@ -43,7 +43,7 @@ jobs:
       - name: Deploy Web Functions
         working-directory: apps/web
         run: |
-          if [ -d "supabase/functions" ]; then
+          if [ -d "supabase/functions" ] && [ -n "$(ls -d supabase/functions/*/ 2>/dev/null)" ]; then
             supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
           fi
         env:
