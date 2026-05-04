@@ -15,7 +15,7 @@ export default async function AdminUsers() {
         </div>
       </div>
 
-      <UsersClient staff={staff} invitations={invitations} />
+      <UsersClient staff={staff} invitations={invitations} roles={roles} />
     </div>
   );
 }

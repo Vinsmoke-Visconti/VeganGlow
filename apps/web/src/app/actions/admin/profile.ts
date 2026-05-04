@@ -29,6 +29,11 @@ export async function updateMyStaffProfile(input: StaffProfileEdit): Promise<Res
 
 export async function toggleStaffStatus(staffId: string, isActive: boolean): Promise<Result> {
   const supabase = await createClient();
+  
+  // Security Hardening: Server-side permission check
+  const { data: isSuperAdmin } = await supabase.rpc('is_super_admin');
+  if (!isSuperAdmin) return { ok: false, error: 'Chỉ Super Admin mới có quyền này' };
+
   const { error } = await supabase
     .from('staff_profiles')
     .update({ is_active: isActive } as never)
@@ -40,6 +45,11 @@ export async function toggleStaffStatus(staffId: string, isActive: boolean): Pro
 
 export async function updateStaffRole(staffId: string, roleId: string): Promise<Result> {
   const supabase = await createClient();
+
+  // Security Hardening: Server-side permission check
+  const { data: isSuperAdmin } = await supabase.rpc('is_super_admin');
+  if (!isSuperAdmin) return { ok: false, error: 'Chỉ Super Admin mới có quyền này' };
+
   const { error } = await supabase
     .from('staff_profiles')
     .update({ role_id: roleId } as never)

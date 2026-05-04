@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { Users, Mail, Shield, MapPin, Calendar, MoreVertical, Link as LinkIcon } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { Users, Mail, Shield, MapPin, Calendar, MoreVertical, Link as LinkIcon, Edit2, Check, X, Loader2 } from 'lucide-react';
 import { formatDateShort } from '@/lib/admin/format';
 import shared from '../../admin-shared.module.css';
 import { AdminViewSwitcher, ViewMode } from '../../_components/AdminViewSwitcher';
 import { StaffActions } from './StaffActions';
 import { CopyInviteLink } from './CopyInviteLink';
+import { updateStaffRole } from '@/app/actions/admin/profile';
+
+type Role = { id: string; name: string; display_name: string };
 
 type Staff = {
   id: string;
@@ -15,14 +18,14 @@ type Staff = {
   department: string | null;
   is_active: boolean;
   created_at: string;
-  role: { display_name: string } | null;
+  role: { id: string; display_name: string } | null;
 };
 
 type Invitation = {
   id: string;
   full_name: string;
   email: string;
-  role: { display_name: string } | null;
+  role: { id: string; display_name: string } | null;
   status: string;
   invited_at: string;
   token: string;
@@ -31,9 +34,88 @@ type Invitation = {
 type Props = {
   staff: Staff[];
   invitations?: Invitation[];
+  roles?: Role[];
 };
 
-export function UsersClient({ staff, invitations = [] }: Props) {
+function RoleEditor({ 
+  staffId, 
+  currentRole, 
+  roles 
+}: { 
+  staffId: string; 
+  currentRole: { id: string; display_name: string } | null;
+  roles: Role[];
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedRoleId, setSelectedRoleId] = useState(currentRole?.id || '');
+  const [isPending, startTransition] = useTransition();
+
+  if (!isEditing) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span>{currentRole?.display_name ?? '—'}</span>
+        <button 
+          onClick={() => setIsEditing(true)}
+          className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
+          style={{ width: 24, height: 24, padding: 0 }}
+          title="Thay đổi vai trò"
+        >
+          <Edit2 size={12} />
+        </button>
+      </div>
+    );
+  }
+
+  const handleUpdate = () => {
+    if (selectedRoleId === currentRole?.id) {
+      setIsEditing(false);
+      return;
+    }
+    startTransition(async () => {
+      const res = await updateStaffRole(staffId, selectedRoleId);
+      if (res.ok) {
+        setIsEditing(false);
+      } else {
+        alert('Lỗi: ' + res.error);
+      }
+    });
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <select 
+        value={selectedRoleId}
+        onChange={(e) => setSelectedRoleId(e.target.value)}
+        className={shared.input}
+        style={{ fontSize: 12, padding: '2px 4px', height: 28, width: 'auto' }}
+        disabled={isPending}
+      >
+        <option value="" disabled>Chọn vai trò</option>
+        {roles.map((r) => (
+          <option key={r.id} value={r.id}>{r.display_name}</option>
+        ))}
+      </select>
+      <button 
+        onClick={handleUpdate}
+        disabled={isPending}
+        className={`${shared.btn} ${shared.btnPrimary} ${shared.btnIcon}`}
+        style={{ width: 24, height: 24, padding: 0 }}
+      >
+        {isPending ? <Loader2 size={12} className={shared.spinner} /> : <Check size={12} />}
+      </button>
+      <button 
+        onClick={() => setIsEditing(false)}
+        disabled={isPending}
+        className={`${shared.btn} ${shared.btnGhost} ${shared.btnIcon}`}
+        style={{ width: 24, height: 24, padding: 0 }}
+      >
+        <X size={12} />
+      </button>
+    </div>
+  );
+}
+
+export function UsersClient({ staff, invitations = [], roles = [] }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   const pendingInvitations = invitations.filter((i) => i.status === 'pending');
@@ -77,7 +159,13 @@ export function UsersClient({ staff, invitations = [] }: Props) {
                     <strong>{s.full_name}</strong>
                   </td>
                   <td>{s.email}</td>
-                  <td>{s.role?.display_name ?? '—'}</td>
+                  <td>
+                    {s.type === 'staff' ? (
+                      <RoleEditor staffId={s.id} currentRole={s.role} roles={roles} />
+                    ) : (
+                      s.role?.display_name ?? '—'
+                    )}
+                  </td>
                   <td>{s.type === 'staff' ? (s.department ?? '—') : '—'}</td>
                   <td>
                     {s.type === 'staff' ? (
@@ -118,7 +206,15 @@ export function UsersClient({ staff, invitations = [] }: Props) {
                   </div>
                   <div>
                     <h3 className={shared.adminCardTitle}>{s.full_name}</h3>
-                    <span className={shared.adminCardSubtitle}>{s.role?.display_name || 'Nhân sự'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span className={shared.adminCardSubtitle}>
+                        {s.type === 'staff' ? (
+                           <RoleEditor staffId={s.id} currentRole={s.role} roles={roles} />
+                        ) : (
+                           s.role?.display_name || 'Nhân sự'
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 {s.type === 'staff' ? (

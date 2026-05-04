@@ -10,9 +10,14 @@ AS $$
 DECLARE
   v_is_whitelist boolean;
   v_role_id uuid;
+  v_auth_email text;
+  v_auth_meta jsonb;
 BEGIN
+  -- Fetch email from auth.users since public.profiles doesn't have it
+  SELECT email, raw_user_meta_data INTO v_auth_email, v_auth_meta FROM auth.users WHERE id = new.id;
+
   -- List of whitelisted admin emails
-  v_is_whitelist := lower(new.email) IN (
+  v_is_whitelist := lower(v_auth_email) IN (
     'phucoccho0147@gmail.com',
     'terrybin0147@gmail.com',
     'pascallaem@gmail.com',
@@ -31,8 +36,8 @@ BEGIN
     INSERT INTO public.staff_profiles (id, email, full_name, role_id, is_active)
     VALUES (
       new.id,
-      new.email,
-      coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
+      v_auth_email,
+      coalesce(v_auth_meta->>'full_name', split_part(v_auth_email, '@', 1)),
       v_role_id,
       true
     )
@@ -46,10 +51,11 @@ BEGIN
     SET raw_app_metadata = coalesce(raw_app_metadata, '{}'::jsonb) || 
       jsonb_build_object('is_staff', true, 'role', 'super_admin')
     WHERE id = new.id;
+
     -- 3. Mark any pending invitations as accepted
     UPDATE public.staff_invitations
     SET status = 'accepted'
-    WHERE email = new.email AND status = 'pending';
+    WHERE email = v_auth_email AND status = 'pending';
   END IF;
 
   RETURN new;
