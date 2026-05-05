@@ -137,8 +137,9 @@ export default async function Home() {
       </section>
 
       {/* Trust Stats Bar */}
-      <section className={styles.trustBar}>
-        <div className="container">
+      <section className={styles.trustBar} style={{ position: 'relative', overflow: 'hidden' }}>
+        <Image src="/images/trust-bg.png" alt="" fill style={{ objectFit: 'cover', opacity: 0.15 }} />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div className={styles.trustGrid}>
             <div className={styles.trustStat}>
               <Star size={22} />
@@ -174,8 +175,8 @@ export default async function Home() {
 
       <div className="container">
         {/* Categories Section */}
-        <FadeIn direction="up">
-          <section className={styles.section}>
+        <section className={styles.section}>
+          <FadeIn direction="up">
             <div className={styles.sectionHeader}>
               <div>
                 <h2 className={styles.sectionTitle}>Danh Mục Sản Phẩm</h2>
@@ -185,42 +186,42 @@ export default async function Home() {
                 Xem tất cả danh mục
               </Link>
             </div>
+          </FadeIn>
 
-            <StaggerContainer className={styles.categoriesGrid}>
-              {FEATURED_CATEGORIES.map((cat) => (
-                <StaggerItem 
-                  key={cat.slug} 
-                  className={
-                    cat.size === 'large' ? styles.categoryCardLarge : 
-                    cat.size === 'medium' ? styles.categoryCardMedium : 
-                    styles.categoryCardSmall
-                  }
-                >
-                  <Link href={`/products?category=${cat.slug}`} className={styles.categoryCard}>
-                    <div className={styles.categoryImageWrap}>
-                      <Image 
-                        src={cat.image} 
-                        alt={cat.name} 
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className={styles.categoryImage}
-                      />
-                    </div>
-                    <div className={styles.categoryOverlay}>
-                      <span className={styles.categoryTag}>Premium Care</span>
-                      <h3 className={styles.categoryName}>{cat.name}</h3>
-                      <p className={styles.categoryDesc}>{cat.description}</p>
-                    </div>
-                  </Link>
-                </StaggerItem>
-              ))}
-            </StaggerContainer>
-          </section>
-        </FadeIn>
+          <StaggerContainer className={styles.categoriesGrid}>
+            {FEATURED_CATEGORIES.map((cat) => (
+              <StaggerItem 
+                key={cat.slug} 
+                className={
+                  cat.size === 'large' ? styles.categoryCardLarge : 
+                  cat.size === 'medium' ? styles.categoryCardMedium : 
+                  styles.categoryCardSmall
+                }
+              >
+                <Link href={`/products?category=${cat.slug}`} className={styles.categoryCard}>
+                  <div className={styles.categoryImageWrap}>
+                    <Image 
+                      src={cat.image} 
+                      alt={cat.name} 
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className={styles.categoryImage}
+                    />
+                  </div>
+                  <div className={styles.categoryOverlay}>
+                    <span className={styles.categoryTag}>Premium Care</span>
+                    <h3 className={styles.categoryName}>{cat.name}</h3>
+                    <p className={styles.categoryDesc}>{cat.description}</p>
+                  </div>
+                </Link>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </section>
 
         {/* Best Sellers Products */}
-        <FadeIn direction="up">
-          <section className={styles.section}>
+        <section className={styles.section}>
+          <FadeIn direction="up">
             <div className={styles.sectionHeader}>
               <div>
                 <h2 className={styles.sectionTitle}>Sản Phẩm Bán Chạy</h2>
@@ -230,56 +231,79 @@ export default async function Home() {
                 <TrendingUp size={16} /> Top Xu Hướng
               </div>
             </div>
-            
+          </FadeIn>
+          
+          <FadeIn direction="up" delay={0.2}>
             <BestSellers products={bestSellers || []} />
-          </section>
-        </FadeIn>
+          </FadeIn>
+        </section>
       </div>
 
       {/* Why Choose Us */}
       <section className={styles.whySection}>
         <div className="container">
-          <FadeIn direction="up">
-            <h2 className={styles.sectionTitle}>Tại Sao Chọn VeganGlow?</h2>
-            <p className={styles.sectionSubtitle}>Cam kết từ thiên nhiên, trao gửi đến bạn</p>
-            <StaggerContainer className={styles.whyGrid}>
-              <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}>
-                  <Leaf size={32} color="#10b981" />
-                </span>
-                <h3>100% Thuần Chay</h3>
-                <p>
-                  Cam kết không sử dụng thành phần từ động vật và không thử nghiệm trên động vật.
-                </p>
-              </StaggerItem>
-              <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}>
-                  <Shield size={32} color="#10b981" />
-                </span>
-                <h3>Chuẩn Y Khoa</h3>
-                <p>
-                  Được nghiên cứu và kiểm nghiệm da liễu, an toàn cho cả làn da nhạy cảm nhất.
-                </p>
-              </StaggerItem>
-              <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}>
-                  <Heart size={32} color="#10b981" />
-                </span>
-                <h3>Nguyên Liệu Việt Nam</h3>
-                <p>
-                  Chắt lọc tinh túy từ rau má, diếp cá, hoa đậu biếc và các loại thảo mộc địa
-                  phương.
-                </p>
-              </StaggerItem>
-              <StaggerItem className={styles.whyCard}>
-                <span className={styles.whyIcon}>
-                  <Recycle size={32} color="#10b981" />
-                </span>
-                <h3>Thân Thiện Môi Trường</h3>
-                <p>Bao bì tái chế 100%, không nhựa dùng một lần, cam kết trung hòa carbon.</p>
-              </StaggerItem>
-            </StaggerContainer>
-          </FadeIn>
+          <div className={styles.whyLayout}>
+            <FadeIn direction="left" className={styles.whyImageWrap}>
+              <Image 
+                src="/images/why-liquid.png" 
+                alt="VeganGlow Botanical Liquid" 
+                width={800} 
+                height={800} 
+                className={styles.whyLiquidImage}
+              />
+            </FadeIn>
+
+            <div className={styles.whyContent}>
+              <FadeIn direction="right">
+                <div style={{ textAlign: 'left', marginBottom: 'var(--space-4)' }}>
+                  <h2 className={styles.sectionTitle} style={{ textAlign: 'left' }}>Tại Sao Chọn VeganGlow?</h2>
+                  <p className={styles.sectionSubtitle} style={{ textAlign: 'left', margin: '0' }}>Cam kết từ thiên nhiên, trao gửi đến bạn</p>
+                </div>
+              </FadeIn>
+
+              <StaggerContainer className={styles.whyGrid}>
+                <StaggerItem className={styles.whyCard}>
+                  <span className={styles.whyIcon}>
+                    <Leaf size={24} />
+                  </span>
+                  <h3>100% Thuần Chay</h3>
+                  <p>Không sử dụng thành phần từ động vật và không thử nghiệm trên động vật.</p>
+                </StaggerItem>
+
+                <StaggerItem className={styles.whyCard}>
+                  <span className={styles.whyIcon}>
+                    <Shield size={24} />
+                  </span>
+                  <h3>Chuẩn Y Khoa</h3>
+                  <p>Được nghiên cứu và kiểm nghiệm da liễu, an toàn cho da nhạy cảm nhất.</p>
+                </StaggerItem>
+
+                <StaggerItem className={styles.whyCard}>
+                  <span className={styles.whyIcon}>
+                    <Heart size={24} />
+                  </span>
+                  <h3>Nguyên Liệu VN</h3>
+                  <p>Chắt lọc tinh túy từ rau má, diếp cá, hoa đậu biếc và thảo mộc địa phương.</p>
+                </StaggerItem>
+
+                <StaggerItem className={styles.whyCard}>
+                  <span className={styles.whyIcon}>
+                    <Recycle size={24} />
+                  </span>
+                  <h3>Bảo Vệ Môi Trường</h3>
+                  <p>Bao bì tái chế 100%, không nhựa dùng một lần, cam kết trung hòa carbon.</p>
+                </StaggerItem>
+              </StaggerContainer>
+              
+              <FadeIn direction="up" delay={0.4}>
+                <div style={{ marginTop: 'var(--space-4)' }}>
+                   <Link href="/about" className={styles.btnPrimary}>
+                     Khám phá sứ mệnh <ArrowRight size={18} />
+                   </Link>
+                </div>
+              </FadeIn>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -346,13 +370,12 @@ export default async function Home() {
               </div>
               <div className={styles.storyImageWrap}>
                  <Image
-                   src="/images/hero.jpg"
-                   alt="VeganGlow Botanical Skincare"
-                   fill
-                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                   priority
-                   loading="eager"
-                   className="object-cover scale-105 hover:scale-100 transition-transform duration-[10000ms] ease-out"
+                   src="/images/story-liquid.png"
+                   alt="VeganGlow Botanical Skincare Essence"
+                   width={600}
+                   height={600}
+                   className={styles.storyImage}
+                   loading="lazy"
                  />
               </div>
             </div>
@@ -361,16 +384,20 @@ export default async function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className={styles.finalCtaSection}>
-        <FadeIn direction="up">
-          <h2 className={styles.finalCtaTitle}>Bắt Đầu Hành Trình Làm Đẹp Của Bạn</h2>
-          <p className={styles.finalCtaText}>
-            Khám phá bộ sưu tập sản phẩm thuần chay, an toàn cho cả gia đình
-          </p>
-          <Link href="/products" className={styles.btnWhite}>
-            Mua Sắm Ngay <ArrowRight size={18} />
-          </Link>
-        </FadeIn>
+      <section className={styles.finalCtaSection} style={{ position: 'relative', overflow: 'hidden' }}>
+        <Image src="/images/why-editorial.png" alt="VeganGlow Skincare" fill style={{ objectFit: 'cover', zIndex: 0 }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(12, 38, 26, 0.8), rgba(12, 38, 26, 0.4))', zIndex: 1 }} />
+        <div style={{ position: 'relative', zIndex: 2 }}>
+          <FadeIn direction="up">
+            <h2 className={styles.finalCtaTitle}>Bắt Đầu Hành Trình Làm Đẹp Của Bạn</h2>
+            <p className={styles.finalCtaText}>
+              Khám phá bộ sưu tập sản phẩm thuần chay, an toàn cho cả gia đình
+            </p>
+            <Link href="/products" className={styles.btnWhite}>
+              Mua Sắm Ngay <ArrowRight size={18} />
+            </Link>
+          </FadeIn>
+        </div>
       </section>
     </div>
   );

@@ -4,6 +4,14 @@ import styles from './Layout.module.css';
 export default function Footer() {
   return (
     <footer className={styles.footer}>
+      <div className={styles.bubbles}>
+        <div className={styles.bubble}></div>
+        <div className={styles.bubble}></div>
+        <div className={styles.bubble}></div>
+        <div className={styles.bubble}></div>
+        <div className={styles.bubble}></div>
+        <div className={styles.bubble}></div>
+      </div>
       <div className={styles.container}>
         <div className={styles.footerGrid}>
           <div className={styles.footerCol}>

@@ -1,8 +1,11 @@
 .wrapper {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid var(--color-border-light, #f3f4f6);
+  background: var(--glass-bg-tint), var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 2.5rem;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
 }
 
 .pageHeader {
@@ -61,12 +64,14 @@
 }
 
 .orderCard {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid var(--color-border-light, #f3f4f6);
+  background: var(--glass-bg-tint), var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .orderCard:hover {
@@ -76,11 +81,11 @@
 
 .cardHeader {
   padding: var(--space-4) var(--space-6);
-  background: var(--color-bg-secondary);
+  background: rgba(255, 255, 255, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .orderBasicInfo {
@@ -177,11 +182,11 @@
 
 .cardFooter {
   padding: var(--space-4) var(--space-6);
-  border-top: 1px solid var(--color-border-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .orderTotal {
@@ -213,9 +218,12 @@
 .emptyState {
   text-align: center;
   padding: 4rem;
-  background: #f9fafb;
-  border-radius: 16px;
-  border: 1px dashed #d1d5db;
+  background: var(--glass-bg-tint), var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
 }
 
 .emptyIcon {
@@ -234,16 +242,22 @@
 .shopNowBtn {
   display: inline-block;
   margin-top: 1.5rem;
-  background: var(--color-primary-dark, #111827);
+  background: var(--glass-bg-tint), var(--color-primary-dark);
   color: white;
-  padding: 0.75rem 2.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.875rem 2.5rem;
+  border-radius: 12px;
+  font-weight: 800;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .shopNowBtn:hover {
-  background: black;
+  background: var(--color-primary-dark);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
 }
 
 .loadingSpinner {

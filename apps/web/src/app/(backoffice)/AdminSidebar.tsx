@@ -65,7 +65,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/roles', icon: Shield, label: 'Phân quyền', permission: 'users:write' },
       { href: '/admin/audit-logs', icon: Activity, label: 'Nhật ký hệ thống', permission: 'users:read' },
       { href: '/admin/settings', icon: Settings, label: 'Cài đặt' },
-      { href: '/admin/about-team', icon: Sparkles, label: 'Tác giả & Nhóm' },
+      { href: '/admin/settings/appearance', icon: Sparkles, label: 'Giao diện & Hình ảnh' },
+      { href: '/admin/about-team', icon: Leaf, label: 'Tác giả & Nhóm' },
     ],
   },
 ];

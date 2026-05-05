@@ -11,11 +11,11 @@ interface BestSellersProps {
 }
 
 export default function BestSellers({ products }: BestSellersProps) {
-  const [displayCount, setDisplayCount] = useState(5);
+  const [displayCount, setDisplayCount] = useState(8);
   const hasMore = products.length > displayCount;
 
   const showMore = () => {
-    setDisplayCount(prev => Math.min(prev + 5, products.length));
+    setDisplayCount(prev => Math.min(prev + 4, products.length));
   };
 
   if (!products || products.length === 0) {

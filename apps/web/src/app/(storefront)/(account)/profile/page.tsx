@@ -356,28 +356,28 @@ export default function ProfilePage() {
       <header className={styles.cleanHeader}>
         <div className={styles.headerLeft}>
           <h1>Hồ sơ cá nhân</h1>
-        </div>
-        <div className={styles.headerStatus}>
-          {profile?.verification_status === 'unverified' && (
-            <>
-              <span className={`${styles.statusTag} ${styles.unverifiedTag}`}>
-                <ShieldAlert size={14} /> Chưa xác thực
+          <div className={styles.headerStatus}>
+            {profile?.verification_status === 'unverified' && (
+              <>
+                <span className={`${styles.statusTag} ${styles.unverifiedTag}`}>
+                  <ShieldAlert size={14} /> Chưa xác thực
+                </span>
+                <button className={styles.quickVerifyBtn} onClick={() => setIsNfcModalOpen(true)}>
+                  Xác thực ngay
+                </button>
+              </>
+            )}
+            {profile?.verification_status === 'pending' && (
+              <span className={`${styles.statusTag} ${styles.pendingTag}`}>
+                <Clock size={14} /> Chờ phê duyệt
               </span>
-              <button className={styles.quickVerifyBtn} onClick={() => setIsNfcModalOpen(true)}>
-                Xác thực ngay
-              </button>
-            </>
-          )}
-          {profile?.verification_status === 'pending' && (
-            <span className={`${styles.statusTag} ${styles.pendingTag}`}>
-              <Clock size={14} /> Chờ phê duyệt
-            </span>
-          )}
-          {profile?.verification_status === 'verified' && (
-            <span className={`${styles.statusTag} ${styles.verifiedTag}`}>
-              <BadgeCheck size={14} /> Đã xác thực
-            </span>
-          )}
+            )}
+            {profile?.verification_status === 'verified' && (
+              <span className={`${styles.statusTag} ${styles.verifiedTag}`}>
+                <BadgeCheck size={14} /> Đã xác thực
+              </span>
+            )}
+          </div>
         </div>
       </header>
 

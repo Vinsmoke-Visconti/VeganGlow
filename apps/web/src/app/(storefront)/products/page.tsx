@@ -86,18 +86,23 @@ export default async function ProductsPage({
   const activeCategory = categories.find((c) => c.slug === categorySlug);
 
   // Compute dynamic min/max for the slider
-  const categoryProducts = activeCategory 
+  const categoryProducts = activeCategory
     ? activeProductRows.filter(p => p.category_id === activeCategory.id)
     : activeProductRows;
 
   const absoluteMin = categoryProducts.length > 0 ? Math.min(...categoryProducts.map(p => p.price)) : 0;
   const absoluteMax = categoryProducts.length > 0 ? Math.max(...categoryProducts.map(p => p.price)) : 1000000;
 
+  // Count products per price bracket within the current category scope.
+  const bracketCounts = PRICE_BRACKETS.map((b) =>
+    categoryProducts.filter((p) => p.price >= b.min && p.price < b.max).length,
+  );
+
   // Use the parsed values but ensure they are within absolute bounds if provided
   const minPrice = parsePriceFilter(params.min, absoluteMin);
   const maxPrice = parsePriceFilter(params.max, absoluteMax);
 
-  // 2. Build the main products query (includes M2M tags via product_tags junction)
+  // 2. Build the main products query
   let dbQuery = supabase
     .from('products')
     .select(
@@ -112,7 +117,6 @@ export default async function ProductsPage({
   }
 
   if (categorySlug) {
-    // Note: Filtering on the joined table's slug
     dbQuery = dbQuery.eq('categories.slug', categorySlug);
   }
 
@@ -181,28 +185,27 @@ export default async function ProductsPage({
                 className={`${styles.categoryItem} ${!activeCategory ? styles.categoryItemActive : ''}`}
               >
                 <span>Tất cả</span>
-                <span className={styles.categoryCount}>{totalCount}</span>
               </Link>
               {categories.map((c) => (
                 <Link
                   key={c.id}
                   href={`/products${buildQueryString(params, { category: c.slug })}`}
-                  className={`${styles.categoryItem} ${activeCategory?.id === c.id ? styles.categoryItemActive : ''
-                    }`}
+                  className={`${styles.categoryItem} ${activeCategory?.id === c.id ? styles.categoryItemActive : ''}`}
                 >
                   <span>{c.name}</span>
-                  <span className={styles.categoryCount}>{c.count}</span>
                 </Link>
               ))}
             </div>
           </div>
 
           <div className={styles.filterGroup}>
-            <div className={styles.filterLabel}>Khoảng giá</div>            <PriceFilter 
-              initialMin={minPrice} 
-              initialMax={maxPrice} 
+            <div className={styles.filterLabel}>Khoảng giá</div>
+            <PriceFilter
+              initialMin={minPrice}
+              initialMax={maxPrice}
               absoluteMin={absoluteMin}
               absoluteMax={absoluteMax}
+              bracketCounts={bracketCounts}
             />
           </div>
         </aside>

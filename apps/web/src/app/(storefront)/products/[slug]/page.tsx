@@ -204,12 +204,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <button className={styles.tabHeader}>HD sử dụng</button>
           </div>
           <div className={styles.tabContent}>
-            <div style={{ marginBottom: '2rem' }}>
+            <div className={styles.tabMainText}>
               <p>{typedProduct.description}</p>
             </div>
-            <div style={{ padding: '2rem', background: 'var(--color-bg-secondary)', borderRadius: '1.5rem', border: '1px solid var(--color-border-light)' }}>
-              <h4 style={{ color: 'var(--color-primary-dark)', marginBottom: '1rem', fontWeight: 800 }}>Thành phần nổi bật:</h4>
-              <p style={{ fontStyle: 'italic' }}>{typedProduct.ingredients || 'Rau má rừng, Diếp cá hữu cơ, Vitamin B5, HA thủy phân.'}</p>
+            <div className={styles.highlightBox}>
+              <h4 className={styles.highlightTitle}>Thành phần nổi bật:</h4>
+              <p className={styles.highlightText}>
+                {typedProduct.ingredients || 'Rau má rừng, Diếp cá hữu cơ, Vitamin B5, HA thủy phân.'}
+              </p>
             </div>
           </div>
         </section>

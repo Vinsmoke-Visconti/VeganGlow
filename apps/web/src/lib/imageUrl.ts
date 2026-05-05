@@ -14,3 +14,19 @@ export function normalizeProductImage(src?: string | null): string | undefined {
   }
   return src;
 }
+
+/**
+ * Resolves a Supabase Storage path to a full public URL.
+ * Handles both full URLs and relative storage paths (e.g. "product-images/pic.jpg").
+ */
+export function getStorageUrl(path?: string | null): string | undefined {
+  if (!path) return undefined;
+  if (path.startsWith('http')) return path;
+  if (path.startsWith('/')) return path; // Local public path
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) return path;
+
+  // Path format: "bucket-name/object-path.jpg"
+  return `${supabaseUrl}/storage/v1/object/public/${path}`;
+}

@@ -3,15 +3,29 @@
 import { Suspense, useActionState } from 'react';
 import { login, type AuthFormState } from '@/app/actions/auth';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import styles from './auth.module.css';
 import { createBrowserClient } from '@/lib/supabase/client';
+import { useEffect } from 'react';
 
 function LoginContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const message = searchParams.get('message');
   const redirectTo = searchParams.get('redirectTo') || '/';
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const supabase = createBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push(redirectTo);
+      }
+    };
+    checkSession();
+  }, [redirectTo, router]);
 
   const [state, formAction, isPending] = useActionState<AuthFormState, FormData>(
     async (prevState, formData) => {
@@ -59,10 +73,7 @@ function LoginContent() {
           </div>
 
           <div className={styles.inputGroup}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <label htmlFor="password" className={styles.label}>Mật khẩu</label>
-              <Link href="/forgot-password" className={styles.link} style={{ fontSize: '0.875rem' }}>Quên mật khẩu?</Link>
-            </div>
+            <label htmlFor="password" className={styles.label}>Mật khẩu</label>
             <input
               id="password"
               name="password"
@@ -71,6 +82,11 @@ function LoginContent() {
               className={styles.input}
               placeholder="••••••••"
             />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+              <Link href="/forgot-password" className={styles.link} style={{ fontSize: '0.875rem' }}>
+                Quên mật khẩu?
+              </Link>
+            </div>
           </div>
 
           <button type="submit" disabled={isPending} className={styles.button}>

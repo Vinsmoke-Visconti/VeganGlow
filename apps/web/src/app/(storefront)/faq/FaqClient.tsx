@@ -1,140 +1,128 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, HelpCircle, Search, MessageCircle } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { ChevronDown, ChevronUp, Mail, HelpCircle } from 'lucide-react';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 import styles from './faq.module.css';
 
-export type FaqItem = { id: string; question: string; answer: string };
-export type FaqGroup = { title: string; items: FaqItem[] };
+type FAQ = {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+};
 
-const FALLBACK: FaqGroup[] = [];
+export default function FaqClient({ faqs }: { faqs: FAQ[] }) {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams?.get('q') ?? '';
+  const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [activeCategory, setActiveCategory] = useState('Tất cả');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-export default function FaqClient({ groups }: { groups: FaqGroup[] }) {
-  const [search, setSearch] = useState('');
-  const [openKey, setOpenKey] = useState<string | null>('0-0');
+  // Open + scroll to a specific FAQ when arriving via `/faq?...#faq-<id>`.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash;
+    if (!hash.startsWith('#faq-')) return;
+    const id = hash.slice('#faq-'.length);
+    if (faqs.some((f) => f.id === id)) {
+      setExpandedId(id);
+      // Defer until after layout so the target row exists.
+      requestAnimationFrame(() => {
+        document.getElementById(`faq-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  }, [faqs]);
 
-  const data = groups.length > 0 ? groups : FALLBACK;
-  const term = search.toLowerCase();
+  const categories = ['Tất cả', ...Array.from(new Set(faqs.map((f) => f.category)))];
 
-  const filtered = data
-    .map((group) => ({
-      ...group,
-      items: group.items.filter(
-        (i) => i.question.toLowerCase().includes(term) || i.answer.toLowerCase().includes(term)
-      ),
-    }))
-    .filter((g) => g.items.length > 0);
+  const filteredFaqs = faqs.filter((faq) => {
+    const matchesSearch =
+      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = activeCategory === 'Tất cả' || faq.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className={styles.page}>
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className={styles.header}
-      >
-        <div className={styles.eyebrow}>
-          <HelpCircle size={14} /> Trợ giúp
-        </div>
-        <h1 className={styles.title}>Câu hỏi thường gặp</h1>
-        <p className={styles.subtitle}>
-          Mọi điều bạn cần biết về VeganGlow — gói gọn ở một nơi.
-        </p>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        className={styles.searchContainer}
-      >
-        <Search size={18} className={styles.searchIcon} />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm câu hỏi..."
-          className={styles.searchInput}
-        />
-      </motion.div>
-
-      {data.length === 0 ? (
-        <p className={styles.noResults}>Hiện chưa có câu hỏi nào.</p>
-      ) : filtered.length === 0 ? (
-        <p className={styles.noResults}>
-          Không tìm thấy câu hỏi nào khớp với &ldquo;{search}&rdquo;.
-        </p>
-      ) : (
-        filtered.map((group, gi) => (
-          <motion.section
-            key={group.title}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-30px' }}
-            transition={{ delay: gi * 0.08, duration: 0.4 }}
-            className={styles.section}
-          >
-            <h2 className={styles.sectionTitle}>{group.title}</h2>
-            <div className={styles.accordionList}>
-              {group.items.map((item, ii) => {
-                const key = `${gi}-${ii}`;
-                const open = openKey === key;
-                return (
-                  <div
-                    key={item.id}
-                    className={`${styles.accordionItem} ${open ? styles.accordionItemActive : ''}`}
-                  >
-                    <button
-                      onClick={() => setOpenKey(open ? null : key)}
-                      className={styles.accordionTrigger}
-                    >
-                      {item.question}
-                      <motion.span
-                        animate={{ rotate: open ? 180 : 0 }}
-                        transition={{ duration: 0.25 }}
-                        className={styles.accordionIcon}
-                      >
-                        <ChevronDown size={20} />
-                      </motion.span>
-                    </button>
-                    <AnimatePresence initial={false}>
-                      {open && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease: 'easeOut' }}
-                          className={styles.contentWrapper}
-                        >
-                          <div className={styles.content}>{item.answer}</div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
+      <div className={styles.container}>
+        <FadeIn direction="down">
+          <header className={styles.header}>
+            <div className={styles.eyebrow}>
+              <HelpCircle size={14} /> Hỗ trợ khách hàng
             </div>
-          </motion.section>
-        ))
-      )}
+            <h1 className={styles.title}>Chúng tôi có thể giúp gì cho bạn?</h1>
+            <p className={styles.subtitle}>
+              Tìm câu trả lời nhanh chóng cho các thắc mắc phổ biến về sản phẩm và dịch vụ của VeganGlow.
+            </p>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className={styles.cta}
-      >
-        <div className={styles.ctaIcon}>
-          <MessageCircle size={32} />
-        </div>
-        <h3 className={styles.ctaTitle}>Vẫn còn thắc mắc?</h3>
-        <p className={styles.ctaText}>Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng trả lời.</p>
-        <Link href="/contact" className={styles.contactBtn}>
-          Liên hệ với chúng tôi
-        </Link>
-      </motion.div>
+            <div className={styles.searchWrapper}>
+              <input
+                type="text"
+                placeholder="Tìm kiếm câu hỏi..."
+                className={styles.searchInput}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </header>
+        </FadeIn>
+
+        <FadeIn direction="up" delay={0.1}>
+          <div className={styles.categories}>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                className={`${styles.categoryBtn} ${activeCategory === cat ? styles.activeCategory : ''}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </FadeIn>
+
+        <StaggerContainer className={styles.faqGrid}>
+          {filteredFaqs.length > 0 ? (
+            filteredFaqs.map((faq) => (
+              <StaggerItem key={faq.id} className={styles.faqItem}>
+                <button
+                  id={`faq-${faq.id}`}
+                  className={styles.question}
+                  onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
+                >
+                  {faq.question}
+                  {expandedId === faq.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+                {expandedId === faq.id && (
+                  <div className={styles.answer}>
+                    <p>{faq.answer}</p>
+                  </div>
+                )}
+              </StaggerItem>
+            ))
+          ) : (
+            <p style={{ textAlign: 'center', padding: '4rem 0', opacity: 0.5, fontWeight: 700, color: 'var(--color-primary-dark)' }}>
+              Không tìm thấy kết quả phù hợp.
+            </p>
+          )}
+        </StaggerContainer>
+
+        <FadeIn direction="up" delay={0.3}>
+          <section className={styles.ctaSection}>
+            <h2 className={styles.ctaTitle}>Vẫn còn thắc mắc?</h2>
+            <p className={styles.ctaText}>
+              Nếu bạn không tìm thấy câu trả lời, đừng ngần ngại liên hệ với đội ngũ hỗ trợ của chúng tôi.
+            </p>
+            <Link href="/contact" className={styles.ctaBtn}>
+              <Mail size={18} /> Gửi tin nhắn cho chúng tôi
+            </Link>
+          </section>
+        </FadeIn>
+      </div>
     </div>
   );
 }

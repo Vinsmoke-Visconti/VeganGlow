@@ -4,13 +4,13 @@
 
 :root {
   /* Brand Colors — HSL for alpha channel support */
-  --primary-h: 158;
-  --primary-s: 45%;
-  --primary-l: 32%;
+  --primary-h: 142;
+  --primary-s: 48%;
+  --primary-l: 28%;
   
   --color-primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-  --color-primary-light: hsl(var(--primary-h), 40%, 45%);
-  --color-primary-dark: hsl(var(--primary-h), 50%, 12%);
+  --color-primary-light: hsl(var(--primary-h), 45%, 42%);
+  --color-primary-dark: hsl(var(--primary-h), 55%, 10%);
   --color-primary-50: hsl(var(--primary-h), 35%, 96%);
   --color-primary-100: hsl(var(--primary-h), 35%, 90%);
   --color-primary-200: hsl(var(--primary-h), 35%, 82%);
@@ -23,19 +23,20 @@
   --color-accent-light: hsl(72, 27%, 43%);
 
   /* Neutrals */
-  --color-bg: hsl(51, 87%, 94%);
-  --color-bg-secondary: hsl(45, 42%, 92%);
+  --color-bg: hsl(158, 30%, 97%);
+  --color-bg-secondary: hsl(158, 25%, 94%);
   --color-bg-card: hsl(0, 0%, 100%);
   
   --color-text: hsl(0, 0%, 10%);
   --color-text-secondary: hsl(0, 0%, 36%);
   --color-text-muted: hsl(0, 0%, 54%);
   
-  --color-border: hsl(45, 42%, 82%);
-  --color-border-light: hsl(45, 42%, 89%);
+  --color-border: hsl(158, 20%, 90%);
+  --color-border-light: hsl(158, 20%, 94%);
 
   /* Premium Glassmorphism & Gradients */
-  --glass-bg: hsla(0, 0%, 100%, 0.65);
+  --glass-bg: hsla(0, 0%, 100%, 0.55);
+  --glass-bg-tint: linear-gradient(135deg, hsla(142, 45%, 96%, 0.5), hsla(142, 25%, 90%, 0.4));
   --glass-border: hsla(0, 0%, 100%, 0.4);
   --glass-shadow: 0 8px 32px 0 hsla(var(--primary-h), 40%, 10%, 0.08);
   --glass-blur: blur(20px);
@@ -47,7 +48,7 @@
   --gradient-luxury: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
   --gradient-botanical: linear-gradient(135deg, #f0f7f4 0%, #d4e0d9 100%);
   --gradient-lush: linear-gradient(135deg, #e9f5db 0%, #cfe1b9 100%);
-  --gradient-hero: radial-gradient(circle at 70% 30%, hsla(var(--primary-h), 35%, 96%, 1) 0%, hsla(51, 87%, 94%, 1) 100%);
+  --gradient-hero: radial-gradient(circle at 70% 30%, hsla(var(--primary-h), 35%, 96%, 1) 0%, hsla(158, 30%, 97%, 1) 100%);
   --gradient-card: linear-gradient(to bottom, #ffffff 0%, #f9f9f9 100%);
 
   /* Status */

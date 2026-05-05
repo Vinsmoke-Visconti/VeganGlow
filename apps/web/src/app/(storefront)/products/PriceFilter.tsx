@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PRICE_BRACKETS } from './constants';
 import styles from './products.module.css';
@@ -10,11 +10,38 @@ interface PriceFilterProps {
   initialMax?: number;
   absoluteMin: number;
   absoluteMax: number;
+  bracketCounts?: number[];
 }
 
-export default function PriceFilter({ initialMin, initialMax, absoluteMin, absoluteMax }: PriceFilterProps) {
+export default function PriceFilter({
+  initialMin,
+  initialMax,
+  absoluteMin,
+  absoluteMax,
+  bracketCounts,
+}: PriceFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Helper: Format number with dots as thousands separators
+  const formatWithDots = (val: number | string) => {
+    if (val === '') return '';
+    const num = typeof val === 'string' ? parseInt(val.replace(/\./g, ''), 10) : val;
+    if (Number.isNaN(num)) return '';
+    return new Intl.NumberFormat('vi-VN').format(num);
+  };
+
+  // Helper: Parse string with dots back to number
+  const parseFromDots = (str: string) => {
+    const raw = str.replace(/\./g, '');
+    const num = parseInt(raw, 10);
+    return Number.isNaN(num) ? 0 : num;
+  };
+
+  const formatCurrency = (val: number) => {
+    if (Number.isNaN(val)) return '0đ';
+    return formatWithDots(val) + 'đ';
+  };
 
   // Safely clamp bounds for the slider
   const getSafeBounds = (inMin: number | undefined, inMax: number | undefined, absMin: number, absMax: number) => {
@@ -29,7 +56,7 @@ export default function PriceFilter({ initialMin, initialMax, absoluteMin, absol
   // State 1: Predefined Brackets
   const [activeBracket, setActiveBracket] = useState<number | null>(null);
 
-  // State 2: Text Inputs
+  // State 2: Text Inputs (formatted with dots)
   const [inputMin, setInputMin] = useState('');
   const [inputMax, setInputMax] = useState('');
 
@@ -54,48 +81,81 @@ export default function PriceFilter({ initialMin, initialMax, absoluteMin, absol
       const { sMin, sMax } = getSafeBounds(initialMin, initialMax, absoluteMin, absoluteMax);
       setSliderMin(sMin);
       setSliderMax(sMax);
-      setInputMin(initialMin !== undefined && !Number.isNaN(initialMin) ? initialMin.toString() : '');
-      setInputMax(initialMax !== undefined && !Number.isNaN(initialMax) ? initialMax.toString() : '');
+      setInputMin(initialMin !== undefined && !Number.isNaN(initialMin) ? formatWithDots(initialMin) : '');
+      setInputMax(initialMax !== undefined && !Number.isNaN(initialMax) ? formatWithDots(initialMax) : '');
     }
   }, [initialMin, initialMax, absoluteMin, absoluteMax]);
 
-  const formatCurrency = (val: number) => {
-    if (Number.isNaN(val)) return '0đ';
-    return new Intl.NumberFormat('vi-VN').format(val) + 'đ';
-  };
-
   // Handlers
   const handleBracketClick = (index: number) => {
-    setActiveBracket(index);
-    setInputMin('');
-    setInputMax('');
-    setSliderMin(absoluteMin);
-    setSliderMax(absoluteMax);
+    const isDeselecting = activeBracket === index;
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete('page');
+
+    if (isDeselecting) {
+      setActiveBracket(null);
+      newParams.delete('min');
+      newParams.delete('max');
+    } else {
+      setActiveBracket(index);
+      setInputMin('');
+      setInputMax('');
+      setSliderMin(absoluteMin);
+      setSliderMax(absoluteMax);
+
+      const b = PRICE_BRACKETS[index];
+      newParams.set('min', b.min.toString());
+      if (b.max !== Infinity) newParams.set('max', b.max.toString());
+      else newParams.delete('max');
+    }
+
+    router.push(`/products?${newParams.toString()}`);
   };
 
   const handleInputChange = (type: 'min' | 'max', value: string) => {
-    setActiveBracket(null); // Uncheck predefined bracket
+    setActiveBracket(null);
+    const cleanValue = value.replace(/[^\d]/g, '');
+    const formatted = formatWithDots(cleanValue);
+    const num = parseFromDots(formatted);
+    const minGap = (absoluteMax - absoluteMin) / 10;
+
     if (type === 'min') {
-      setInputMin(value);
-      const num = parseInt(value, 10);
-      if (!Number.isNaN(num) && num >= absoluteMin && num <= sliderMax) setSliderMin(num);
+      setInputMin(formatted);
+      if (num >= absoluteMin && num <= absoluteMax) {
+        setSliderMin(num);
+        // If min > max - gap, push max forward
+        if (num > sliderMax - minGap) {
+          const newMax = Math.min(absoluteMax, num + minGap);
+          setSliderMax(newMax);
+          setInputMax(formatWithDots(newMax));
+        }
+      }
     } else {
-      setInputMax(value);
-      const num = parseInt(value, 10);
-      if (!Number.isNaN(num) && num <= absoluteMax && num >= sliderMin) setSliderMax(num);
+      setInputMax(formatted);
+      if (num <= absoluteMax && num >= absoluteMin) {
+        setSliderMax(num);
+        // If max < min + gap, push min backward
+        if (num < sliderMin + minGap) {
+          const newMin = Math.max(absoluteMin, num - minGap);
+          setSliderMin(newMin);
+          setInputMin(formatWithDots(newMin));
+        }
+      }
     }
   };
 
   const handleSliderChange = (type: 'min' | 'max', value: number) => {
-    setActiveBracket(null); // Uncheck predefined bracket
+    setActiveBracket(null);
+    const minGap = (absoluteMax - absoluteMin) / 10;
+    
     if (type === 'min') {
-      const safeVal = Math.min(value, sliderMax);
+      const safeVal = Math.min(value, sliderMax - minGap);
       setSliderMin(safeVal);
-      setInputMin(safeVal.toString());
+      setInputMin(formatWithDots(safeVal));
     } else {
-      const safeVal = Math.max(value, sliderMin);
+      const safeVal = Math.max(value, sliderMin + minGap);
       setSliderMax(safeVal);
-      setInputMax(safeVal.toString());
+      setInputMax(formatWithDots(safeVal));
     }
   };
 
@@ -109,15 +169,15 @@ export default function PriceFilter({ initialMin, initialMax, absoluteMin, absol
       if (b.max !== Infinity) newParams.set('max', b.max.toString());
       else newParams.delete('max');
     } else {
-      let finalMin = parseInt(inputMin, 10);
-      let finalMax = parseInt(inputMax, 10);
-      if (Number.isNaN(finalMin)) finalMin = sliderMin;
-      if (Number.isNaN(finalMax)) finalMax = sliderMax;
+      let finalMin = parseFromDots(inputMin);
+      let finalMax = parseFromDots(inputMax);
+      if (Number.isNaN(finalMin) || inputMin === '') finalMin = sliderMin;
+      if (Number.isNaN(finalMax) || inputMax === '') finalMax = sliderMax;
 
       if (finalMin > absoluteMin) newParams.set('min', finalMin.toString());
       else newParams.delete('min');
       
-      if (finalMax < absoluteMax && !Number.isNaN(finalMax)) newParams.set('max', finalMax.toString());
+      if (finalMax < absoluteMax && finalMax > 0) newParams.set('max', finalMax.toString());
       else newParams.delete('max');
     }
 
@@ -130,68 +190,60 @@ export default function PriceFilter({ initialMin, initialMax, absoluteMin, absol
   const maxPos = range <= 0 ? 100 : ((sliderMax - absoluteMin) / range) * 100;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* 1. Predefined Brackets */}
-      <div>
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Mục mẫu có sẵn</div>
-        <div className={styles.priceBrackets}>
-          {PRICE_BRACKETS.map((bracket, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleBracketClick(idx)}
-              className={`${styles.priceBracket} ${activeBracket === idx ? styles.priceBracketActive : ''}`}
-              style={{ width: '100%', textAlign: 'left', marginBottom: '4px' }}
-            >
-              {bracket.label}
-            </button>
-          ))}
-        </div>
+    <div className="flex flex-col gap-4">
+      {/* 1. Category-style Brackets */}
+      <div className="flex flex-col gap-1">
+        {PRICE_BRACKETS.map((b, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleBracketClick(idx)}
+            className={`${styles.categoryItem} ${activeBracket === idx ? styles.categoryItemActive : ''}`}
+            style={{ width: '100%', border: 'none', background: activeBracket === idx ? undefined : 'transparent', textAlign: 'left' }}
+          >
+            <span>{b.label}</span>
+          </button>
+        ))}
       </div>
 
-      {/* 2. Number Inputs */}
-      <div>
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Tự nhập số tiền</div>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            placeholder="Tối thiểu"
-            value={inputMin}
-            onChange={(e) => handleInputChange('min', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-          />
-          <span className="text-slate-400">-</span>
-          <input
-            type="number"
-            placeholder="Tối đa"
-            value={inputMax}
-            onChange={(e) => handleInputChange('max', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-          />
+      {/* 2. Min-Max Inputs Row - Stacked for Full Visibility */}
+      <div className="flex flex-col gap-3 mt-4">
+        <div className="relative">
+          <label className="text-xs font-black uppercase tracking-widest text-primary-dark ml-4 mb-2 block">Từ</label>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              value={inputMin}
+              onChange={(e) => handleInputChange('min', e.target.value)}
+              className="w-full px-5 py-4 bg-white/60 border-2 border-white/80 rounded-2xl text-lg font-black text-primary-dark outline-none focus:bg-white focus:border-primary transition-all shadow-sm"
+            />
+            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-primary-dark/40 pointer-events-none">VNĐ</span>
+          </div>
+        </div>
+
+        <div className="relative">
+          <label className="text-xs font-black uppercase tracking-widest text-primary-dark ml-4 mb-2 block">Đến</label>
+          <div className="relative">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              value={inputMax}
+              onChange={(e) => handleInputChange('max', e.target.value)}
+              className="w-full px-5 py-4 bg-white/60 border-2 border-white/80 rounded-2xl text-lg font-black text-primary-dark outline-none focus:bg-white focus:border-primary transition-all shadow-sm"
+            />
+            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-primary-dark/40 pointer-events-none">VNĐ</span>
+          </div>
         </div>
       </div>
 
       {/* 3. Visual Slider */}
-      <div>
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 mt-2">Hoặc kéo thanh trượt</div>
-        
-        {/* Dynamic Display over slider */}
-        <div className="flex justify-between items-center mb-6 px-1 gap-2">
-          <div style={{ background: 'var(--color-primary-50)', borderColor: 'var(--color-primary-100)' }} className={`px-2 py-2 rounded-xl border flex-1 text-center min-w-0 transition-opacity ${activeBracket !== null ? 'opacity-30' : 'opacity-100'}`}>
-            <span style={{ color: 'var(--color-primary-dark)', opacity: 0.6 }} className="text-[9px] block font-bold uppercase mb-0.5">Tối thiểu</span>
-            <span style={{ color: 'var(--color-primary-dark)' }} className="text-[11px] font-black block truncate">{formatCurrency(sliderMin)}</span>
-          </div>
-          <span style={{ color: 'var(--color-primary-dark)', opacity: 0.3 }} className="text-xs">—</span>
-          <div style={{ background: 'var(--color-primary-50)', borderColor: 'var(--color-primary-100)' }} className={`px-2 py-2 rounded-xl border flex-1 text-center min-w-0 transition-opacity ${activeBracket !== null ? 'opacity-30' : 'opacity-100'}`}>
-            <span style={{ color: 'var(--color-primary-dark)', opacity: 0.6 }} className="text-[9px] block font-bold uppercase mb-0.5">Tối đa</span>
-            <span style={{ color: 'var(--color-primary-dark)' }} className="text-[11px] font-black block truncate">{formatCurrency(sliderMax)}</span>
-          </div>
-        </div>
-
-        {/* The Slider Track */}
-        <div className={`relative h-12 flex items-center mb-2 transition-opacity ${activeBracket !== null ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
-          <div className="absolute w-full h-2 bg-slate-100 rounded-full" />
+      <div className="pt-2 px-1">
+        <div className={`relative h-8 flex items-center transition-all ${activeBracket !== null ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
+          <div className="absolute w-full h-[2px] bg-white/20 rounded-full" />
           <div 
-            className="absolute h-2 bg-primary rounded-full z-10" 
+            className="absolute h-[3px] bg-primary rounded-full z-10" 
             style={{ left: `${minPos}%`, width: `${maxPos - minPos}%` }} 
           />
           
@@ -217,14 +269,13 @@ export default function PriceFilter({ initialMin, initialMax, absoluteMin, absol
           <div className="thumb-visual" style={{ left: `${minPos}%` }} />
           <div className="thumb-visual" style={{ left: `${maxPos}%` }} />
         </div>
-        
-        <div className="flex justify-between mb-4 px-1 text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-          <span>{formatCurrency(absoluteMin)}</span>
-          <span>{formatCurrency(absoluteMax)}</span>
-        </div>
       </div>
 
-      <button onClick={handleApply} className={styles.applyBtn}>
+      <button 
+        onClick={handleApply} 
+        className={styles.applyBtn}
+        style={{ marginTop: '0.5rem' }}
+      >
         Áp dụng bộ lọc
       </button>
 
@@ -269,6 +320,14 @@ export default function PriceFilter({ initialMin, initialMax, absoluteMin, absol
           top: 50%;
           transform: translate(-50%, -50%);
           z-index: 15;
+          transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          pointer-events: none;
+        }
+        .dual-range-input:hover ~ .thumb-visual {
+          transform: translate(-50%, -50%) scale(1.3);
+          border-width: 5px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         .max-input { z-index: ${sliderMax < absoluteMax / 2 ? 21 : 20}; }
       `}</style>

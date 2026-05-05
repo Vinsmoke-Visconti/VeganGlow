@@ -7,10 +7,26 @@ import { AlertCircle, CheckCircle2, Loader2, Mail, ArrowLeft } from 'lucide-reac
 import { createBrowserClient } from '@/lib/supabase/client';
 import styles from '../login/auth.module.css';
 
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const supabase = createBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push('/');
+      }
+    };
+    checkSession();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

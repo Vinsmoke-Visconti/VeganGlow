@@ -86,3 +86,77 @@ export function StaggerItem({ children, className = '' }: { children: ReactNode,
     </motion.div>
   );
 }
+
+export function TextReveal({ text, className = "", delay = 0 }: { text: string, className?: string, delay?: number }) {
+  const letters = Array.from(text);
+  
+  return (
+    <motion.span
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-50px' }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.02,
+            delayChildren: delay,
+          },
+        },
+      }}
+      className={className}
+      style={{ display: 'inline-flex', flexWrap: 'wrap' }}
+    >
+      {letters.map((letter, i) => (
+        <motion.span
+          key={i}
+          variants={{
+            hidden: { opacity: 0, y: 10 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          transition={{ duration: 0.3 }}
+        >
+          {letter === ' ' ? '\u00A0' : letter}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+}
+
+export function WordReveal({ text, className = "", delay = 0 }: { text: string, className?: string, delay?: number }) {
+  const words = text.split(' ');
+  
+  return (
+    <motion.span
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-50px' }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.08,
+            delayChildren: delay,
+          },
+        },
+      }}
+      className={className}
+      style={{ display: 'inline-flex', flexWrap: 'wrap' }}
+    >
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          variants={{
+            hidden: { opacity: 0, y: 10 },
+            visible: { opacity: 1, y: 0 },
+          }}
+          style={{ marginRight: '0.25em' }}
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+}

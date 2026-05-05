@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useSettings } from '@/context/SettingsContext';
 import SearchModal from './SearchModal';
 
 type NavbarProfile = { username: string | null; full_name: string | null; avatar_url: string | null };
@@ -23,6 +24,7 @@ const NAV_LINKS = [
 ];
 
 export default function StorefrontNavbar() {
+  const { assets, brand } = useSettings();
   const { totalCount, lastAdded } = useCart();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -86,14 +88,14 @@ export default function StorefrontNavbar() {
           <div className={styles.logo}>
             <Link href="/" className={styles.logoLink}>
               <Image
-                src="/logo.jpg"
-                alt="VeganGlow"
+                src={assets.logo_url || '/logo.jpg'}
+                alt={brand.name || "VeganGlow"}
                 width={40}
                 height={40}
                 className={styles.logoImg}
                 priority
               />
-              <span className={styles.logoText}>VeganGlow</span>
+              <span className={styles.logoText}>{brand.name || "VeganGlow"}</span>
             </Link>
           </div>
 

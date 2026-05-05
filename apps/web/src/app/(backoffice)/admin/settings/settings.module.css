@@ -273,3 +273,132 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Appearance Settings Expansion */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.assetCard {
+  background: white;
+  border: 1px solid var(--vg-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.assetCard:hover {
+  border-color: var(--vg-leaf-500);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.assetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.assetLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--vg-ink-800);
+}
+
+.uploadBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--vg-surface-100);
+  color: var(--vg-leaf-600);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uploadBtn:hover {
+  background: var(--vg-leaf-500);
+  color: white;
+}
+
+.previewContainer {
+  aspect-ratio: 16/9;
+  background: var(--vg-surface-50);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: 1px dashed var(--vg-border);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.previewImage {
+  object-fit: cover;
+}
+
+.noImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--vg-ink-400);
+  font-size: 0.75rem;
+}
+
+.urlInput {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid var(--vg-border);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: var(--vg-ink-600);
+  background: var(--vg-surface-0);
+}
+
+.footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--vg-border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saveBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--vg-leaf-600);
+  color: white;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--vg-leaf-700);
+  box-shadow: 0 8px 20px rgba(46, 150, 73, 0.2);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

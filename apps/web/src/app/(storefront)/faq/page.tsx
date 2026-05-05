@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import FaqClient, { type FaqGroup, type FaqItem } from './FaqClient';
+import { Suspense } from 'react';
+import FaqClient from './FaqClient';
 
 type FaqRow = {
   id: string;
@@ -21,14 +22,9 @@ export default async function FaqPage() {
 
   const rows: FaqRow[] = error || !data ? [] : (data as unknown as FaqRow[]);
 
-  // Preserve first-seen category order from the sorted list.
-  const groupMap = new Map<string, FaqItem[]>();
-  for (const row of rows) {
-    const cat = row.category || 'Khác';
-    if (!groupMap.has(cat)) groupMap.set(cat, []);
-    groupMap.get(cat)!.push({ id: row.id, question: row.question, answer: row.answer });
-  }
-  const groups: FaqGroup[] = Array.from(groupMap, ([title, items]) => ({ title, items }));
-
-  return <FaqClient groups={groups} />;
+  return (
+    <Suspense fallback={null}>
+      <FaqClient faqs={rows} />
+    </Suspense>
+  );
 }

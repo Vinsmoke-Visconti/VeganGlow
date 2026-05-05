@@ -6,8 +6,25 @@ import Link from 'next/link';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import styles from '../login/auth.module.css';
 
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { createBrowserClient } from '@/lib/supabase/client';
+
 export default function RegisterPage() {
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState(signup, null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const supabase = createBrowserClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push('/');
+      }
+    };
+    checkSession();
+  }, [router]);
 
   return (
     <div className={styles.container}>

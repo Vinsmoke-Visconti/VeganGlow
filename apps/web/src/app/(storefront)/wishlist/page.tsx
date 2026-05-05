@@ -1,5 +1,6 @@
 'use client';
 
+import styles from './wishlist.module.css';
 import ProductCard, { type ProductCardProduct } from '@/components/products/ProductCard';
 import { createBrowserClient } from '@/lib/supabase/client';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -80,147 +81,126 @@ export default function WishlistPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '60vh',
-        }}
-      >
+      <div className={styles.page}>
         <div
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            border: '2px solid #e8e5e0',
-            display: 'grid',
-            placeItems: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '60vh',
           }}
-          className="animate-pulse"
         >
-          <Heart size={20} className="text-text-muted" />
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              border: '2px solid #e8e5e0',
+              display: 'grid',
+              placeItems: 'center',
+            }}
+            className="animate-pulse"
+          >
+            <Heart size={20} className="text-text-muted" />
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 24px 80px' }}>
-      {/* ═══════════ HEADER — luôn căn giữa ═══════════ */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{
-          textAlign: 'center',
-          maxWidth: 600,
-          margin: '0 auto 48px',
-        }}
-      >
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 11,
-            textTransform: 'uppercase',
-            letterSpacing: '0.25em',
-            marginBottom: 16,
-          }}
-          className="text-primary"
+    <div className={styles.page}>
+      <div className={styles.emptyState}>
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className={styles.header}
         >
-          <Heart size={14} /> Bộ sưu tập riêng của bạn
-        </span>
+          <span className={styles.eyebrow}>
+            <Heart size={14} /> Bộ sưu tập riêng của bạn
+          </span>
 
-        <h1
-          style={{
-            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-            fontWeight: 500,
-            letterSpacing: '-0.02em',
-            lineHeight: 1.15,
-            margin: '0 0 16px',
-          }}
-          className="font-serif text-text"
-        >
-          Danh sách yêu thích
-        </h1>
+          <h1 className={styles.title}>
+            Danh sách yêu thích
+          </h1>
 
-        <p style={{ fontSize: 15, lineHeight: 1.7 }} className="text-text-secondary">
-          Lưu lại những sản phẩm bạn yêu quý để mua sau.
-        </p>
-      </motion.header>
+          <p className={styles.subtitle}>
+            Lưu lại những sản phẩm bạn yêu quý để mua sau.
+          </p>
+        </motion.header>
 
-      {/* ═══════════ CONTENT ═══════════ */}
-      {authed === false ? (
-        <EmptyBlock
-          title="Bạn chưa đăng nhập"
-          description="Đăng nhập để lưu danh sách yêu thích trên mọi thiết bị."
-          actionLabel="Đăng nhập"
-          onAction={() =>
-            router.push(`/login?redirectTo=${encodeURIComponent('/wishlist')}`)
-          }
-        />
-      ) : wishlist.length === 0 ? (
-        <EmptyBlock
-          title="Chưa có sản phẩm yêu thích"
-          description="Hãy dạo quanh cửa hàng và nhấn vào biểu tượng trái tim để lưu lại những món đồ bạn ưng ý."
-          actionLabel="Tiếp tục mua sắm"
-          actionHref="/products"
-        />
-      ) : (
-        <>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 24,
-            }}
-          >
-            <span className="text-sm text-text-secondary">
-              <span className="font-medium text-text">{wishlist.length}</span> sản phẩm
-            </span>
+        {/* ═══════════ CONTENT ═══════════ */}
+        {authed === false ? (
+          <EmptyBlock
+            title="Bạn chưa đăng nhập"
+            description="Đăng nhập để lưu danh sách yêu thích trên mọi thiết bị."
+            actionLabel="Đăng nhập"
+            onAction={() =>
+              router.push(`/login?redirectTo=${encodeURIComponent('/wishlist')}`)
+            }
+          />
+        ) : wishlist.length === 0 ? (
+          <EmptyBlock
+            title="Chưa có sản phẩm yêu thích"
+            description="Hãy dạo quanh cửa hàng và nhấn vào biểu tượng trái tim để lưu lại những món đồ bạn ưng ý."
+            actionLabel="Tiếp tục mua sắm"
+            actionHref="/products"
+          />
+        ) : (
+          <div style={{ width: '100%' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 24,
+              }}
+            >
+              <span className="text-sm text-text-secondary">
+                <span className="font-medium text-text">{wishlist.length}</span> sản phẩm
+              </span>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className={styles.grid}
+            >
+              <AnimatePresence mode="popLayout">
+                {wishlist.map((product) => (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    key={product.id}
+                    className="relative group"
+                  >
+                   <ProductCard product={product} hideWishlist />
+                   <button
+                     type="button"
+                     onClick={() => removeFromWishlist(product.id)}
+                     className={styles.removeWishlistBtn}
+                     title="Xóa khỏi danh sách"
+                     aria-label="Xóa khỏi danh sách yêu thích"
+                   >
+                     <Trash2 size={18} />
+                   </button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
-          >
-            <AnimatePresence mode="popLayout">
-              {wishlist.map((product) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  key={product.id}
-                  className="relative group"
-                >
-                 <ProductCard product={product} hideWishlist />
-                 <button
-                   type="button"
-                   onClick={() => removeFromWishlist(product.id)}
-                   className="absolute top-4 right-4 grid place-items-center w-10 h-10 rounded-full bg-white/95 shadow-lg text-error opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all hover:scale-110 active:scale-95 z-10"
-                   title="Xóa khỏi danh sách"
-                   aria-label="Xóa khỏi danh sách yêu thích"
-                 >
-                   <Trash2 size={18} />
-                 </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
-/* ═══════════ EMPTY BLOCK — inline style đảm bảo center 100% ═══════════ */
+/* ═══════════ EMPTY BLOCK ═══════════ */
 
 interface EmptyBlockProps {
   title: string;
@@ -231,9 +211,6 @@ interface EmptyBlockProps {
 }
 
 function EmptyBlock({ title, description, actionLabel, actionHref, onAction }: EmptyBlockProps) {
-  const btnClass =
-    'inline-flex items-center justify-center h-12 px-8 rounded-full bg-text text-white text-sm font-medium hover:bg-primary-dark transition';
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -245,7 +222,6 @@ function EmptyBlock({ title, description, actionLabel, actionHref, onAction }: E
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        padding: '64px 16px 80px',
       }}
     >
       {/* Icon */}
@@ -253,16 +229,7 @@ function EmptyBlock({ title, description, actionLabel, actionHref, onAction }: E
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.5, ease: 'easeOut' }}
-        style={{
-          width: 80,
-          height: 80,
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 24,
-        }}
-        className="bg-primary/5 text-primary"
+        className={styles.emptyIcon}
       >
         <Heart size={32} />
       </motion.div>
@@ -272,13 +239,7 @@ function EmptyBlock({ title, description, actionLabel, actionHref, onAction }: E
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        style={{
-          fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-          fontWeight: 500,
-          marginBottom: 12,
-          textAlign: 'center',
-        }}
-        className="font-serif text-text"
+        className={styles.emptyTitle}
       >
         {title}
       </motion.h3>
@@ -288,14 +249,7 @@ function EmptyBlock({ title, description, actionLabel, actionHref, onAction }: E
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        style={{
-          maxWidth: 420,
-          margin: '0 auto 32px',
-          fontSize: 14,
-          lineHeight: 1.7,
-          textAlign: 'center',
-        }}
-        className="text-text-secondary"
+        className={styles.emptyText}
       >
         {description}
       </motion.p>
@@ -307,17 +261,18 @@ function EmptyBlock({ title, description, actionLabel, actionHref, onAction }: E
         transition={{ delay: 0.5, duration: 0.5 }}
       >
         {actionHref ? (
-        <Link href={actionHref} className={btnClass}>
-          {actionLabel}
-          <ArrowRight size={16} style={{ marginLeft: 6 }} />
-        </Link>
-      ) : (
-        <button type="button" onClick={onAction} className={btnClass}>
-          {actionLabel}
-          <ArrowRight size={16} style={{ marginLeft: 6 }} />
-        </button>
+          <Link href={actionHref} className={styles.shopBtn}>
+            {actionLabel}
+            <ArrowRight size={16} style={{ marginLeft: 6 }} />
+          </Link>
+        ) : (
+          <button type="button" onClick={onAction} className={styles.shopBtn}>
+            {actionLabel}
+            <ArrowRight size={16} style={{ marginLeft: 6 }} />
+          </button>
         )}
       </motion.div>
     </motion.div>
   );
 }
+

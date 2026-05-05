@@ -1,16 +1,18 @@
 .sidebar {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid var(--color-border-light, #f3f4f6);
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  background: var(--glass-bg-tint), var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 32px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
   height: fit-content;
   position: sticky;
   top: calc(var(--header-height) + 1.5rem);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  width: 280px;
+  gap: 2rem;
+  width: 300px;
   flex-shrink: 0;
 }
 
@@ -23,15 +25,17 @@
 }
 
 .avatar {
-  width: 56px;
-  height: 56px;
-  background: var(--gradient-primary);
+  width: 64px;
+  height: 64px;
+  background: var(--glass-bg-tint), var(--color-primary-dark);
   color: white;
-  border-radius: 50%;
+  border-radius: 20px; /* Squircle for a more modern look */
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px hsla(var(--primary-h), 45%, 32%, 0.2);
+  box-shadow: 0 10px 25px rgba(12, 38, 26, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
 }
 
 .userInfo {
@@ -47,11 +51,24 @@
 
 .editProfile {
   font-size: var(--text-xs);
-  color: var(--color-primary);
-  font-weight: 600;
+  color: var(--color-primary-dark);
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  width: fit-content;
+  margin-top: 4px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.editProfile:hover {
+  background: var(--color-primary-dark);
+  color: white;
+  border-color: var(--color-primary-dark);
 }
 
 .menu {
@@ -97,15 +114,33 @@
 }
 
 .navLink:hover {
-  background: var(--color-primary-50);
+  background: rgba(255, 255, 255, 0.5);
   color: var(--color-primary);
   transform: translateX(4px);
 }
 
 .navLinkActive {
-  color: var(--color-primary) !important;
-  font-weight: 700;
-  background: var(--color-primary-50);
+  color: white !important;
+  font-weight: 800;
+  background: rgba(12, 38, 26, 0.9) !important;
+  box-shadow: 0 12px 35px rgba(12, 38, 26, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+}
+
+.navLinkActive::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: white;
+  border-radius: 99px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
 .logoutBtn {
@@ -156,8 +191,9 @@
   .groupHeader {
     padding: 0.5rem 1rem;
     border-radius: 99px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     white-space: nowrap;
   }
 
@@ -178,15 +214,17 @@
   .navLink {
     padding: 0.5rem 1rem;
     border-radius: 99px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     white-space: nowrap;
   }
 
   .navLinkActive, .groupHeader.navLinkActive {
-    background: var(--color-primary-dark, #111827);
+    background: var(--glass-bg-tint), var(--color-primary-dark);
     color: white !important;
-    border-color: var(--color-primary-dark, #111827);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 15px rgba(12, 38, 26, 0.2);
   }
 
   .logoutBtn {

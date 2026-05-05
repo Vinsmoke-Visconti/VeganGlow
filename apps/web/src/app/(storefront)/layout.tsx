@@ -3,11 +3,15 @@ import NewsletterForm from '@/components/layout/NewsletterForm';
 import StorefrontNavbar from '@/components/layout/StorefrontNavbar';
 import PageTransition from '@/components/ui/PageTransition';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { FadeIn, StaggerContainer, StaggerItem } from '@/components/ui/AnimatedWrapper';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './storefront-layout.module.css';
 import { Metadata } from 'next';
+
+import { getBrandInfo, getSiteAssets } from '@/lib/admin/queries/settings';
+import { SettingsProvider } from '@/context/SettingsContext';
 
 export const metadata: Metadata = {
   title: {
@@ -16,13 +20,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default function StorefrontLayout({
+export default async function StorefrontLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [brand, assets] = await Promise.all([
+    getBrandInfo(),
+    getSiteAssets()
+  ]);
+
   return (
-    <div className={styles.wrapper}>
+    <SettingsProvider brand={brand} assets={assets}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        :root {
+          --bg-hero: url('${assets.hero_bg || '/images/hero.jpg'}');
+          --bg-about: url('${assets.about_bg || '/images/about-long-bg.png'}');
+          --bg-auth: url('${assets.auth_bg || '/images/auth-bg.png'}');
+          --bg-cart: url('${assets.cart_bg || '/images/cart-bg.png'}');
+          --bg-contact: url('${assets.contact_bg || '/images/contact-bg.png'}');
+          --bg-profile: url('${assets.profile_bg || '/images/profile-bg.png'}');
+          --bg-products: url('${assets.products_bg || '/images/products-bg.png'}');
+          --bg-support: url('${assets.support_bg || '/images/support-bg.png'}');
+          --bg-wishlist: url('${assets.wishlist_bg || '/images/wishlist-bg.png'}');
+          --bg-blog: url('${assets.blog_bg || '/images/blog-detail-bg.png'}');
+          --bg-cta: url('${assets.cta_bg || '/images/cta-liquid-bg.png'}');
+        }
+      `}} />
+      <div className={styles.wrapper}>
       <StorefrontNavbar />
       <AddToCartToast />
 
@@ -34,11 +59,17 @@ export default function StorefrontLayout({
         <div className={`container ${styles.footerContainer}`}>
           <div className={styles.footerBrand}>
             <div className={styles.footerLogo}>
-              <Image src="/logo.jpg" alt="VeganGlow" width={40} height={40} className={styles.footerLogoImage} />
-              <span className={styles.footerLogoText}>VeganGlow</span>
+              <Image 
+                src={assets.footer_logo_url || assets.logo_url || "/logo.jpg"} 
+                alt={brand.name || "VeganGlow"} 
+                width={40} 
+                height={40} 
+                className={styles.footerLogoImage} 
+              />
+              <span className={styles.footerLogoText}>{brand.name || "VeganGlow"}</span>
             </div>
             <p className={styles.footerTagline}>
-              Kết tinh từ thiên nhiên Việt Nam, mang lại vẻ đẹp thuần khiết và bền vững cho làn da của bạn.
+              {brand.tagline || "Kết tinh từ thiên nhiên Việt Nam, mang lại vẻ đẹp thuần khiết và bền vững cho làn da của bạn."}
             </p>
             <div className={styles.footerSocials}>
               <a href="#" className={styles.socialLink} aria-label="Facebook">
@@ -92,6 +123,7 @@ export default function StorefrontLayout({
       </footer>
 
       <ScrollToTop />
-    </div>
+      </div>
+    </SettingsProvider>
   );
 }
