@@ -103,3 +103,6 @@ scratch/
 !package-lock.json
 lint_output_original.txt
 motadoanhnghiepveganglowdemo.txt
+# Temporary Assets (Seeding / Database Import)
+apps/web/public/images/
+apps/web/public/data/
