@@ -10,11 +10,7 @@ export default async function AdminAppearanceSettings() {
   const assets = await getSiteAssets();
 
   return (
-    <div className={shared.page}>
-      <div className={shared.header}>
-        <h1 className={shared.title}>Giao diện & Hình ảnh</h1>
-        <p className={shared.subtitle}>Quản lý các hình ảnh nền, logo và tài nguyên đồ họa của hệ thống.</p>
-      </div>
+    <div className={shared.page} style={{ padding: 0 }}>
       <AppearanceClient initialAssets={assets} />
     </div>
   );
