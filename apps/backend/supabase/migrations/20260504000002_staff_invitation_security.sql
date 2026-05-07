@@ -15,6 +15,7 @@ begin
   where token = p_token
     and status = 'pending'
     and expires_at > now()
+    
   for update;
 
   if not found then
