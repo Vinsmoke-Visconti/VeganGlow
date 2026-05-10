@@ -7,7 +7,7 @@ name: Deploy Docker
 
 on:
   push:
-    branches: [main, develop, feature/*, feature/storefront-redesign-ui]
+    branches: [main]
     paths:
       - 'apps/web/**'
       - 'packages/**'
