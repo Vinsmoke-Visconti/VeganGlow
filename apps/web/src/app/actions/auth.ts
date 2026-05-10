@@ -1,7 +1,7 @@
 'use server';
 
-import { sendPasswordOtpEmail, sendAdminLoginAlert } from '@/lib/email';
-import { createClient } from '@/lib/supabase/server';
+import { sendPasswordOtpEmail, sendAdminLoginAlert, sendRegistrationOtpEmail } from '@/lib/email';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -182,69 +182,168 @@ export async function login(_prevState: AuthFormState, formData: FormData) {
   redirect(redirectTo);
 }
 
+const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,30}$/;
+
+/**
+ * Step 1: Gửi mã OTP xác nhận email khi đăng ký
+ * Lưu OTP vào Redis với TTL 10 phút
+ */
+export async function sendRegisterOtp(_prevState: AuthFormState, formData: FormData) {
+  const startedAt = Date.now();
+  const headersList = await headers();
+  const ip = getClientIp(headersList);
+
+  const email = (formData.get('email') as string)?.trim() ?? '';
+
+  if (!email || !EMAIL_REGEX.test(email) || email.length > 200) {
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Email không hợp lệ.' };
+  }
+
+  // Rate limit
+  const ipRate = ip ? await checkLoginIpRate(ip) : null;
+  if (ipRate?.allowed === false) {
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.' };
+  }
+
+  // Generate 6-digit OTP
+  const code = crypto.randomInt(100000, 999999).toString();
+  const redisKey = `reg_otp:${email.toLowerCase()}`;
+
+  try {
+    const { cacheSet } = await import('@/lib/redis');
+    // Store OTP in Redis for 10 minutes
+    await cacheSet(redisKey, { code, email: email.toLowerCase(), createdAt: Date.now() }, 600);
+  } catch (err) {
+    console.error('[sendRegisterOtp] Redis error:', err);
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Lỗi hệ thống. Vui lòng thử lại.' };
+  }
+
+  // Send OTP email
+  try {
+    await sendRegistrationOtpEmail(email, code);
+  } catch (err) {
+    console.error('[sendRegisterOtp] Email error:', err);
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    return { error: 'Không thể gửi email. Vui lòng kiểm tra lại địa chỉ email.' };
+  }
+
+  await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+  return { success: true, message: 'Mã xác nhận đã được gửi đến email của bạn.' };
+}
+
+/**
+ * Step 2: Xác nhận mã OTP đăng ký
+ * Trả về token xác nhận nếu OTP đúng
+ */
+export async function verifyRegisterOtp(email: string, code: string): Promise<{ success?: boolean; token?: string; error?: string }> {
+  const redisKey = `reg_otp:${email.toLowerCase()}`;
+
+  try {
+    const { cacheGet, cacheDelete } = await import('@/lib/redis');
+    const stored = await cacheGet<{ code: string; email: string; createdAt: number }>(redisKey);
+
+    if (!stored) {
+      return { error: 'Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.' };
+    }
+
+    if (stored.code !== code.trim()) {
+      return { error: 'Mã xác nhận không đúng.' };
+    }
+
+    // OTP is correct - create a verification token and store it
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenKey = `reg_verified:${email.toLowerCase()}`;
+    const { cacheSet } = await import('@/lib/redis');
+    await cacheSet(tokenKey, { email: email.toLowerCase(), token, verifiedAt: Date.now() }, 1800); // 30 min
+
+    // Delete the OTP
+    await cacheDelete(redisKey);
+
+    return { success: true, token };
+  } catch (err) {
+    console.error('[verifyRegisterOtp] error:', err);
+    return { error: 'Lỗi hệ thống. Vui lòng thử lại.' };
+  }
+}
+
+/**
+ * Step 3: Tạo tài khoản (email đã được xác nhận qua OTP)
+ */
 export async function signup(_prevState: AuthFormState, formData: FormData) {
   const startedAt = Date.now();
   const headersList = await headers();
   const ip = getClientIp(headersList);
 
   const email = (formData.get('email') as string)?.trim() ?? '';
+  const username = (formData.get('username') as string)?.trim() ?? '';
   const password = formData.get('password') as string;
-  const fullName = (formData.get('fullName') as string)?.trim() ?? '';
-  const captchaToken = String(formData.get('cf-turnstile-response') ?? '');
+  const verifyToken = (formData.get('verifyToken') as string)?.trim() ?? '';
 
   const GENERIC_SIGNUP_ERROR = 'Không thể tạo tài khoản. Vui lòng thử lại.';
 
-  // 1. Rate limit (same progressive tiers as login)
-  const ipRate = ip ? await checkLoginIpRate(ip) : null;
-  if (ipRate?.allowed === false) {
-    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
-    return { error: GENERIC_SIGNUP_ERROR };
-  }
-  if (ipRate?.requiresCaptcha) {
-    const valid = await verifyTurnstile(captchaToken, ip);
-    if (!valid) {
-      await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
-      return { error: GENERIC_SIGNUP_ERROR, requiresCaptcha: true };
-    }
-  }
-
-  // 2. Input validation
-  if (!EMAIL_REGEX.test(email) || email.length > 200) {
+  // Validate inputs
+  if (!email || !EMAIL_REGEX.test(email)) {
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
     return { error: 'Email không hợp lệ.' };
   }
-  if (!password || password.length < 8 || password.length > 128) {
+  if (!username || !USERNAME_REGEX.test(username)) {
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
-    return { error: 'Mật khẩu phải từ 8 đến 128 ký tự.' };
+    return { error: 'Tên đăng nhập phải từ 3-30 ký tự, không dấu cách.' };
   }
-  if (!fullName || fullName.length < 2 || fullName.length > 120) {
+  if (!password || password.length < 6 || password.length > 128) {
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
-    return { error: 'Họ tên phải từ 2 đến 120 ký tự.' };
+    return { error: 'Mật khẩu phải từ 6 đến 128 ký tự.' };
   }
 
-  // 3. Create account
-  const supabase = await createClient();
+  // Verify the email was confirmed via OTP
+  try {
+    const { cacheGet, cacheDelete } = await import('@/lib/redis');
+    const tokenKey = `reg_verified:${email.toLowerCase()}`;
+    const stored = await cacheGet<{ email: string; token: string; verifiedAt: number }>(tokenKey);
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName,
+    if (!stored || stored.token !== verifyToken) {
+      await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+      return { error: 'Email chưa được xác nhận hoặc phiên đã hết hạn. Vui lòng thử lại.' };
+    }
+
+    // Create user with service role (auto-confirmed since OTP verified)
+    const adminClient = createServiceClient();
+    const { data: adminData, error: adminError } = await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: username,
+        user_name: username.toLowerCase(),
       },
-    },
-  });
+    });
 
-  if (error) {
-    // Never expose Supabase internals — log server-side only
-    console.error('[signup] Supabase error:', error.message);
+    if (adminError) {
+      console.error('[signup] Admin createUser error:', adminError.message);
+      if (adminError.message.includes('already') || adminError.message.includes('duplicate') || adminError.message.includes('exists')) {
+        await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+        return { error: 'Email hoặc tên đăng nhập đã được sử dụng.' };
+      }
+      await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+      return { error: GENERIC_SIGNUP_ERROR };
+    }
+
+    // Clean up the verification token
+    await cacheDelete(tokenKey);
+
+    await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
+    revalidatePath('/', 'layout');
+    redirect('/login?message=Tạo tài khoản thành công! Hãy đăng nhập.');
+  } catch (err: unknown) {
+    // redirect() throws a special error - rethrow it
+    if (err && typeof err === 'object' && 'digest' in err) throw err;
+    console.error('[signup] Unexpected error:', err);
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
     return { error: GENERIC_SIGNUP_ERROR };
   }
-
-  await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
-  revalidatePath('/', 'layout');
-  redirect('/login?message=Kiểm tra email của bạn để xác nhận tài khoản.');
 }
 
 export async function logout() {
