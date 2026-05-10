@@ -8,6 +8,8 @@ import { sendOrderConfirmation } from '@/lib/email';
 import { normalizePaymentMethod, type PaymentMethod } from '@/lib/payment';
 import { checkCheckoutIpRate } from '@/lib/security/rateLimit';
 
+import { checkoutSchema } from '@/lib/validations/checkout';
+
 type CheckoutItem = { id: string; quantity: number };
 
 type CheckoutInput = {
@@ -22,8 +24,8 @@ type CheckoutInput = {
   province: string;
   province_code: string;
   payment_method: PaymentMethod;
-  note?: string;
-  voucher_code?: string;
+  note?: string | null;
+  voucher_code?: string | null;
 };
 
 type CheckoutResult =
@@ -41,10 +43,6 @@ type PaymentStatusResult =
     }
   | { success: false; error: string };
 
-const PHONE_REGEX = /^(0|\+84)\d{9,10}$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const IDEMPOTENCY_KEY_REGEX = /^[A-Za-z0-9._:-]{16,128}$/;
-
 export async function createOrder(input: CheckoutInput): Promise<CheckoutResult> {
   // Rate limit checkout by IP
   const headersList = await headers();
@@ -56,43 +54,14 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
     }
   }
 
-  if (!input.items || input.items.length === 0) {
-    return { success: false, error: 'Giỏ hàng trống.' };
-  }
-  if (!input.customer_name?.trim() || input.customer_name.length > 120) {
-    return { success: false, error: 'Họ tên không hợp lệ.' };
-  }
-  if (!PHONE_REGEX.test(input.phone || '')) {
-    return { success: false, error: 'Số điện thoại không hợp lệ.' };
-  }
-  if (!input.address?.trim()) {
-    return { success: false, error: 'Địa chỉ không hợp lệ.' };
-  }
-  if (!input.province_code?.trim() || !input.province?.trim()) {
-    return { success: false, error: 'Vui lòng chọn Tỉnh / Thành phố.' };
-  }
-  if (!input.ward_code?.trim() || !input.ward?.trim()) {
-    return { success: false, error: 'Vui lòng chọn Phường / Xã.' };
-  }
-  if (!EMAIL_REGEX.test(input.email || '')) {
-    return { success: false, error: 'Email không hợp lệ.' };
-  }
-  if (!['cod', 'card', 'bank_transfer'].includes(input.payment_method)) {
-    return { success: false, error: 'Phương thức thanh toán không hợp lệ.' };
+  // Validate input with Zod
+  const validationResult = checkoutSchema.safeParse(input);
+  if (!validationResult.success) {
+    // Return the first error message
+    const firstError = validationResult.error.errors[0]?.message || 'Dữ liệu không hợp lệ';
+    return { success: false, error: firstError };
   }
 
-  if (
-    input.idempotency_key &&
-    !IDEMPOTENCY_KEY_REGEX.test(input.idempotency_key)
-  ) {
-    return { success: false, error: 'Yêu cầu thanh toán không hợp lệ.' };
-  }
-
-  for (const item of input.items) {
-    if (!item.id || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 999) {
-      return { success: false, error: 'Sản phẩm trong giỏ không hợp lệ.' };
-    }
-  }
 
   const supabase = await createClient();
   const paymentMethod = normalizePaymentMethod(input.payment_method);
