@@ -45,18 +45,18 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
 .card {
   background: var(--vg-surface-0);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   transition: all var(--vg-duration-fast);
 }
 
@@ -111,7 +111,7 @@
   background: none;
   border: none;
   color: var(--vg-ink-600);
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-radius: var(--vg-radius-md);
   cursor: pointer;
   transition: all var(--vg-duration-fast);
@@ -132,7 +132,7 @@
 }
 
 .infoValue {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -150,19 +150,19 @@
 .serviceTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .serviceTag {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 4px 8px;
   background: var(--vg-surface-50);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-md);
   color: var(--vg-ink-600);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--vg-duration-fast);
