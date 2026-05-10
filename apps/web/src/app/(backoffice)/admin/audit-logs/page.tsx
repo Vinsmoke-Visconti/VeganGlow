@@ -33,13 +33,23 @@ export default async function AdminAuditLogs() {
       <div className={shared.card}>
         <div className={shared.cardHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 className={shared.cardTitle}>Tất cả nhật ký</h2>
-          <a 
-            href="/api/admin/export/logs?days=30" 
-            className={shared.btnSecondary}
-            style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}
-          >
-            Xuất file CSV (30 ngày)
-          </a>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <a 
+              href="/admin/audit-logs" 
+              className={shared.btnSecondary}
+              style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              Tải lại
+            </a>
+            <a 
+              href="/api/admin/export/logs?days=30" 
+              className={shared.btnSecondary}
+              style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              Xuất file CSV (30 ngày)
+            </a>
+          </div>
         </div>
         {auditEntries.length === 0 ? (
           <div className={shared.emptyState}>
