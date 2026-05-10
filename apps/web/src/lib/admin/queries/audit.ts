@@ -28,15 +28,22 @@ export async function listAuditEntries(filters: AuditFilters = {}): Promise<Audi
   const offset = filters.offset ?? 0;
   let q = (supabase
     .from('audit_logs') as any)
-    .select('id, actor_id, resource_type, resource_id, action, entity, entity_id, summary, ip_address, created_at')
+    .select('id, actor_id, resource_type, resource_id, action, entity, entity_id, summary, ip_address, ip_hash, severity, user_agent, created_at')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
   if (filters.module) q = q.eq('resource_type', filters.module);
   if (filters.actor_id) q = q.eq('actor_id', filters.actor_id);
   if (filters.from) q = q.gte('created_at', filters.from);
   if (filters.to) q = q.lte('created_at', filters.to);
-  const { data } = await q;
-  return (data ?? []) as AuditEntry[];
+  const { data, error } = await q;
+  if (error) {
+    console.error('[listAuditEntries] RLS/query error:', error.message);
+  }
+  // Map ip_hash to ip_address for display if ip_address is null
+  return ((data ?? []) as any[]).map((row) => ({
+    ...row,
+    ip_address: row.ip_address || (row.ip_hash ? row.ip_hash.slice(0, 12) + '…' : null),
+  })) as AuditEntry[];
 }
 
 export async function listMyAuditEntries(limit = 50): Promise<AuditEntry[]> {
