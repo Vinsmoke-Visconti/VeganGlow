@@ -46,18 +46,21 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 16px;
+  height: calc(100vh - 140px); /* Fill the available height minus header/footer */
 }
 
 .card {
   background: var(--vg-surface-0);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  padding: 10px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
   transition: all var(--vg-duration-fast);
+  height: 100%;
 }
 
 .card:hover {
@@ -68,12 +71,12 @@
 .cardHead {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background: var(--vg-leaf-100);
   color: var(--vg-leaf-700);
   border-radius: 50%;
@@ -81,7 +84,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .cardHeadText {
@@ -93,25 +96,27 @@
 .cardName {
   margin: 0;
   color: var(--vg-ink-900);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .infoGrid {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 .infoRow {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
   width: 100%;
   background: none;
   border: none;
   color: var(--vg-ink-600);
-  padding: 4px 6px;
+  padding: 10px 12px;
   border-radius: var(--vg-radius-md);
   cursor: pointer;
   transition: all var(--vg-duration-fast);
@@ -125,14 +130,14 @@
 }
 
 .infoLabel {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--vg-ink-400);
-  width: 70px;
+  width: 80px;
 }
 
 .infoValue {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -150,19 +155,20 @@
 .serviceTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
+  margin-top: auto;
 }
 
 .serviceTag {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 6px;
+  gap: 6px;
+  padding: 6px 12px;
   background: var(--vg-surface-50);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-md);
   color: var(--vg-ink-600);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--vg-duration-fast);
