@@ -277,6 +277,37 @@ Deno.serve(async (req: Request) => {
 
     const result = data[0];
     const ok = result.message === 'PAYMENT_CONFIRMED' || result.reused;
+
+    // Fire-and-forget: send payment success email via Next.js internal API
+    if (result.message === 'PAYMENT_CONFIRMED' && !result.reused && result.order_code) {
+      const appUrl = Deno.env.get('APP_URL') || 'https://veganglow.vercel.app';
+      const webhookSecret = Deno.env.get('WEBHOOK_INTERNAL_SECRET');
+
+      // Fetch customer email from the order
+      const { data: orderData } = await supabase
+        .from('orders')
+        .select('email, code, total_amount')
+        .eq('code', result.order_code)
+        .maybeSingle();
+
+      if (orderData?.email && webhookSecret) {
+        fetch(`${appUrl}/api/internal/send-payment-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-webhook-secret': webhookSecret,
+          },
+          body: JSON.stringify({
+            email: orderData.email,
+            order_code: orderData.code,
+            amount: Number(orderData.total_amount),
+          }),
+        }).catch((emailErr) => {
+          console.error('Failed to trigger payment success email:', emailErr);
+        });
+      }
+    }
+
     return json({ success: ok, result }, ok ? 200 : 202);
   } catch (error) {
     return json(
