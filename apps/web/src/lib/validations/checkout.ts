@@ -20,7 +20,7 @@ export const checkoutSchema = z.object({
   ward: z.string().trim().min(1, 'Vui lòng chọn Phường / Xã'),
   ward_code: z.string().trim().min(1, 'Vui lòng chọn Phường / Xã'),
   payment_method: z.enum(['cod', 'card', 'bank_transfer'], {
-    errorMap: () => ({ message: 'Phương thức thanh toán không hợp lệ' }),
+    message: 'Phương thức thanh toán không hợp lệ',
   }),
   note: z.string().trim().max(500, 'Ghi chú quá dài').optional().nullable(),
   voucher_code: z.string().trim().max(50, 'Mã giảm giá quá dài').optional().nullable(),

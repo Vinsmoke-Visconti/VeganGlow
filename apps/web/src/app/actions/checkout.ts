@@ -58,7 +58,7 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   const validationResult = checkoutSchema.safeParse(input);
   if (!validationResult.success) {
     // Return the first error message
-    const firstError = validationResult.error.errors[0]?.message || 'Dữ liệu không hợp lệ';
+    const firstError = validationResult.error.issues[0]?.message || 'Dữ liệu không hợp lệ';
     return { success: false, error: firstError };
   }
 
