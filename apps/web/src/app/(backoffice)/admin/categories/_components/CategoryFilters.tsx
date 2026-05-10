@@ -1,19 +1,19 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { RotateCcw, Search } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { RotateCcw, Search } from 'lucide-react';
 import shared from '../../admin-shared.module.css';
 
-export function CustomersFilter({ defaultQ }: { defaultQ?: string }) {
+export function CategoryFilters({ defaultValue }: { defaultValue?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
 
-  function setParam(value: string | undefined) {
+  function setParam(key: string, value: string | undefined) {
     const next = new URLSearchParams(sp.toString());
-    if (!value) next.delete('q');
-    else next.set('q', value);
+    if (!value) next.delete(key);
+    else next.set(key, value);
     router.push(`${pathname}?${next.toString()}`);
   }
 
@@ -22,17 +22,18 @@ export function CustomersFilter({ defaultQ }: { defaultQ?: string }) {
       <div className={shared.searchInput} style={{ flex: '0 1 240px' }}>
         <Search size={14} style={{ left: 10 }} />
         <input
-          placeholder="Tìm khách hàng theo tên"
-          defaultValue={defaultQ ?? ''}
+          placeholder="Tìm danh mục, slug..."
+          defaultValue={defaultValue ?? ''}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               const value = (e.target as HTMLInputElement).value.trim();
-              setParam(value || undefined);
+              setParam('q', value || undefined);
             }
           }}
         />
       </div>
-      <Link href="/admin/customers" className={`${shared.btn} ${shared.btnGhost}`} style={{ height: 32, padding: '0 8px' }}>
+
+      <Link href="/admin/categories" className={`${shared.btn} ${shared.btnGhost}`} style={{ height: 32, padding: '0 8px' }}>
         <RotateCcw size={12} />
       </Link>
     </div>

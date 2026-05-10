@@ -15,7 +15,9 @@ type Category = {
   product_count: number;
 };
 
-export function CategoriesClient({ categories }: { categories: Category[] }) {
+import { CategoryFilters } from './CategoryFilters';
+
+export function CategoriesClient({ categories, q }: { categories: Category[]; q?: string }) {
   const [editing, setEditing] = useState<Category | null>(null);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -72,10 +74,15 @@ export function CategoriesClient({ categories }: { categories: Category[] }) {
   return (
     <>
       <div className={shared.toolbar}>
-        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
-        <button type="button" className={`${shared.btn} ${shared.btnPrimary}`} onClick={openCreate}>
-          <Plus size={14} /> Thêm danh mục
-        </button>
+        <div style={{ display: 'flex', gap: 12, flex: 1 }}>
+          <CategoryFilters defaultValue={q} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+          <button type="button" className={`${shared.btn} ${shared.btnPrimary}`} style={{ minHeight: 42 }} onClick={openCreate}>
+            <Plus size={14} /> Thêm danh mục
+          </button>
+        </div>
       </div>
 
       {categories.length === 0 ? (

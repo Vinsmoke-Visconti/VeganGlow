@@ -16,12 +16,16 @@ type RawCategory = {
   products: { count: number }[] | null;
 };
 
-export async function listCategoriesWithCounts(): Promise<CategoryWithCount[]> {
+export async function listCategoriesWithCounts(search?: string): Promise<CategoryWithCount[]> {
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from('categories')
     .select('id, name, slug, created_at, products(count)')
     .order('name');
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%`);
+  }
+  const { data } = await query;
   return ((data ?? []) as unknown as RawCategory[]).map((c) => ({
     id: c.id,
     name: c.name,

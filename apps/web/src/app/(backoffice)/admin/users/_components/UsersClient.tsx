@@ -31,10 +31,14 @@ type Invitation = {
   token: string;
 };
 
+import { StaffFilters } from './StaffFilters';
+import { InviteStaffForm } from './InviteStaffForm';
+
 type Props = {
   staff: Staff[];
   invitations?: Invitation[];
   roles?: Role[];
+  q?: string;
 };
 
 function RoleEditor({ 
@@ -115,7 +119,7 @@ function RoleEditor({
   );
 }
 
-export function UsersClient({ staff, invitations = [], roles = [] }: Props) {
+export function UsersClient({ staff, invitations = [], roles = [], q }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   const pendingInvitations = invitations.filter((i) => i.status === 'pending');
@@ -127,8 +131,13 @@ export function UsersClient({ staff, invitations = [], roles = [] }: Props) {
   return (
     <>
       <div className={shared.toolbar}>
-        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
-        <div />
+        <div style={{ display: 'flex', gap: 12, flex: 1 }}>
+          <StaffFilters defaultValue={q} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+          <InviteStaffForm roles={roles} />
+        </div>
       </div>
 
       {allUsers.length === 0 ? (

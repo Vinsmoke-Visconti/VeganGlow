@@ -1,21 +1,18 @@
 import { listStaff, listInvitations, listRoles } from '@/lib/admin/queries/staff';
 import shared from '../admin-shared.module.css';
-import { InviteStaffForm } from './_components/InviteStaffForm';
 import { UsersClient } from './_components/UsersClient';
 
-export default async function AdminUsers() {
-  const [staff, invitations, roles] = await Promise.all([listStaff(), listInvitations(), listRoles()]);
+type Props = { searchParams: Promise<{ [key: string]: string | string[] | undefined }> };
+
+export default async function AdminUsers({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
+  const q = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : undefined;
+
+  const [staff, invitations, roles] = await Promise.all([listStaff(q), listInvitations(), listRoles()]);
 
   return (
     <div className={shared.page}>
-      <div className={shared.toolbar}>
-        <div style={{ flex: 1 }} />
-        <div style={{ display: 'flex', gap: 8 }}>
-          <InviteStaffForm roles={roles} />
-        </div>
-      </div>
-
-      <UsersClient staff={staff} invitations={invitations} roles={roles} />
+      <UsersClient staff={staff} invitations={invitations} roles={roles} q={q} />
     </div>
   );
 }

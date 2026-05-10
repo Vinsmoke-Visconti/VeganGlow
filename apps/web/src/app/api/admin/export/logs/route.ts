@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const days = parseInt(searchParams.get('days') || '30', 10);
 
   let query = (supabase.from('audit_logs') as any)
-    .select('id, created_at, actor_id, actor_name, action, entity, entity_id, summary, ip_address, user_agent, severity')
+    .select('id, created_at, actor_id, actor_name, action, entity, entity_id, summary, ip_address, ip_hash, user_agent, severity')
     .gte('created_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
     .order('created_at', { ascending: false });
 
@@ -32,18 +32,22 @@ export async function GET(request: Request) {
   }
 
   // Generate CSV
-  const header = ['ID,Date,Actor,Action,Entity,EntityID,Summary,IP,Severity'];
+  const header = ['Mã Log,Thời gian,Người thực hiện,Hành động,Đối tượng,Mã đối tượng,Chi tiết / Mô tả,Địa chỉ IP,Mức độ,Thiết bị / Trình duyệt'];
   const rows = (data || []).map((row: any) => {
+    // Format the date to local time string if possible, or keep ISO
+    const dateStr = new Date(row.created_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+    const ip = row.ip_address || row.ip_hash || '—';
     return [
-      row.id,
-      new Date(row.created_at).toISOString(),
-      `"${row.actor_name || row.actor_id}"`,
+      `"${row.id}"`,
+      `"${dateStr}"`,
+      `"${row.actor_name || row.actor_id || 'Hệ thống'}"`,
       `"${row.action}"`,
       `"${row.entity || ''}"`,
       `"${row.entity_id || ''}"`,
       `"${(row.summary || '').replace(/"/g, '""')}"`,
-      `"${row.ip_address || ''}"`,
-      `"${row.severity || ''}"`
+      `"${ip}"`,
+      `"${row.severity || 'info'}"`,
+      `"${(row.user_agent || '').replace(/"/g, '""')}"`
     ].join(',');
   });
 

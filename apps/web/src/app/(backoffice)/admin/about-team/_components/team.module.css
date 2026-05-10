@@ -46,18 +46,21 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  height: calc(100vh - 150px);
 }
 
 .card {
   background: var(--vg-surface-0);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  padding: 16px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   transition: all var(--vg-duration-fast);
+  height: 100%;
 }
 
 .card:hover {
@@ -72,8 +75,8 @@
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: var(--vg-leaf-100);
   color: var(--vg-leaf-700);
   border-radius: 50%;
@@ -101,12 +104,14 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  justify-content: center;
 }
 
 .infoRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   background: none;
   border: none;
@@ -150,14 +155,15 @@
 .serviceTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  margin-top: auto;
 }
 
 .serviceTag {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: var(--vg-surface-50);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-md);

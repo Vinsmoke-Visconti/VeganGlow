@@ -102,12 +102,13 @@ export function VariantManager({ productId, variants }: Props) {
 
   function save() {
     if (!editing) return;
-    if (!editing.sku.trim()) {
-      setError('SKU không được để trống');
-      return;
-    }
+    
+    // Auto-generate SKU if empty without mutating state directly
+    const finalSku = editing.sku.trim() || `VG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const payloadToSave = { ...editing, sku: finalSku };
+    
     setError(null);
-    const payload = draftToInput(productId, editing);
+    const payload = draftToInput(productId, payloadToSave);
     start(async () => {
       const res = await upsertVariant(payload);
       if (!res.ok) {
@@ -296,25 +297,35 @@ export function VariantManager({ productId, variants }: Props) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+              <datalist id="attribute-keys">
+                <option value="Dung tích" />
+                <option value="Trọng lượng" />
+                <option value="Mùi hương" />
+                <option value="Màu sắc" />
+                <option value="Phân loại" />
+              </datalist>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div className={shared.formField}>
-                  <label className={shared.formLabel}>SKU</label>
-                  <input className={shared.formInput} value={editing.sku} onChange={(e) => setEditing({ ...editing, sku: e.target.value })} placeholder="VG-CN50-30" required />
+                  <label className={shared.formLabel}>SKU (Tự động tạo nếu để trống)</label>
+                  <input className={shared.formInput} value={editing.sku} onChange={(e) => setEditing({ ...editing, sku: e.target.value })} placeholder="VD: VG-CN50-30" />
                 </div>
                 <div className={shared.formField}>
-                  <label className={shared.formLabel}>Tên hiển thị</label>
-                  <input className={shared.formInput} value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="30ml" />
+                  <label className={shared.formLabel}>Tên hiển thị (Tùy chọn)</label>
+                  <input className={shared.formInput} value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="VD: 30ml" />
                 </div>
               </div>
 
               {/* Attributes */}
               <div className={shared.formField}>
-                <label className={shared.formLabel}>Thuộc tính (vd: Dung tích → 30ml, Màu → Đỏ)</label>
+                <label className={shared.formLabel}>Thuộc tính (chọn hoặc tự gõ)</label>
                 {editing.attribute_pairs.map((pair, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
                     <input
                       className={shared.formInput}
-                      placeholder="Tên thuộc tính"
+                      list="attribute-keys"
+                      placeholder="VD: Dung tích"
                       value={pair.key}
                       onChange={(e) => {
                         const next = [...editing.attribute_pairs];

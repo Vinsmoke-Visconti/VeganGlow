@@ -659,3 +659,54 @@ export async function sendAdminContactAlert(input: { name: string; email: string
     return null;
   }
 }
+
+/**
+ * Gửi mã OTP xác nhận email khi đăng ký tài khoản mới
+ */
+export async function sendRegistrationOtpEmail(email: string, code: string) {
+  try {
+    const data = await dispatchEmail({
+      from: SECURITY_FROM,
+      to: [email],
+      subject: `🔐 Mã xác nhận đăng ký VeganGlow: ${code}`,
+      html: `
+        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; border-radius: 24px; overflow: hidden; background-color: #ffffff; border: 1px solid #f1f5f9; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+          <div style="background: linear-gradient(135deg, #064e3b 0%, #059669 100%); padding: 48px 40px; text-align: center; color: white;">
+            <div style="background: rgba(255,255,255,0.15); width: 64px; height: 64px; border-radius: 32px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+              <span style="font-size: 32px;">🌱</span>
+            </div>
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">Xác nhận Email đăng ký</h1>
+            <p style="margin-top: 8px; opacity: 0.85; font-size: 14px;">VeganGlow - Mỹ phẩm Thuần Chay</p>
+          </div>
+          
+          <div style="padding: 40px; text-align: center;">
+            <p style="font-size: 16px; color: #475569; margin-bottom: 32px; line-height: 1.6;">
+              Chào bạn! Vui lòng nhập mã xác nhận bên dưới để hoàn tất đăng ký tài khoản:
+            </p>
+            
+            <div style="background-color: #f0fdf4; border: 2px solid #dcfce7; border-radius: 20px; padding: 24px 32px; display: inline-block;">
+              <span style="font-size: 42px; font-weight: 900; letter-spacing: 0.3em; color: #064e3b; font-family: monospace;">${escapeHtml(code)}</span>
+            </div>
+            
+            <div style="margin-top: 40px; padding: 20px; background-color: #fffbeb; border-radius: 12px; border: 1px solid #fef3c7;">
+              <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500;">
+                Mã này có hiệu lực trong <strong>10 phút</strong>. Không chia sẻ mã này cho bất kỳ ai.
+              </p>
+            </div>
+          </div>
+          
+          <div style="padding: 24px; text-align: center; background-color: #f8fafc; border-top: 1px solid #f1f5f9;">
+            <p style="margin: 0; font-size: 12px; color: #cbd5e1; font-weight: 500;">&copy; 2026 VeganGlow. All rights reserved.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    logger.info({ action: 'send_registration_otp_success', email: maskEmail(email) }, 'Registration OTP email sent');
+    return data;
+  } catch (error) {
+    logger.error({ action: 'send_registration_otp_error', error }, 'Failed to send registration OTP email');
+    throw error;
+  }
+}
+

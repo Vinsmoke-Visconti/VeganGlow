@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Store, Bell, Shield, Layout, Globe, Palette } from 'lucide-react';
+import { Store, Bell, Shield, Layout, Globe, Palette, Sparkles } from 'lucide-react';
 import type { BrandInfo } from '@/lib/admin/queries/settings';
 import shared from '../../admin-shared.module.css';
 import styles from '../settings.module.css';
@@ -61,6 +61,15 @@ export function SettingsClient({ brand }: { brand: BrandInfo }) {
               <p className={styles.cardDesc}>Tùy chỉnh giao diện hiển thị cho Storefront và Admin Dashboard.</p>
             </div>
             <div className={styles.cardBody}>
+               <div className={styles.toggleRow} style={{ paddingBottom: '24px' }}>
+                 <div className={styles.toggleText}>
+                   <div className={styles.toggleTitle}><Sparkles size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Bộ hiệu chỉnh giao diện & Hình ảnh</div>
+                   <div className={styles.toggleDesc}>Truy cập trình soạn thảo giao diện trực quan để thay đổi bố cục, logo, hình ảnh.</div>
+                 </div>
+                 <a href="/admin/settings/appearance" className={shared.btnPrimary} style={{ textDecoration: 'none' }}>
+                   Mở trình soạn thảo
+                 </a>
+               </div>
                <div className={styles.toggleRow}>
                  <div className={styles.toggleText}>
                    <div className={styles.toggleTitle}><Palette size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Chế độ tối (Dark Mode)</div>

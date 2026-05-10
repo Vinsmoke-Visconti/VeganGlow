@@ -14,11 +14,17 @@ type AuditRpcArgs = {
   p_ip_hash: string | null;
   p_user_agent: string | null;
   p_request_id: string | null;
+  p_actor_name: string | null;
+  p_actor_role: string | null;
 };
 type DlqRow = { payload: unknown; error_msg: string };
 type MinimalSupabase = {
   rpc: (fn: string, args: AuditRpcArgs) => Promise<{ data: unknown; error: Error | null }>;
-  from: (table: string) => { insert: (row: DlqRow) => Promise<{ error: Error | null }> };
+  from: (table: string) => {
+    insert: (row: DlqRow) => Promise<{ error: Error | null }>;
+    select: (cols: string) => { eq: (col: string, val: string) => { single: () => Promise<{ data: any; error: Error | null }> } };
+  };
+  auth: { getUser: () => Promise<{ data: { user: { id: string } | null } }> };
 };
 
 /**
@@ -104,6 +110,27 @@ export async function audit(event: AuditEvent, ctx?: AuditContext): Promise<void
     const summary = 'summary' in event ? event.summary ?? null : null;
     const details = 'details' in event ? event.details ?? null : null;
 
+    // Fetch actor info from staff_profiles for richer logs
+    let actorName: string | null = null;
+    let actorRole: string | null = null;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: staff } = await supabase
+          .from('staff_profiles')
+          .select('full_name, role:role_id(display_name)')
+          .eq('id', user.id)
+          .single();
+        if (staff) {
+          actorName = (staff as any).full_name ?? null;
+          const role = (staff as any).role;
+          actorRole = role?.display_name ?? null;
+        }
+      }
+    } catch {
+      // Non-critical: if we can't get actor info, still log the action
+    }
+
     const { error } = await supabase.rpc('log_admin_action_v2', {
       p_action: event.action,
       p_severity: event.severity,
@@ -114,6 +141,8 @@ export async function audit(event: AuditEvent, ctx?: AuditContext): Promise<void
       p_ip_hash: ipHash,
       p_user_agent: ctx?.userAgent ?? null,
       p_request_id: ctx?.requestId ?? null,
+      p_actor_name: actorName,
+      p_actor_role: actorRole,
     });
     if (error) throw error;
     failureCounter = 0;
