@@ -7,7 +7,7 @@ import { headers } from 'next/headers';
 import { sendOrderConfirmation } from '@/lib/email';
 import { normalizePaymentMethod, type PaymentMethod } from '@/lib/payment';
 import { checkCheckoutIpRate } from '@/lib/security/rateLimit';
-import { createPayOSPaymentLink } from '@/lib/payos';
+import { createPayOSPaymentLink, deriveNumericOrderCode } from '@/lib/payos';
 
 import { checkoutSchema } from '@/lib/validations/checkout';
 
@@ -138,6 +138,15 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   }
 
   const { order_id, order_code, total_amount, reused } = data[0];
+
+  // Populate numeric_order_code for reliable PayOS matching
+  if (!reused) {
+    const serviceClient = createServiceClient();
+    await serviceClient
+      .from('orders')
+      .update({ numeric_order_code: deriveNumericOrderCode(order_code) } as any)
+      .eq('id', order_id);
+  }
 
   revalidatePath('/orders');
   revalidatePath('/products');

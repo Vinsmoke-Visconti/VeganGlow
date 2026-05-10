@@ -88,6 +88,29 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
     .eq('id', id);
   if (error) return { ok: false, error: error.message };
 
+  // Dispatch emails based on new status
+  try {
+    const { data: rawOrderDetails } = await supabase
+      .from('orders')
+      .select('email, order_code')
+      .eq('id', id)
+      .single();
+
+    const orderDetails = rawOrderDetails as { email?: string; order_code?: string } | null;
+
+    if (orderDetails?.email && orderDetails?.order_code) {
+      if (status === 'shipping') {
+        const { sendOrderShippedEmail } = await import('@/lib/email');
+        await sendOrderShippedEmail(orderDetails.email, orderDetails.order_code);
+      } else if (status === 'completed') {
+        const { sendOrderCompletedEmail } = await import('@/lib/email');
+        await sendOrderCompletedEmail(orderDetails.email, orderDetails.order_code);
+      }
+    }
+  } catch (emailError) {
+    console.error('Failed to send status update email:', emailError);
+  }
+
   revalidatePath('/admin/orders');
   revalidatePath(`/admin/orders/${id}`);
   revalidatePath('/admin');

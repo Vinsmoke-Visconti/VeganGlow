@@ -195,15 +195,15 @@ Deno.serve(async (req: Request) => {
     const result = rpcData[0];
 
     // Fire-and-forget: send payment success email via Next.js internal API
-    if (result.message === 'PAYMENT_CONFIRMED' && !result.reused) {
+    if (result.message === 'PAYMENT_CONFIRMED' && !result.reused && result.order_id) {
       const appUrl = Deno.env.get('APP_URL') || 'https://veganglow.vercel.app';
       const webhookSecret = Deno.env.get('WEBHOOK_INTERNAL_SECRET');
 
-      // Fetch customer email from the order
+      // Fetch customer email from the order using the verified order_id from RPC
       const { data: orderData } = await supabase
         .from('orders')
         .select('email, code, total_amount')
-        .eq('code', description.replace('THANH TOAN DH ', '').trim())
+        .eq('id', result.order_id)
         .maybeSingle();
 
       if (orderData?.email && webhookSecret) {

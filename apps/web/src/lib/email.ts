@@ -4,7 +4,12 @@ import { buildVietQrUrl, isBankTransferMethod, type PaymentMethod } from './paym
 
 // Notification Service using Nodemailer (Gmail SMTP / Google Cloud OAuth2)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
   auth: process.env.GMAIL_CLIENT_ID ? {
     type: 'OAuth2',
     user: process.env.GMAIL_USER || '',
@@ -710,3 +715,98 @@ export async function sendRegistrationOtpEmail(email: string, code: string) {
   }
 }
 
+export async function sendOrderCompletedEmail(email: string, orderId: string) {
+  try {
+    logger.info({ action: 'send_email', email: maskEmail(email), orderId }, 'Attempting to send order completed email');
+    
+    const safeOrderId = escapeHtml(orderId);
+    const siteUrl = escapeHtml(process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vn');
+
+    const data = await dispatchEmail({
+      from: DEFAULT_FROM,
+      to: [email],
+      subject: `🎉 Đơn hàng #${safeOrderId} đã hoàn thành! Cảm ơn bạn`,
+      html: `
+        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; border-radius: 24px; overflow: hidden; background-color: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.08); border: 1px solid #f1f5f9;">
+          <div style="background: linear-gradient(135deg, #064e3b 0%, #059669 100%); padding: 60px 40px; text-align: center; color: white;">
+            <div style="background: rgba(255,255,255,0.2); width: 80px; height: 80px; border-radius: 40px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+              <span style="font-size: 40px;">🎁</span>
+            </div>
+            <h1 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.03em;">Đơn hàng đã hoàn thành!</h1>
+            <p style="margin-top: 12px; opacity: 0.9; font-size: 18px; font-weight: 500;">Mã đơn: #${safeOrderId}</p>
+          </div>
+          
+          <div style="padding: 40px; background-color: white;">
+            <p style="font-size: 18px; color: #1e293b; margin-top: 0; margin-bottom: 24px; font-weight: 600;">Xin chào,</p>
+            <p style="font-size: 16px; color: #475569; line-height: 1.7; margin-bottom: 32px;">
+              Chúc mừng bạn đã nhận được sản phẩm từ VeganGlow. Chúng mình hi vọng bạn sẽ có những trải nghiệm tuyệt vời nhất với các sản phẩm thuần chay này.
+            </p>
+            
+            <div style="text-align: center; padding: 40px; background-color: #f8fafc; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 40px;">
+              <h3 style="margin-top: 0; color: #0f172a; font-size: 18px; margin-bottom: 16px;">Đánh giá trải nghiệm</h3>
+              <p style="color: #64748b; font-size: 15px; margin-bottom: 24px; line-height: 1.6;">
+                Giờ đây, bạn có thể đánh giá sản phẩm đã mua trên cửa hàng của chúng mình. Phản hồi của bạn rất quan trọng để giúp VeganGlow cải thiện dịch vụ.
+              </p>
+              <a href="${siteUrl}/account/orders/${safeOrderId}"
+                 style="display: inline-block; padding: 14px 32px; background-color: #064e3b; color: white; text-decoration: none; border-radius: 99px; font-weight: 700; font-size: 15px; transition: transform 0.2s;">
+                Đánh giá sản phẩm
+              </a>
+            </div>
+          </div>
+          
+          <div style="padding: 40px; text-align: center; background-color: #f8fafc; border-top: 1px solid #f1f5f9;">
+            <div style="margin-top: 8px;">
+               <span style="font-size: 20px;">🌱</span>
+            </div>
+            <p style="margin: 12px 0 0 0; font-size: 13px; color: #cbd5e1; font-weight: 500;">&copy; 2026 VeganGlow - Vẻ đẹp thuần chay & Bền vững</p>
+          </div>
+        </div>
+      `,
+    });
+
+    logger.info({ action: 'send_email_success', id: data?.id }, 'Email sent successfully');
+    return data;
+  } catch (error) {
+    logger.error({ action: 'send_email_error', error }, 'Failed to send completed email');
+    throw error;
+  }
+}
+
+export async function sendCustomerEditOtpEmail(email: string, code: string) {
+  try {
+    const data = await dispatchEmail({
+      to: email,
+      subject: 'VeganGlow - Xác nhận thay đổi thông tin tài khoản',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+          <div style="background-color: #16a34a; padding: 24px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">Xác thực thay đổi thông tin</h1>
+          </div>
+          
+          <div style="padding: 32px; background-color: #ffffff;">
+            <p style="color: #334155; font-size: 16px; margin-top: 0;">Xin chào,</p>
+            <p style="color: #334155; font-size: 16px;">Nhân viên chăm sóc khách hàng của VeganGlow đang thao tác cập nhật thông tin trên tài khoản của bạn. Để hoàn tất, vui lòng đọc mã xác nhận (OTP) dưới đây cho nhân viên:</p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #16a34a; background-color: #f0fdf4; padding: 16px 24px; border-radius: 8px; display: inline-block;">
+                ${escapeHtml(code)}
+              </span>
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px;">Mã này có hiệu lực trong vòng 5 phút.</p>
+            
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+            <p style="color: #94a3b8; font-size: 13px; margin: 0; text-align: center;">
+              Vui lòng <strong>KHÔNG</strong> cung cấp mã này cho người lạ nếu bạn không trực tiếp liên hệ với chúng tôi.<br>
+              © 2026 VeganGlow. All rights reserved.
+            </p>
+          </div>
+        </div>
+      `,
+    });
+    return { success: true, data };
+  } catch (error: any) {
+    logger.error({ action: 'send_email_error', error: error.message }, 'Failed to send customer edit OTP email');
+    return { success: false, error: error.message };
+  }
+}

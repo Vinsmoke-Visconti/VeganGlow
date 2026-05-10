@@ -393,7 +393,7 @@ function CheckoutContent() {
                 <label className={styles.paymentMethod}>
                   <input type="radio" name="payment" value="bank_transfer" />
                   <div className={styles.paymentMethodContent}>
-                    <span className={styles.paymentMethodName}>Chuyển khoản ngân hàng (VietQR)</span>
+                    <span className={styles.paymentMethodName}>Thanh toán VietQR / Chuyển khoản</span>
                     <span className={styles.paymentMethodDesc}>Nhận mã QR để thanh toán qua ứng dụng ngân hàng ngay sau khi đặt hàng</span>
                   </div>
                 </label>
@@ -537,6 +537,14 @@ function CheckoutContent() {
             <div className={styles.totalRow}>
               <span className={styles.totalLabel}>Tổng thanh toán</span>
               <span className={styles.totalPrice}>{totalAmount.toLocaleString('vi-VN')}đ</span>
+            </div>
+
+            <div className={styles.demoNotice}>
+              <AlertCircle size={18} />
+              <div>
+                <strong>Lưu ý quan trọng (Demo):</strong>
+                <p>Mọi sản phẩm, đơn hàng và giao dịch trên trang web này đều mang tính chất minh họa (Mockup). Chúng tôi không thực hiện giao hàng thật hoặc thu tiền thật từ người dùng.</p>
+              </div>
             </div>
 
             <button

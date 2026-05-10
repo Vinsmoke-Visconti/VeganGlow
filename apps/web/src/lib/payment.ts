@@ -29,8 +29,8 @@ export function buildVietQrUrl(amount: number, orderCode: string): string {
 
 export const PAYMENT_METHOD_LABEL: Record<string, string> = {
   cod: 'Thanh toán khi nhận hàng',
-  bank_transfer: 'Chuyển khoản ngân hàng',
-  card: 'Chuyển khoản ngân hàng',
+  bank_transfer: 'Thanh toán VietQR / Chuyển khoản',
+  card: 'Thanh toán VietQR / Chuyển khoản',
 };
 
 export const PAYMENT_STATUS_LABEL: Record<string, string> = {

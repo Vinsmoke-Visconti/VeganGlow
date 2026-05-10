@@ -43,7 +43,6 @@ export async function listCustomers(filters: CustomerListFilters = {}): Promise<
   let query = supabase
     .from('profiles')
     .select('id, customer_code, username, full_name, avatar_url, created_at')
-    .eq('role', 'customer')
     .order('created_at', { ascending: false })
     .limit(500);
 
@@ -157,17 +156,15 @@ export async function getCustomerOverviewKpi(): Promise<CustomerOverviewKpi> {
   monthStart.setHours(0, 0, 0, 0);
 
   const [totalRes, newRes, abandonedRes, topRes] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'customer'),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
-      .eq('role', 'customer')
       .gte('created_at', monthStart.toISOString()),
     supabase.from('live_carts').select('*', { count: 'exact', head: true }).eq('abandoned', true),
     supabase
       .from('profiles')
       .select('full_name, username, lifetime_spend')
-      .eq('role', 'customer')
       .order('lifetime_spend', { ascending: false })
       .limit(1)
       .maybeSingle(),

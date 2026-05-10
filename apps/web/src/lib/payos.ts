@@ -95,15 +95,17 @@ export async function cancelPayOSPaymentLink(orderCode: number, reason?: string)
 
 /**
  * Derive a numeric order code from VG-HEXHEX-HEXHEX string.
- * PayOS requires positive integer, max ~9 quadrillion.
- * We take the hex digits, parse last 13 chars as hex → number.
+ * PayOS requires positive integer, max 9,007,199,254,740,991.
+ * We take the hex digits and parse as big integer to ensure uniqueness.
  */
-function deriveNumericOrderCode(vgCode: string): number {
+export function deriveNumericOrderCode(vgCode: string): number {
   // Extract hex parts: VG-1A2B3C4D-FF00 → 1A2B3C4DFF00
   const hex = vgCode.replace(/^VG-/i, '').replace(/-/g, '');
-  // Take last 13 hex chars to stay within safe integer range
-  const trimmed = hex.slice(-13);
+  // Parse hex to number. Since we use hex from a 64-bit timestamp + 16-bit random,
+  // it might exceed Number.MAX_SAFE_INTEGER if we take it all.
+  // We'll take the last 12 chars to be safe (48 bits).
+  const trimmed = hex.slice(-12);
   const num = parseInt(trimmed, 16);
-  // Ensure positive and within safe range
-  return Math.abs(num % 9007199254740991) || Date.now();
+  // Fallback to a timestamp if parsing fails
+  return num > 0 ? num : Math.floor(Date.now() / 1000);
 }

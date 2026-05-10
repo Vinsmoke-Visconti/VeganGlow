@@ -85,19 +85,50 @@ export function PendingPaymentClient({ orderId, code, amount, paymentDueAt }: Pr
 
   return (
     <div className={styles.qrAction}>
-      <p className={styles.qrLabel}>Quét mã bằng ứng dụng Ngân hàng</p>
+      <h3 className={styles.qrLabel}>Thanh toán bằng VietQR</h3>
+      <p className={styles.qrSubLabel}>Quét mã bằng ứng dụng Ngân hàng của bạn</p>
+      
       <div className={styles.qrWrapper}>
-        <Image src={vietQrUrl} alt="VietQR" width={220} height={220} unoptimized />
+        <div className={styles.qrContainer}>
+          <Image src={vietQrUrl} alt="VietQR" width={240} height={240} unoptimized className={styles.qrImage} />
+          <div className={styles.qrCornerTl}></div>
+          <div className={styles.qrCornerTr}></div>
+          <div className={styles.qrCornerBl}></div>
+          <div className={styles.qrCornerBr}></div>
+        </div>
       </div>
+
       <div className={styles.bankInfoLite}>
-        <p>{VEGANGLOW_BANK.id} Bank • {VEGANGLOW_BANK.account}</p>
-        <p>{VEGANGLOW_BANK.name}</p>
-        <p>Nội dung: {bankTransferContent(code)}</p>
+        <div className={styles.bankDetailRow}>
+          <span>Ngân hàng</span>
+          <strong>{VEGANGLOW_BANK.id}</strong>
+        </div>
+        <div className={styles.bankDetailRow}>
+          <span>Số tài khoản</span>
+          <strong>{VEGANGLOW_BANK.account}</strong>
+        </div>
+        <div className={styles.bankDetailRow}>
+          <span>Chủ tài khoản</span>
+          <strong>{VEGANGLOW_BANK.name}</strong>
+        </div>
+        <div className={styles.bankDetailRow}>
+          <span>Nội dung</span>
+          <strong className={styles.highlightContent}>{bankTransferContent(code)}</strong>
+        </div>
+        
         {paymentDueAt && (
-          <p style={{ marginTop: '0.5rem', fontWeight: 700, color: expired ? '#b91c1c' : 'var(--color-primary-dark)' }}>
-            {expired ? 'Đã hết hạn — đang xử lý...' : `Còn lại: ${formatRemaining(remaining ?? 0)}`}
-          </p>
+          <div className={styles.timerRow}>
+            <span>Hết hạn sau</span>
+            <strong style={{ color: expired ? '#ef4444' : 'var(--color-primary)' }}>
+              {expired ? 'Hết hạn' : formatRemaining(remaining ?? 0)}
+            </strong>
+          </div>
         )}
+      </div>
+
+      <div className={styles.demoNotice} style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
+        <AlertCircle size={18} style={{ flexShrink: 0 }} />
+        <p>Đây là hệ thống demo. <strong>Vui lòng không chuyển khoản thật.</strong> Chúng tôi không chịu trách nhiệm cho các giao dịch thực tế.</p>
       </div>
 
       {verifyMessage && (
@@ -113,7 +144,7 @@ export function PendingPaymentClient({ orderId, code, amount, paymentDueAt }: Pr
             <Loader2 size={18} className="animate-spin" /> Đang kiểm tra...
           </>
         ) : (
-          'Tôi đã chuyển khoản, kiểm tra lại'
+          'Tôi đã chuyển khoản thành công'
         )}
       </button>
     </div>

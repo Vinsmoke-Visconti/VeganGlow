@@ -51,7 +51,7 @@ export async function getDashboardStats(range: DashboardRange): Promise<Dashboar
   const [ordersRes, lowStockRes, customersRes] = await Promise.all([
     supabase.from('orders').select('total_amount, status, payment_method, payment_status').gte('created_at', since),
     supabase.from('products').select('*', { count: 'exact', head: true }).lt('stock', 5),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'customer'),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }),
   ]);
 
   type OrderAgg = {

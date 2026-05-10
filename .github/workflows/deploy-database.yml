@@ -7,7 +7,7 @@ name: Deploy Database
 
 on:
   push:
-    branches: [main, develop, feature/**, hotfix/**]
+    branches: [main]
     paths:
       - 'apps/backend/supabase/migrations/**'
       - '.github/workflows/deploy-database.yml'
