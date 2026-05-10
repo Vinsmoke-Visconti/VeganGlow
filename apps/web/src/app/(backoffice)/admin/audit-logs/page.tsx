@@ -20,7 +20,7 @@ export default async function AdminAuditLogs({
   const { data: { session } } = await supabase.auth.getSession();
   const claims = decodeAccessToken(session?.access_token ?? null);
   const canSeeAll = isSuperAdmin(claims) || hasPermission(claims, 'audit:read');
-  const isSuper = isSuperAdmin(claims);
+  const isSuper = isSuperAdmin(claims) || claims?.app_metadata?.staff_role === 'super_admin';
   const role = claims?.app_metadata?.staff_role;
   if (!role || role === 'customer') {
     notFound();

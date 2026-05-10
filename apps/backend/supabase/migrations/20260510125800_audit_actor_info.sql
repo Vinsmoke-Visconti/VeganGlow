@@ -43,10 +43,13 @@ END $$;
 REVOKE ALL ON FUNCTION public.log_admin_action_v2(text, text, text, text, text, jsonb, text, text, text, text, text) FROM public;
 GRANT EXECUTE ON FUNCTION public.log_admin_action_v2(text, text, text, text, text, jsonb, text, text, text, text, text) TO authenticated, anon;
 
--- Backfill: try to populate actor_name from staff_profiles for existing rows
+-- Backfill: populate actor_name and actor_role from staff_profiles and roles for existing rows
 UPDATE public.audit_logs al
-SET actor_name = sp.full_name
+SET 
+  actor_name = sp.full_name,
+  actor_role = r.display_name
 FROM public.staff_profiles sp
+JOIN public.roles r ON r.id = sp.role_id
 WHERE al.actor_id = sp.id AND al.actor_name IS NULL;
 
 NOTIFY pgrst, 'reload schema';
