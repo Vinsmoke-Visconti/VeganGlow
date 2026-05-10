@@ -162,8 +162,8 @@ export default function OrderDetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           style={{
-            background: 'white',
-            border: '1px solid #e5e7eb',
+            background: 'var(--vg-bg-card)',
+            border: '1px solid var(--vg-border)',
             borderRadius: 16,
             padding: '2rem 1.5rem',
             marginBottom: '2rem',
@@ -176,7 +176,7 @@ export default function OrderDetailPage() {
               left: 30,
               right: 30,
               height: 3,
-              background: '#e5e7eb',
+              background: 'var(--vg-border)',
               zIndex: 0,
             }} />
             <motion.div
@@ -207,8 +207,8 @@ export default function OrderDetailPage() {
                       height: 44,
                       margin: '0 auto 8px',
                       borderRadius: '50%',
-                      background: reached ? 'linear-gradient(135deg, #10b981, #059669)' : '#f3f4f6',
-                      color: reached ? 'white' : '#9ca3af',
+                      background: reached ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--vg-bg-main)',
+                      color: reached ? 'white' : 'var(--vg-ink-400)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -221,7 +221,7 @@ export default function OrderDetailPage() {
                   <div style={{
                     fontSize: '0.78rem',
                     fontWeight: 600,
-                    color: reached ? '#1a4d2e' : '#9ca3af',
+                    color: reached ? 'var(--vg-ink-900)' : 'var(--vg-ink-400)',
                   }}>
                     {step.label}
                   </div>
@@ -238,9 +238,9 @@ export default function OrderDetailPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 16, padding: '1.5rem' }}
+          style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.5rem' }}
         >
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#1a4d2e', marginBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--vg-ink-900)', marginBottom: '1rem' }}>
             Sản phẩm đã đặt
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -253,7 +253,7 @@ export default function OrderDetailPage() {
                   gap: '1rem',
                   alignItems: 'center',
                   padding: '0.75rem',
-                  background: '#f9fafb',
+                  background: 'var(--vg-bg-main)',
                   borderRadius: 12,
                 }}
               >
@@ -266,27 +266,27 @@ export default function OrderDetailPage() {
                   unoptimized
                 />
                 <div>
-                  <div style={{ fontWeight: 600, color: '#1f2937', marginBottom: 4 }}>{item.product_name}</div>
-                  <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--vg-ink-800)', marginBottom: 4 }}>{item.product_name}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--vg-ink-500)' }}>
                     {Number(item.unit_price).toLocaleString('vi-VN')}đ × {item.quantity}
                   </div>
                 </div>
-                <div style={{ fontWeight: 700, color: '#1a4d2e' }}>
+                <div style={{ fontWeight: 700, color: 'var(--vg-ink-900)' }}>
                   {(Number(item.unit_price) * item.quantity).toLocaleString('vi-VN')}đ
                 </div>
               </div>
             ))}
           </div>
 
-          <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '1rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: '#6b7280' }}>Tạm tính</span>
+          <div style={{ borderTop: '1px solid var(--vg-border)', marginTop: '1rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ color: 'var(--vg-ink-500)' }}>Tạm tính</span>
             <span>{Number(order.total_amount).toLocaleString('vi-VN')}đ</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-            <span style={{ color: '#6b7280' }}>Phí vận chuyển</span>
+            <span style={{ color: 'var(--vg-ink-500)' }}>Phí vận chuyển</span>
             <span style={{ color: '#10b981' }}>Miễn phí</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: '1.15rem', fontWeight: 800, color: '#1a4d2e' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: '1.15rem', fontWeight: 800, color: 'var(--vg-ink-900)' }}>
             <span>Tổng cộng</span>
             <span>{Number(order.total_amount).toLocaleString('vi-VN')}đ</span>
           </div>
@@ -299,27 +299,27 @@ export default function OrderDetailPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
         >
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 16, padding: '1.25rem' }}>
-            <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#6b7280', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
+          <div style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.25rem' }}>
+            <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--vg-ink-500)', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
               Thông tin nhận hàng
             </h3>
             <div style={{ fontWeight: 700, marginBottom: 8 }}>{order.customer_name}</div>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.88rem', color: '#4b5563', marginBottom: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.88rem', color: 'var(--vg-ink-600)', marginBottom: 4 }}>
               <Phone size={14} style={{ marginTop: 3 }} /> <span>{order.phone}</span>
             </div>
             {order.email && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.88rem', color: '#4b5563', marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.88rem', color: 'var(--vg-ink-600)', marginBottom: 4 }}>
                 <Mail size={14} style={{ marginTop: 3 }} /> <span>{order.email}</span>
               </div>
             )}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.88rem', color: '#4b5563' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: '0.88rem', color: 'var(--vg-ink-600)' }}>
               <MapPin size={14} style={{ marginTop: 3 }} />
               <span>{[order.address, order.ward, order.province || order.city].filter(Boolean).join(', ')}</span>
             </div>
           </div>
 
-          <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 16, padding: '1.25rem' }}>
-            <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#6b7280', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
+          <div style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.25rem' }}>
+            <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--vg-ink-500)', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
               Thanh toán
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -334,7 +334,7 @@ export default function OrderDetailPage() {
               </div>
             )}
             {order.paid_at && (
-              <div style={{ marginTop: 4, fontSize: '0.8rem', color: '#6b7280' }}>
+              <div style={{ marginTop: 4, fontSize: '0.8rem', color: 'var(--vg-ink-500)' }}>
                 Đã ghi nhận lúc {new Date(order.paid_at).toLocaleString('vi-VN')}
               </div>
             )}
@@ -364,11 +364,11 @@ export default function OrderDetailPage() {
           </div>
 
           {order.note && (
-            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 16, padding: '1.25rem' }}>
-              <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#92400e', fontWeight: 700, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+            <div style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.25rem' }}>
+              <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--vg-ink-900)', fontWeight: 700, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
                 Ghi chú
               </h3>
-              <p style={{ fontSize: '0.88rem', color: '#78350f', lineHeight: 1.6 }}>{order.note}</p>
+              <p style={{ fontSize: '0.88rem', color: 'var(--vg-ink-700)', lineHeight: 1.6 }}>{order.note}</p>
             </div>
           )}
         </motion.aside>

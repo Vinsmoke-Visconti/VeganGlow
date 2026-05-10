@@ -273,9 +273,9 @@ function OrdersContent() {
                         <span
                           className={styles.statusTag}
                           style={{
-                            background: order.payment_status === 'paid' ? '#dcfce7' : '#f3f4f6',
-                            color: order.payment_status === 'paid' ? '#166534' : '#4b5563',
-                            border: `1px solid ${order.payment_status === 'paid' ? '#bbf7d0' : '#e5e7eb'}`
+                            background: order.payment_status === 'paid' ? 'rgba(22, 163, 74, 0.1)' : 'var(--color-bg-secondary)',
+                            color: order.payment_status === 'paid' ? 'var(--color-success, #16a34a)' : 'var(--color-text-muted)',
+                            border: `1px solid ${order.payment_status === 'paid' ? 'rgba(22, 163, 74, 0.2)' : 'var(--color-border-light)'}`
                           }}
                         >
                           {getPaymentStatusText(order.payment_status)}
