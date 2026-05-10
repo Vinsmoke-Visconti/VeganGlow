@@ -47,18 +47,18 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 16px;
-  height: calc(100vh - 140px); /* Fill the available height minus header/footer */
+  gap: 12px;
+  height: calc(100vh - 150px);
 }
 
 .card {
   background: var(--vg-surface-0);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  padding: 24px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   transition: all var(--vg-duration-fast);
   height: 100%;
 }
@@ -71,12 +71,12 @@
 .cardHead {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background: var(--vg-leaf-100);
   color: var(--vg-leaf-700);
   border-radius: 50%;
@@ -84,7 +84,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .cardHeadText {
@@ -96,14 +96,14 @@
 .cardName {
   margin: 0;
   color: var(--vg-ink-900);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
 }
 
 .infoGrid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
   justify-content: center;
 }
@@ -111,12 +111,12 @@
 .infoRow {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   background: none;
   border: none;
   color: var(--vg-ink-600);
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: var(--vg-radius-md);
   cursor: pointer;
   transition: all var(--vg-duration-fast);
@@ -155,7 +155,7 @@
 .serviceTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   margin-top: auto;
 }
 
@@ -163,7 +163,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: var(--vg-surface-50);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-md);
