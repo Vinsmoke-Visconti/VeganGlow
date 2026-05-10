@@ -7,7 +7,7 @@ name: Deploy Database
 
 on:
   push:
-    branches: [main, develop, feature/storefront-redesign-ui]
+    branches: [main, develop, feature/**, hotfix/**]
     paths:
       - 'apps/backend/supabase/migrations/**'
       - '.github/workflows/deploy-database.yml'
@@ -31,7 +31,7 @@ jobs:
           version: latest
 
       - name: Push Migrations
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/storefront-redesign-ui'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/hotfix/')
         working-directory: apps/backend
         run: |
           supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}

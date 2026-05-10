@@ -7,7 +7,7 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, feature/**, hotfix/**]
     paths:
       - 'apps/web/**'
       - 'packages/**'
