@@ -147,23 +147,15 @@ export function ProductForm({
                       setForm((f) => ({
                         ...f,
                         name: e.target.value,
-                        slug: f.slug || slugify(e.target.value),
+                        slug: slugify(e.target.value), // Auto-update slug directly
                       }))
                     }
                     placeholder="VD: Serum Vitamin C"
                     required
                   />
                 </div>
-                <div className={shared.formField}>
-                  <label className={shared.formLabel}>Slug</label>
-                  <input
-                    className={shared.formInput}
-                    value={form.slug}
-                    onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                    placeholder="serum-vitamin-c"
-                    required
-                  />
-                </div>
+                {/* Ẩn Slug đi, hệ thống tự động sinh ra */}
+                <input type="hidden" value={form.slug} name="slug" />
              </div>
 
              <div className={shared.formRow}>
