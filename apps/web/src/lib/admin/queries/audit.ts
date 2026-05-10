@@ -20,6 +20,7 @@ export type AuditFilters = {
   to?: string;
   limit?: number;
   offset?: number;
+  search?: string;
 };
 
 export async function listAuditEntries(filters: AuditFilters = {}): Promise<AuditEntry[]> {
@@ -35,6 +36,9 @@ export async function listAuditEntries(filters: AuditFilters = {}): Promise<Audi
   if (filters.actor_id) q = q.eq('actor_id', filters.actor_id);
   if (filters.from) q = q.gte('created_at', filters.from);
   if (filters.to) q = q.lte('created_at', filters.to);
+  if (filters.search) {
+    q = q.or(`action.ilike.%${filters.search}%,summary.ilike.%${filters.search}%`);
+  }
   const { data, error } = await q;
   if (error) {
     console.error('[listAuditEntries] RLS/query error:', error.message);

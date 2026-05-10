@@ -10,7 +10,11 @@ export const metadata = {
   title: 'Nhật ký hệ thống - Admin',
 };
 
-export default async function AdminAuditLogs() {
+export default async function AdminAuditLogs({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   // Permission gate: super_admin or audit:read sees all; other staff sees only their own.
   // Customers and unauthenticated users get 404 (defense-in-depth).
   const supabase = await createClient();
@@ -22,8 +26,11 @@ export default async function AdminAuditLogs() {
     notFound();
   }
 
+  const resolvedSearchParams = await searchParams;
+  const q = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : undefined;
+
   const auditEntries = canSeeAll
-    ? await listAuditEntries({ limit: 100 })
+    ? await listAuditEntries({ limit: 100, search: q })
     : await listMyAuditEntries(100);
 
   return (
@@ -31,13 +38,26 @@ export default async function AdminAuditLogs() {
 
 
       <div className={shared.card}>
-        <div className={shared.cardHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className={shared.cardHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <h2 className={shared.cardTitle}>Tất cả nhật ký</h2>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <form method="GET" action="/admin/audit-logs" style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                type="search" 
+                name="q" 
+                placeholder="Tìm hành động, mô tả..." 
+                defaultValue={q}
+                className={shared.input} 
+                style={{ height: '32px', fontSize: '13px', width: '200px' }}
+              />
+              <button type="submit" className={shared.btnSecondary} style={{ height: '32px', fontSize: '13px' }}>
+                Tìm
+              </button>
+            </form>
             <a 
               href="/admin/audit-logs" 
               className={shared.btnSecondary}
-              style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              style={{ fontSize: 13, height: '32px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
               Tải lại

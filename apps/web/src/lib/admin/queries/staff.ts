@@ -23,11 +23,15 @@ export type InvitationRow = {
 
 export type RoleRow = { id: string; name: string; display_name: string };
 
-export async function listStaff(): Promise<StaffRow[]> {
+export async function listStaff(search?: string): Promise<StaffRow[]> {
   const supabase = await createClient();
-  const { data } = await (supabase.from('staff_profiles') as any)
+  let q = (supabase.from('staff_profiles') as any)
     .select('id, full_name, email, department, position, is_active, created_at, role:roles(id, name, display_name, weight)')
     .order('created_at', { ascending: false });
+  if (search) {
+    q = q.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+  const { data } = await q;
   return (data ?? []) as unknown as StaffRow[];
 }
 

@@ -142,17 +142,6 @@ export function TeamMembersClient() {
 
   return (
     <>
-      <div className={styles.banner}>
-        <div className={styles.bannerContent}>
-          <div className={styles.bannerBadge}>
-            <Sparkles size={12} /> BẢN QUYỀN DEMO SỞ HỮU TRÍ TUỆ
-          </div>
-          <h2 className={styles.bannerTitle}>Hệ thống VeganGlow</h2>
-          <p className={styles.bannerText}>
-            Sản phẩm demo MIS — TDTU. Mọi sao chép mã nguồn, giao diện khi chưa có sự đồng ý của tác giả đều vi phạm bản quyền.
-          </p>
-        </div>
-      </div>
 
       <div className={styles.grid}>
         {AUTHORS.map((m) => (
