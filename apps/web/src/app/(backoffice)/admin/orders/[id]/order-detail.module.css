@@ -8,11 +8,9 @@
 .card {
   margin-bottom: var(--vg-space-4);
   padding: var(--vg-space-5);
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-xl);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(251, 250, 246, 0.76)),
-    var(--vg-glass-bg);
+  background: var(--vg-bg-card);
   box-shadow: var(--vg-shadow-1);
   backdrop-filter: blur(var(--vg-glass-blur));
 }
@@ -38,7 +36,7 @@
 }
 
 .totalRow td {
-  background: linear-gradient(90deg, rgba(238, 247, 239, 0.78), rgba(251, 250, 246, 0.86));
+  background: var(--vg-bg-main);
   color: var(--vg-ink-900) !important;
   font-weight: 850;
 }
