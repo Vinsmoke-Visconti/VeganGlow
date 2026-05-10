@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 export type AuditEntry = {
   id: string;
   actor_id: string | null;
+  actor_name: string | null;
+  actor_role: string | null;
   resource_type: string;
   resource_id: string | null;
   action: string;
@@ -10,6 +12,7 @@ export type AuditEntry = {
   entity_id: string | null;
   summary: string | null;
   ip_address: string | null;
+  user_agent: string | null;
   created_at: string;
 };
 
@@ -29,7 +32,7 @@ export async function listAuditEntries(filters: AuditFilters = {}): Promise<Audi
   const offset = filters.offset ?? 0;
   let q = (supabase
     .from('audit_logs') as any)
-    .select('id, actor_id, resource_type, resource_id, action, entity, entity_id, summary, ip_address, ip_hash, severity, user_agent, created_at')
+    .select('id, actor_id, actor_name, actor_role, resource_type, resource_id, action, entity, entity_id, summary, ip_address, ip_hash, severity, user_agent, created_at')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
   if (filters.module) q = q.eq('resource_type', filters.module);
@@ -37,7 +40,7 @@ export async function listAuditEntries(filters: AuditFilters = {}): Promise<Audi
   if (filters.from) q = q.gte('created_at', filters.from);
   if (filters.to) q = q.lte('created_at', filters.to);
   if (filters.search) {
-    q = q.or(`action.ilike.%${filters.search}%,summary.ilike.%${filters.search}%`);
+    q = q.or(`action.ilike.%${filters.search}%,summary.ilike.%${filters.search}%,actor_name.ilike.%${filters.search}%`);
   }
   const { data, error } = await q;
   if (error) {

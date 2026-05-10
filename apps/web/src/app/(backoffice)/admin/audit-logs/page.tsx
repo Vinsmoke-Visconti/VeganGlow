@@ -1,11 +1,10 @@
 import { formatDate } from '@/lib/admin/format';
 import { listAuditEntries, listMyAuditEntries } from '@/lib/admin/queries/audit';
-import { ScrollText, Download, RotateCcw } from 'lucide-react';
+import { ScrollText, Download } from 'lucide-react';
 import shared from '../admin-shared.module.css';
 import { createClient } from '@/lib/supabase/server';
 import { decodeAccessToken, isSuperAdmin, hasPermission } from '@/lib/security/jwtClaims';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { AuditFilters } from './_components/AuditFilters';
 
 export const metadata = {
@@ -17,12 +16,11 @@ export default async function AdminAuditLogs({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // Permission gate: super_admin or audit:read sees all; other staff sees only their own.
-  // Customers and unauthenticated users get 404 (defense-in-depth).
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   const claims = decodeAccessToken(session?.access_token ?? null);
   const canSeeAll = isSuperAdmin(claims) || hasPermission(claims, 'audit:read');
+  const isSuper = isSuperAdmin(claims);
   const role = claims?.app_metadata?.staff_role;
   if (!role || role === 'customer') {
     notFound();
@@ -42,13 +40,6 @@ export default async function AdminAuditLogs({
           <AuditFilters defaultValue={q} />
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <Link
-            href="/admin/audit-logs"
-            className={`${shared.btn} ${shared.btnGhost}`}
-            style={{ minHeight: 42, display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
-          >
-            <RotateCcw size={14} /> Tải lại
-          </Link>
           <a
             href="/api/admin/export/logs?days=30"
             className={`${shared.btn} ${shared.btnPrimary}`}
@@ -72,16 +63,30 @@ export default async function AdminAuditLogs({
             <thead>
               <tr>
                 <th>Lúc</th>
+                <th>Người thực hiện</th>
                 <th>Hành động</th>
                 <th>Đối tượng</th>
                 <th>Mô tả</th>
-                <th>IP</th>
+                {isSuper && <th>IP</th>}
+                {isSuper && <th>User-Agent</th>}
               </tr>
             </thead>
             <tbody>
               {auditEntries.map((a) => (
                 <tr key={a.id}>
-                  <td>{formatDate(a.created_at)}</td>
+                  <td>
+                    <span style={{ whiteSpace: 'nowrap' }}>{formatDate(a.created_at)}</span>
+                  </td>
+                  <td>
+                    <div>
+                      <strong style={{ display: 'block' }}>{a.actor_name ?? '—'}</strong>
+                      {a.actor_role && (
+                        <span className={`${shared.badge} ${shared.badgeMuted}`} style={{ fontSize: 10, marginTop: 2 }}>
+                          {a.actor_role}
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td>
                     <span className={`${shared.badge} ${shared.badgeInfo}`}>
                       {a.action}
@@ -94,11 +99,20 @@ export default async function AdminAuditLogs({
                     </div>
                   </td>
                   <td>{a.summary ?? '—'}</td>
-                  <td>
-                    <code style={{ fontSize: 11, color: 'var(--vg-ink-500)' }}>
-                      {a.ip_address ?? '—'}
-                    </code>
-                  </td>
+                  {isSuper && (
+                    <td>
+                      <code style={{ fontSize: 11, color: 'var(--vg-ink-500)' }}>
+                        {a.ip_address ?? '—'}
+                      </code>
+                    </td>
+                  )}
+                  {isSuper && (
+                    <td>
+                      <span style={{ fontSize: 10, color: 'var(--vg-ink-400)', maxWidth: 150, display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {a.user_agent ?? '—'}
+                      </span>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
