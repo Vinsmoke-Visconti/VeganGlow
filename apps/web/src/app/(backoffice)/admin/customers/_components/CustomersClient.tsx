@@ -36,8 +36,12 @@ export function CustomersClient({ customers, q }: Props) {
   return (
     <>
       <div className={shared.toolbar}>
-        <CustomersFilter defaultQ={q} />
-        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+        <div style={{ display: 'flex', gap: 12, flex: 1 }}>
+          <CustomersFilter defaultQ={q} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+        </div>
       </div>
 
       {customers.length === 0 ? (

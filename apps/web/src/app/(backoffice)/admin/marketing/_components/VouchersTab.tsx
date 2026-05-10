@@ -49,7 +49,9 @@ function toLocalDateTime(iso: string | null): string {
   return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
-export function VouchersTab({ vouchers }: { vouchers: Voucher[] }) {
+import { VoucherFilters } from './VoucherFilters';
+
+export function VouchersTab({ vouchers, filters }: { vouchers: Voucher[]; filters?: { q?: string; status?: string } }) {
   const [editing, setEditing] = useState<Voucher | null>(null);
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
@@ -142,10 +144,15 @@ export function VouchersTab({ vouchers }: { vouchers: Voucher[] }) {
   return (
     <>
       <div className={shared.toolbar}>
-        <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
-        <button type="button" onClick={openCreate} className={`${shared.btn} ${shared.btnPrimary}`}>
-          <Plus size={14} /> Tạo voucher
-        </button>
+        <div style={{ display: 'flex', gap: 12, flex: 1 }}>
+          <VoucherFilters defaults={filters ?? {}} />
+        </div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <AdminViewSwitcher mode={viewMode} onChange={setViewMode} />
+          <button type="button" onClick={openCreate} className={`${shared.btn} ${shared.btnPrimary}`} style={{ minHeight: 42 }}>
+            <Plus size={14} /> Tạo voucher
+          </button>
+        </div>
       </div>
 
       {vouchers.length === 0 ? (
