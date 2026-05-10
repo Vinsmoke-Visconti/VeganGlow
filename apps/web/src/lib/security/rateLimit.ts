@@ -86,3 +86,9 @@ export async function checkAdminLoginIpRate(ip: string) {
 export async function checkRecoverIpRate(ip: string) {
   return checkRateLimit(`recover_backup:ip:${ip}`, { window: 900, captchaAt: 0, hardLimit: 3 });
 }
+
+export async function checkCheckoutIpRate(ip: string) {
+  // Allow 5 checkout attempts per 10 minutes; hard block at 10.
+  // More lenient than login since checkout already requires authentication.
+  return checkRateLimit(`checkout:ip:${ip}`, { window: 600, captchaAt: 5, hardLimit: 10 });
+}

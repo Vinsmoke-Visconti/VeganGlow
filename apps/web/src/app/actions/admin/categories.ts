@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { audit, getAuditContext } from '@/lib/security/auditLog';
+import { requirePermission } from '@/lib/admin/requirePermission';
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -13,6 +14,9 @@ export type CategoryInput = {
 };
 
 export async function upsertCategory(input: CategoryInput): Promise<Result> {
+  const guard = await requirePermission('categories', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
@@ -42,6 +46,9 @@ export async function upsertCategory(input: CategoryInput): Promise<Result> {
 }
 
 export async function deleteCategory(id: string): Promise<Result> {
+  const guard = await requirePermission('categories', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const { count } = await supabase
     .from('products')

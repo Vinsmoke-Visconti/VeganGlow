@@ -199,11 +199,17 @@ export async function updateSession(request: NextRequest) {
 
   // ============================ STOREFRONT AREA ============================
   
-  // Staff trying to enter storefront → Redirect to Admin dashboard instead of signing out
-  // This prevents login loops when OAuth redirects back to the root "/" instead of "/admin"
+  // Staff trying to access PROTECTED storefront routes → redirect to Admin
+  // But allow staff to browse public pages (products, blog, etc.) for testing
   if (user && staff) {
-    url.pathname = '/admin';
-    return redirectWithCookies(url);
+    const isProtectedStorefront = STOREFRONT_PROTECTED_ROUTES.some(
+      (r) => pathname === r || pathname.startsWith(`${r}/`)
+    );
+    if (isProtectedStorefront) {
+      url.pathname = '/admin';
+      return redirectWithCookies(url);
+    }
+    // Allow staff to browse public storefront pages (products, blog, homepage)
   }
 
   // Auth Pages (Login / Register)

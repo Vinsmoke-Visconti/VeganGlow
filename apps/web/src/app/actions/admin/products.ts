@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { audit } from '@/lib/security/auditLog';
+import { requirePermission } from '@/lib/admin/requirePermission';
 
 async function auditCtx() {
   const h = await headers();
@@ -70,6 +71,9 @@ async function syncProductTags(productId: string, tagIds: string[]): Promise<str
 }
 
 export async function upsertProduct(input: ProductInput): Promise<Result> {
+  const guard = await requirePermission('products', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const { tag_ids = [], ...productFields } = input;
 
@@ -128,6 +132,9 @@ export async function upsertProduct(input: ProductInput): Promise<Result> {
 }
 
 export async function deleteProduct(id: string): Promise<Result> {
+  const guard = await requirePermission('products', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const before = await getProductCacheRow(id);
   const { error } = await supabase.from('products').delete().eq('id', id);
@@ -149,6 +156,9 @@ export async function deleteProduct(id: string): Promise<Result> {
 }
 
 export async function toggleProductActive(id: string, isActive: boolean): Promise<Result> {
+  const guard = await requirePermission('products', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const before = await getProductCacheRow(id);
   const { error } = await supabase

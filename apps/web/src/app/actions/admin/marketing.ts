@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { audit } from '@/lib/security/auditLog';
+import { requirePermission } from '@/lib/admin/requirePermission';
 
 type Result = { ok: true; id?: string } | { ok: false; error: string };
 
@@ -29,6 +30,9 @@ export type VoucherInput = {
 };
 
 export async function upsertVoucher(input: VoucherInput): Promise<Result> {
+  const guard = await requirePermission('marketing', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
@@ -49,6 +53,9 @@ export async function upsertVoucher(input: VoucherInput): Promise<Result> {
 }
 
 export async function deleteVoucher(id: string): Promise<Result> {
+  const guard = await requirePermission('marketing', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const { error } = await (supabase.from('vouchers') as any).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
@@ -72,6 +79,9 @@ export type BannerInput = {
 };
 
 export async function upsertBanner(input: BannerInput): Promise<Result> {
+  const guard = await requirePermission('marketing', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
@@ -92,6 +102,9 @@ export async function upsertBanner(input: BannerInput): Promise<Result> {
 }
 
 export async function deleteBanner(id: string): Promise<Result> {
+  const guard = await requirePermission('marketing', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const { error } = await (supabase.from('banners') as any).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
@@ -110,6 +123,9 @@ export type FlashSaleInput = {
 };
 
 export async function upsertFlashSale(input: FlashSaleInput): Promise<Result> {
+  const guard = await requirePermission('marketing', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   if (input.id) {
     const { id, ...rest } = input;
@@ -127,6 +143,9 @@ export async function upsertFlashSale(input: FlashSaleInput): Promise<Result> {
 }
 
 export async function deleteFlashSale(id: string): Promise<Result> {
+  const guard = await requirePermission('marketing', 'write');
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
   const { error } = await (supabase.from('flash_sales') as any).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };

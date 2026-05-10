@@ -3,8 +3,10 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { after } from 'next/server';
+import { headers } from 'next/headers';
 import { sendOrderConfirmation } from '@/lib/email';
 import { normalizePaymentMethod, type PaymentMethod } from '@/lib/payment';
+import { checkCheckoutIpRate } from '@/lib/security/rateLimit';
 
 type CheckoutItem = { id: string; quantity: number };
 
@@ -44,6 +46,16 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const IDEMPOTENCY_KEY_REGEX = /^[A-Za-z0-9._:-]{16,128}$/;
 
 export async function createOrder(input: CheckoutInput): Promise<CheckoutResult> {
+  // Rate limit checkout by IP
+  const headersList = await headers();
+  const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (ip) {
+    const rateResult = await checkCheckoutIpRate(ip);
+    if (!rateResult.allowed) {
+      return { success: false, error: 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.' };
+    }
+  }
+
   if (!input.items || input.items.length === 0) {
     return { success: false, error: 'Giỏ hàng trống.' };
   }
@@ -160,7 +172,7 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
   revalidatePath('/orders');
   revalidatePath('/products');
 
-  if (!reused && paymentMethod === 'cod') {
+  if (!reused) {
     after(async () => {
       try {
         await sendOrderConfirmation(

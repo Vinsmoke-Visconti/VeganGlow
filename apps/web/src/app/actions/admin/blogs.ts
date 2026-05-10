@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { audit } from '@/lib/security/auditLog';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { requirePermission } from '@/lib/admin/requirePermission';
 
 function slugify(text: string): string {
   return text
@@ -20,6 +21,9 @@ function slugify(text: string): string {
 }
 
 export async function createBlogPost(_prev: unknown, formData: FormData) {
+  const guard = await requirePermission('content', 'write');
+  if (!guard.authorized) return { error: guard.error };
+
   const title = (formData.get('title') as string)?.trim();
   const excerpt = (formData.get('excerpt') as string)?.trim();
   const category = (formData.get('category') as string)?.trim();
@@ -84,6 +88,9 @@ export async function createBlogPost(_prev: unknown, formData: FormData) {
 }
 
 export async function updateBlogPost(_prev: unknown, formData: FormData) {
+  const guard = await requirePermission('content', 'write');
+  if (!guard.authorized) return { error: guard.error };
+
   const id = formData.get('id') as string;
   const title = (formData.get('title') as string)?.trim();
   const excerpt = (formData.get('excerpt') as string)?.trim();
@@ -140,6 +147,9 @@ export async function updateBlogPost(_prev: unknown, formData: FormData) {
 }
 
 export async function toggleBlogPublish(formData: FormData) {
+  const guard = await requirePermission('content', 'write');
+  if (!guard.authorized) return;
+
   const id = formData.get('id') as string;
   const publish = formData.get('publish') === 'true';
 
@@ -156,6 +166,9 @@ export async function toggleBlogPublish(formData: FormData) {
 }
 
 export async function deleteBlogPost(formData: FormData) {
+  const guard = await requirePermission('content', 'write');
+  if (!guard.authorized) return;
+
   const id = formData.get('id') as string;
   const supabase = await createClient();
   await (supabase.from('blog_posts') as any).delete().eq('id', id);

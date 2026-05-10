@@ -5,6 +5,12 @@
   "outputDirectory": "apps/web/.next",
   "installCommand": "npm ci",
   "devCommand": "cd apps/web && npm run dev",
+  "crons": [
+    {
+      "path": "/api/cron/cleanup",
+      "schedule": "*/5 * * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" }
   ],
@@ -21,4 +27,4 @@
       ]
     }
   ]
-}
+}

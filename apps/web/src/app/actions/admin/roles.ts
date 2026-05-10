@@ -2,10 +2,15 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { requireSuperAdmin } from '@/lib/admin/requirePermission';
 
 type Result = { ok: true } | { ok: false; error: string };
 
 export async function setRolePermissions(roleId: string, permissionIds: string[]): Promise<Result> {
+  // Only super_admin can modify role permissions — this is a sensitive operation
+  const guard = await requireSuperAdmin();
+  if (!guard.authorized) return { ok: false, error: guard.error };
+
   const supabase = await createClient();
 
   const { data: role, error: roleErr } = await (supabase.from('roles') as any)
@@ -28,3 +33,4 @@ export async function setRolePermissions(roleId: string, permissionIds: string[]
   revalidatePath('/admin/roles');
   return { ok: true };
 }
+
