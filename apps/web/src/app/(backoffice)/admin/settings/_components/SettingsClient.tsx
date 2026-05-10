@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Store, Bell, Shield, Layout, Globe, Palette } from 'lucide-react';
+import { Store, Bell, Shield, Layout, Globe, Palette, Sparkles } from 'lucide-react';
 import type { BrandInfo } from '@/lib/admin/queries/settings';
 import shared from '../../admin-shared.module.css';
 import styles from '../settings.module.css';
