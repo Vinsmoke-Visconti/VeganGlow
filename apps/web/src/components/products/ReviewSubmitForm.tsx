@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Star, Camera, X, Loader2 } from 'lucide-react';
+import { Star, Camera, X, Loader2, ShieldCheck } from 'lucide-react';
 import { createBrowserClient } from '@/lib/supabase/client';
-import { submitReview } from '@/app/actions/reviews';
+import { submitReview, canReviewProduct } from '@/app/actions/reviews';
 import styles from './ReviewSubmitForm.module.css';
 
 type Props = {
@@ -28,6 +28,23 @@ export default function ReviewSubmitForm({ productId, productSlug }: Props) {
   const [images, setImages] = useState<DraftImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Purchase eligibility state
+  const [eligibility, setEligibility] = useState<{
+    checked: boolean;
+    canReview: boolean;
+    reason?: string;
+  }>({ checked: false, canReview: false });
+
+  useEffect(() => {
+    let alive = true;
+    canReviewProduct(productId).then((result) => {
+      if (alive) {
+        setEligibility({ checked: true, ...result });
+      }
+    });
+    return () => { alive = false; };
+  }, [productId]);
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -111,6 +128,31 @@ export default function ReviewSubmitForm({ productId, productSlug }: Props) {
 
   const anyUploading = images.some((i) => i.uploading);
 
+  // Not yet checked eligibility — show loading
+  if (!eligibility.checked) {
+    return (
+      <div className={styles.form} style={{ textAlign: 'center', padding: '2rem' }}>
+        <Loader2 size={24} className={styles.spinner} />
+        <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)' }}>Đang kiểm tra quyền đánh giá...</p>
+      </div>
+    );
+  }
+
+  // User cannot review — show message
+  if (!eligibility.canReview) {
+    return (
+      <div className={styles.form} style={{ textAlign: 'center', padding: '2rem' }}>
+        <ShieldCheck size={32} color="var(--color-text-muted)" style={{ marginBottom: '0.75rem' }} />
+        <p style={{ color: 'var(--color-text-muted)', fontWeight: 600, fontSize: '0.9rem' }}>
+          {eligibility.reason || 'Bạn cần mua sản phẩm này trước khi đánh giá.'}
+        </p>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginTop: '0.5rem', opacity: 0.7 }}>
+          Chỉ khách hàng đã nhận hàng thành công mới có thể viết đánh giá.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -119,7 +161,12 @@ export default function ReviewSubmitForm({ productId, productSlug }: Props) {
       }}
       className={styles.form}
     >
-      <h3 className={styles.title}>Viết đánh giá của bạn</h3>
+      <h3 className={styles.title}>
+        Viết đánh giá của bạn
+        <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', background: 'var(--vg-leaf-100)', color: 'var(--vg-leaf-700)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>
+          ✓ Đã mua hàng
+        </span>
+      </h3>
 
       {/* Rating stars */}
       <div className={styles.starsRow}>

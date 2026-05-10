@@ -288,6 +288,10 @@ function CheckoutContent() {
 
     try {
       sessionStorage.setItem('vg:lastOrderCode', result.order_code);
+      // Store PayOS URL for the pending page to use as fallback
+      if (result.payos_checkout_url) {
+        sessionStorage.setItem('vg:payosUrl:' + result.order_code, result.payos_checkout_url);
+      }
     } catch {
       // sessionStorage may be unavailable in private mode; non-fatal.
     }
@@ -299,11 +303,17 @@ function CheckoutContent() {
     }
     idempotencyKeyRef.current = createCheckoutIdempotencyKey();
 
-    router.replace(
-      paymentMethod === 'bank_transfer'
-        ? `/checkout/pending/${result.order_code}`
-        : `/checkout/success/${result.order_code}`,
-    );
+    if (paymentMethod === 'bank_transfer') {
+      // If PayOS provided a checkout URL, redirect there directly
+      if (result.payos_checkout_url) {
+        window.location.href = result.payos_checkout_url;
+      } else {
+        // Fallback to VietQR pending page
+        router.replace(`/checkout/pending/${result.order_code}`);
+      }
+    } else {
+      router.replace(`/checkout/success/${result.order_code}`);
+    }
   };
 
   return (

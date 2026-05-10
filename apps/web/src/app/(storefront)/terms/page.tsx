@@ -13,6 +13,20 @@ export default function TermsOfServicePage() {
         <h1 className={styles.title}>Điều khoản Dịch vụ</h1>
         <p className={styles.lastUpdated}>Cập nhật lần cuối: 10 tháng 05, 2026</p>
 
+        {/* === DEMO DISCLAIMER === */}
+        <section className={styles.section} style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '2px solid #f59e0b', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            ⚠️ Lưu ý quan trọng — Dự án Demo
+          </h2>
+          <p style={{ color: '#78350f', lineHeight: 1.8 }}>
+            Đây là website demo phục vụ <strong>báo cáo cuối kỳ môn Hệ thống Thông tin Quản lý (MIS)</strong>.
+            Tất cả sản phẩm, đơn hàng, thanh toán đều là <strong>giả lập</strong>.
+            Không có giao dịch thương mại, mua bán hay giao hàng thực tế nào diễn ra.
+            Hệ thống thanh toán PayOS hoạt động ở chế độ <strong>test/sandbox</strong>.
+            Dự án tuân thủ pháp luật Việt Nam và không nhằm mục đích thương mại.
+          </p>
+        </section>
+
         <section className={styles.section}>
           <h2>1. Chấp nhận điều khoản</h2>
           <p>
@@ -32,6 +46,9 @@ export default function TermsOfServicePage() {
           <p>
             Tất cả đơn hàng đặt trên VeganGlow đều phụ thuộc vào sự chấp nhận và tình trạng sẵn có của sản phẩm. Chúng tôi hỗ trợ các phương thức thanh toán: COD, Chuyển khoản ngân hàng và PayOS. Giá sản phẩm đã bao gồm VAT (nếu có) nhưng chưa bao gồm phí vận chuyển trừ khi có thông báo khác.
           </p>
+          <p style={{ fontStyle: 'italic', color: 'var(--color-text-muted)', marginTop: '0.75rem' }}>
+            * Lưu ý: Trong môi trường demo, mọi thanh toán đều ở chế độ sandbox. Không có tiền thật được giao dịch.
+          </p>
         </section>
 
         <section className={styles.section}>
@@ -44,7 +61,8 @@ export default function TermsOfServicePage() {
         <section className={styles.section}>
           <h2>5. Quyền sở hữu trí tuệ</h2>
           <p>
-            Toàn bộ nội dung trên website bao gồm văn bản, hình ảnh, logo, và mã nguồn đều thuộc sở hữu của VeganGlow. Bạn không được sao chép hoặc sử dụng cho mục đích thương mại khi chưa có sự đồng ý bằng văn bản của chúng tôi.
+            Toàn bộ mã nguồn website là dự án mã nguồn mở phục vụ mục đích học thuật. Hình ảnh sản phẩm được sử dụng từ nguồn miễn phí bản quyền (Unsplash).
+            Không có thương hiệu, logo hay sản phẩm thương mại thực tế nào được sử dụng.
           </p>
         </section>
 
@@ -63,7 +81,8 @@ export default function TermsOfServicePage() {
           <p>
             <strong>VeganGlow Management</strong><br />
             Email: legal@veganglow.vn<br />
-            Hồ Chí Minh, Việt Nam
+            Hồ Chí Minh, Việt Nam<br />
+            <em>(Dự án báo cáo cuối kỳ — Trường Đại học Tôn Đức Thắng)</em>
           </p>
         </section>
       </div>
