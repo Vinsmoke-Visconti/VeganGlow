@@ -180,7 +180,7 @@ Deno.serve(async (req: Request) => {
         fn: 'confirm_bank_transfer_payment',
         args: ConfirmPaymentArgs,
       ) => Promise<{
-        data: Array<{ message: string; matched: boolean; reused: boolean }> | null;
+        data: Array<{ message: string; matched: boolean; reused: boolean; order_id?: string }> | null;
         error: { message: string } | null;
       }>
     )('confirm_bank_transfer_payment', rpcArgs);
