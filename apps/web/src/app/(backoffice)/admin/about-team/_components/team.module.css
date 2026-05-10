@@ -1,8 +1,8 @@
 .banner {
   background: var(--vg-gradient-leaf);
-  padding: 24px;
+  padding: 16px 24px;
   border-radius: var(--vg-radius-lg);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   color: #fff;
   box-shadow: var(--vg-shadow-2);
 }
@@ -10,7 +10,7 @@
 .bannerContent {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .bannerBadge {
@@ -27,7 +27,7 @@
 
 .bannerTitle {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -45,18 +45,18 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
 }
 
 .card {
   background: var(--vg-surface-0);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   transition: all var(--vg-duration-fast);
 }
 

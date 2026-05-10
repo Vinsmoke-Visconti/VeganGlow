@@ -102,12 +102,13 @@ export function VariantManager({ productId, variants }: Props) {
 
   function save() {
     if (!editing) return;
-    // Auto-generate SKU if empty
-    if (!editing.sku.trim()) {
-      editing.sku = `VG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    }
+    
+    // Auto-generate SKU if empty without mutating state directly
+    const finalSku = editing.sku.trim() || `VG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const payloadToSave = { ...editing, sku: finalSku };
+    
     setError(null);
-    const payload = draftToInput(productId, editing);
+    const payload = draftToInput(productId, payloadToSave);
     start(async () => {
       const res = await upsertVariant(payload);
       if (!res.ok) {
@@ -296,7 +297,7 @@ export function VariantManager({ productId, variants }: Props) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
               <datalist id="attribute-keys">
                 <option value="Dung tích" />
                 <option value="Trọng lượng" />
