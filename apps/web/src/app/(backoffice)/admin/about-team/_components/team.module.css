@@ -45,18 +45,18 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
 }
 
 .card {
   background: var(--vg-surface-0);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-lg);
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   transition: all var(--vg-duration-fast);
 }
 
@@ -111,7 +111,7 @@
   background: none;
   border: none;
   color: var(--vg-ink-600);
-  padding: 8px 10px;
+  padding: 4px 6px;
   border-radius: var(--vg-radius-md);
   cursor: pointer;
   transition: all var(--vg-duration-fast);
@@ -150,19 +150,19 @@
 .serviceTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 4px;
 }
 
 .serviceTag {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 4px;
+  padding: 4px 8px;
   background: var(--vg-surface-50);
   border: 1px solid var(--vg-border);
   border-radius: var(--vg-radius-md);
   color: var(--vg-ink-600);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--vg-duration-fast);
