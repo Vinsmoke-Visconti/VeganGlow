@@ -224,6 +224,7 @@ export async function sendRegisterOtp(_prevState: AuthFormState, formData: FormD
   // Send OTP email
   try {
     await sendRegistrationOtpEmail(email, code);
+    console.log(`[sendRegisterOtp] OTP email sent successfully to ${email}`);
   } catch (err) {
     console.error('[sendRegisterOtp] Email error:', err);
     await constantDelay(startedAt, TARGET_LOGIN_DELAY_MS);
@@ -336,6 +337,7 @@ export async function signup(_prevState: AuthFormState, formData: FormData) {
       // Import dynamic để tránh vòng lặp hoặc lỗi nếu chưa import ở trên
       const { sendWelcomeEmail } = await import('@/lib/email');
       await sendWelcomeEmail(email, username);
+      console.log(`[signup] Welcome email sent successfully to ${email}`);
     } catch (emailErr) {
       console.error('[signup] Failed to send welcome email:', emailErr);
     }
