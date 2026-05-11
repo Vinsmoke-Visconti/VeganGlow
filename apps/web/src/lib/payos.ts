@@ -1,10 +1,20 @@
 import { PayOS } from '@payos/node';
 
-const payos = new PayOS({
-  clientId: process.env.PAYOS_CLIENT_ID!,
-  apiKey: process.env.PAYOS_API_KEY!,
-  checksumKey: process.env.PAYOS_CHECKSUM_KEY!,
-});
+let payosInstance: PayOS | null = null;
+
+function getPayOS(): PayOS {
+  if (!payosInstance) {
+    if (!process.env.PAYOS_CLIENT_ID || !process.env.PAYOS_API_KEY || !process.env.PAYOS_CHECKSUM_KEY) {
+      throw new Error('PayOS credentials are missing from environment variables');
+    }
+    payosInstance = new PayOS({
+      clientId: process.env.PAYOS_CLIENT_ID,
+      apiKey: process.env.PAYOS_API_KEY,
+      checksumKey: process.env.PAYOS_CHECKSUM_KEY,
+    });
+  }
+  return payosInstance;
+}
 
 export type PayOSPaymentLinkResult = {
   success: true;
@@ -36,7 +46,7 @@ export async function createPayOSPaymentLink(opts: {
     // Derive from hex parts of the VG-XXXX-XXXX code
     const numericCode = deriveNumericOrderCode(opts.orderCode);
 
-    const paymentLink = await payos.paymentRequests.create({
+    const paymentLink = await getPayOS().paymentRequests.create({
       orderCode: numericCode,
       amount: Math.round(opts.amount),
       description: opts.description.slice(0, 25), // PayOS max 25 chars
@@ -72,7 +82,7 @@ export async function createPayOSPaymentLink(opts: {
  */
 export async function getPayOSPaymentInfo(orderCode: number) {
   try {
-    const info = await payos.paymentRequests.get(orderCode);
+    const info = await getPayOS().paymentRequests.get(orderCode);
     return { success: true as const, data: info };
   } catch (err) {
     console.error('PayOS getPaymentLinkInformation error:', err);
@@ -85,7 +95,7 @@ export async function getPayOSPaymentInfo(orderCode: number) {
  */
 export async function cancelPayOSPaymentLink(orderCode: number, reason?: string) {
   try {
-    const result = await payos.paymentRequests.cancel(orderCode, reason);
+    const result = await getPayOS().paymentRequests.cancel(orderCode, reason);
     return { success: true as const, data: result };
   } catch (err) {
     console.error('PayOS cancelPaymentLink error:', err);
