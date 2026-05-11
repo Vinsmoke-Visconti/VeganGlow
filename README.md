@@ -333,5 +333,8 @@ Dự án được thực hiện bởi nhóm sinh viên ngành **Hệ Thống Th�
 | **Trần Quỳnh Trâm** | 52300071 | quynhtram5358@gmail.com | `chickndot` |
 
 ---
+> ⚠️ **TUYÊN BỐ MIỄN TRỪ TRÁCH NHIỆM (DISCLAIMER):**  
+> Dự án này là **sản phẩm mô phỏng (Demo)** được xây dựng hoàn toàn vì mục đích học thuật, phục vụ báo cáo bài tập/đồ án cuối kỳ môn **Hệ Thống Thông Tin Quản Lý (MIS) - Đại học Tôn Đức Thắng**.  
+> Website **KHÔNG** hoạt động kinh doanh thương mại thực tế và **KHÔNG** cung cấp dịch vụ bán hàng thật. Toàn bộ tính năng thanh toán (PayOS, VietQR, Stripe) đều chỉ chạy trong môi trường thử nghiệm (Test Mode/Sandbox). Nhóm sinh viên thực hiện dự án **hoàn toàn miễn trừ mọi trách nhiệm và các vấn đề pháp lý** liên quan đến hoạt động thương mại điện tử, giấy phép Bộ Công Thương, hay các quy định pháp luật về vận hành website kinh doanh.
 
 *© 2026 VeganGlow — Đại học Tôn Đức Thắng. All rights reserved.*
