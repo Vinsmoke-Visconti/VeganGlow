@@ -71,11 +71,19 @@ export async function GET(request: Request) {
         .eq('id', user.id);
     }
 
-    // Send welcome email for new accounts (created in the last 2 minutes)
-    // We use a short window to avoid resending multiple times if they refresh during first login
-    const isNewUser = (Date.now() - new Date(user.created_at).getTime()) < 120000;
-    if (isNewUser && (!existingProfile || !existingProfile.full_name)) {
-      await sendWelcomeEmail(user.email!, fullName);
+    // Send welcome email for new accounts (created within the last 5 minutes).
+    // The DB trigger handle_new_user creates the profile AND sets full_name
+    // from Google metadata immediately, so we can NOT gate on !full_name.
+    // A 5-minute window is generous enough for slow OAuth redirects but
+    // still prevents re-sending on subsequent logins.
+    const isNewUser = (Date.now() - new Date(user.created_at).getTime()) < 300_000;
+    if (isNewUser) {
+      try {
+        await sendWelcomeEmail(user.email!, fullName || null);
+        console.log(`[auth/callback] Welcome email sent to ${user.email}`);
+      } catch (emailErr) {
+        console.error('[auth/callback] Failed to send welcome email:', emailErr);
+      }
     }
 
     return NextResponse.redirect(`${origin}${next}`);
