@@ -13,6 +13,30 @@ export default function PrivacyPolicyPage() {
         <h1 className={styles.title}>Chính sách Bảo mật</h1>
         <p className={styles.lastUpdated}>Cập nhật lần cuối: 10 tháng 05, 2026</p>
 
+        {/* === DEMO DISCLAIMER — IMPORTANT === */}
+        <section className={styles.section} style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '2px solid #f59e0b', borderRadius: '12px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            ⚠️ Tuyên bố miễn trừ trách nhiệm — Dự án Demo
+          </h2>
+          <p style={{ color: '#78350f', lineHeight: 1.8 }}>
+            <strong>VeganGlow là một dự án demo/học thuật</strong> được xây dựng cho mục đích
+            báo cáo cuối kỳ môn Hệ thống Thông tin Quản lý (MIS). Tất cả sản phẩm, hình ảnh,
+            thương hiệu và nội dung trên website đều là <strong>ảo, mang tính chất minh họa</strong>,
+            không liên quan đến bất kỳ thương hiệu, công ty hoặc sản phẩm thương mại thực tế nào.
+          </p>
+          <ul style={{ color: '#78350f', lineHeight: 2 }}>
+            <li>🛒 <strong>Sản phẩm:</strong> Hoàn toàn là ý tưởng demo, không có sản phẩm thực tế được mua bán.</li>
+            <li>💳 <strong>Thanh toán:</strong> Hệ thống thanh toán (PayOS, chuyển khoản) chỉ ở chế độ <strong>sandbox/test</strong>. Không có giao dịch tài chính thực tế nào được thực hiện.</li>
+            <li>📦 <strong>Đơn hàng:</strong> Không có hàng hóa nào được giao. Mọi đơn hàng đều là dữ liệu giả lập.</li>
+            <li>👤 <strong>Dữ liệu người dùng:</strong> Dữ liệu đăng ký chỉ phục vụ mục đích demo và sẽ được xóa sau khi kết thúc môn học.</li>
+            <li>📜 <strong>Pháp lý:</strong> Dự án tuân thủ Luật An ninh mạng Việt Nam (86/2015/QH13) và Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân. Không có hoạt động thương mại thực tế diễn ra.</li>
+          </ul>
+          <p style={{ color: '#78350f', fontWeight: 600, marginTop: '0.75rem' }}>
+            Mọi hình ảnh sản phẩm đều từ nguồn miễn phí (Unsplash) và không vi phạm bản quyền thương mại.
+            Dự án không có mục đích kinh doanh hay lợi nhuận.
+          </p>
+        </section>
+
         <section className={styles.section}>
           <h2>1. Thu thập thông tin cá nhân</h2>
           <p>
@@ -61,14 +85,31 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className={styles.section}>
-          <h2>6. Liên hệ</h2>
+          <h2>6. Tuân thủ Pháp luật Việt Nam</h2>
+          <p>
+            Website VeganGlow hoạt động tuân thủ các quy định pháp luật Việt Nam hiện hành, bao gồm:
+          </p>
+          <ul>
+            <li><strong>Luật An ninh mạng 2018</strong> (Luật số 24/2018/QH14) — Đảm bảo an toàn thông tin trên không gian mạng.</li>
+            <li><strong>Nghị định 13/2023/NĐ-CP</strong> — Về bảo vệ dữ liệu cá nhân, quy định quyền và nghĩa vụ của bên xử lý dữ liệu.</li>
+            <li><strong>Luật Giao dịch Điện tử 2023</strong> (Luật số 20/2023/QH15) — Về giao dịch điện tử và chữ ký số.</li>
+            <li><strong>Nghị định 52/2013/NĐ-CP</strong> (sửa đổi bổ sung) — Về thương mại điện tử.</li>
+          </ul>
+          <p style={{ marginTop: '1rem', fontStyle: 'italic', opacity: 0.8 }}>
+            Lưu ý: Vì đây là dự án demo học thuật, mọi hoạt động trên website không cấu thành hoạt động thương mại thực tế theo quy định tại Điều 3, Luật Thương mại 2005.
+          </p>
+        </section>
+
+        <section className={styles.section}>
+          <h2>7. Liên hệ</h2>
           <p>
             Nếu bạn có bất kỳ câu hỏi nào về chính sách bảo mật này, vui lòng liên hệ với chúng tôi tại:
           </p>
           <p>
             <strong>VeganGlow Support Team</strong><br />
             Email: support@veganglow.vn<br />
-            Địa chỉ: Hồ Chí Minh, Việt Nam
+            Địa chỉ: Hồ Chí Minh, Việt Nam<br />
+            <em>(Dự án báo cáo cuối kỳ — Trường Đại học Tôn Đức Thắng)</em>
           </p>
         </section>
       </div>

@@ -237,6 +237,8 @@
   gap: 0.25rem;
   padding: 0.875rem 0.75rem;
   background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-lg);
   transition: transform 0.2s ease;
@@ -601,6 +603,8 @@
 
 .statBoxLarge {
   background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: var(--space-4) 0.75rem;
   border-radius: var(--radius-lg);

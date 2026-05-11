@@ -153,10 +153,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className={styles.ratingRow}>
             <div className={styles.stars}>
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={18} fill={i < Math.round(typedProduct.rating || 5) ? "#fbbf24" : "none"} color={i < Math.round(typedProduct.rating || 5) ? "#fbbf24" : "#d1d5db"} />
+                <Star key={i} size={18} fill={i < Math.round(typedProduct.rating || 0) ? "#fbbf24" : "none"} color={i < Math.round(typedProduct.rating || 0) ? "#fbbf24" : "#d1d5db"} />
               ))}
             </div>
-            <span className={styles.reviewsCount}>{typedProduct.reviews_count || 0} Đánh giá từ khách hàng</span>
+            <span className={styles.reviewsCount}>
+              {(typedProduct.reviews_count || 0) > 0
+                ? `${typedProduct.reviews_count} Đánh giá từ khách hàng`
+                : 'Chưa có đánh giá'}
+            </span>
           </div>
 
           <p className={styles.description}>
@@ -286,14 +290,16 @@ async function ReviewsSection({
           <p style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>Tất cả đánh giá từ người dùng đã mua hàng</p>
         </div>
         <div className={styles.ratingSummary}>
-          <div className={styles.bigRating}>{Number(productRating || 5).toFixed(1)}</div>
+          <div className={styles.bigRating}>{(productRating || 0) > 0 ? Number(productRating).toFixed(1) : '—'}</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div className={styles.stars}>
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={20} fill={i < Math.round(productRating || 5) ? "#fbbf24" : "none"} color={i < Math.round(productRating || 5) ? "#fbbf24" : "#d1d5db"} />
+                <Star key={i} size={20} fill={i < Math.round(productRating || 0) ? "#fbbf24" : "none"} color={i < Math.round(productRating || 0) ? "#fbbf24" : "#d1d5db"} />
               ))}
             </div>
-            <span style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '0.25rem' }}>{reviewsCount || 0} Đánh giá</span>
+            <span style={{ fontSize: '0.875rem', fontWeight: 700, marginTop: '0.25rem' }}>
+              {reviewsCount > 0 ? `${reviewsCount} Đánh giá` : 'Chưa có đánh giá nào'}
+            </span>
           </div>
         </div>
       </div>

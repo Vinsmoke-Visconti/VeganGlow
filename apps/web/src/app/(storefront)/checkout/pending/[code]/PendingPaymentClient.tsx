@@ -85,19 +85,50 @@ export function PendingPaymentClient({ orderId, code, amount, paymentDueAt }: Pr
 
   return (
     <div className={styles.qrAction}>
-      <p className={styles.qrLabel}>Quét mã bằng ứng dụng Ngân hàng</p>
+      <h3 className={styles.qrLabel}>Thanh toán qua PayOS</h3>
+      <p className={styles.qrSubLabel}>Quét mã bằng ứng dụng Ngân hàng hoặc chuyển khoản theo thông tin bên dưới</p>
+      
       <div className={styles.qrWrapper}>
-        <Image src={vietQrUrl} alt="VietQR" width={220} height={220} unoptimized />
+        <div className={styles.qrContainer}>
+          <Image src={vietQrUrl} alt="VietQR" width={240} height={240} unoptimized className={styles.qrImage} />
+          <div className={styles.qrCornerTl}></div>
+          <div className={styles.qrCornerTr}></div>
+          <div className={styles.qrCornerBl}></div>
+          <div className={styles.qrCornerBr}></div>
+        </div>
       </div>
+
       <div className={styles.bankInfoLite}>
-        <p>{VEGANGLOW_BANK.id} Bank • {VEGANGLOW_BANK.account}</p>
-        <p>{VEGANGLOW_BANK.name}</p>
-        <p>Nội dung: {bankTransferContent(code)}</p>
+        <div className={styles.bankDetailRow}>
+          <span>Ngân hàng</span>
+          <strong>{VEGANGLOW_BANK.id}</strong>
+        </div>
+        <div className={styles.bankDetailRow}>
+          <span>Số tài khoản</span>
+          <strong>{VEGANGLOW_BANK.account}</strong>
+        </div>
+        <div className={styles.bankDetailRow}>
+          <span>Chủ tài khoản</span>
+          <strong>{VEGANGLOW_BANK.name}</strong>
+        </div>
+        <div className={styles.bankDetailRow}>
+          <span>Nội dung</span>
+          <strong className={styles.highlightContent}>{bankTransferContent(code)}</strong>
+        </div>
+        
         {paymentDueAt && (
-          <p style={{ marginTop: '0.5rem', fontWeight: 700, color: expired ? '#b91c1c' : 'var(--color-primary-dark)' }}>
-            {expired ? 'Đã hết hạn — đang xử lý...' : `Còn lại: ${formatRemaining(remaining ?? 0)}`}
-          </p>
+          <div className={styles.timerRow}>
+            <span>Hết hạn sau</span>
+            <strong style={{ color: expired ? '#ef4444' : 'var(--color-primary)' }}>
+              {expired ? 'Hết hạn' : formatRemaining(remaining ?? 0)}
+            </strong>
+          </div>
         )}
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.75rem', padding: '1rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: 'var(--radius-lg)', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-primary-dark)' }}>
+        <AlertCircle size={18} style={{ flexShrink: 0 }} />
+        <p style={{ margin: 0 }}>Vui lòng chuyển khoản <strong>đúng số tiền</strong> và <strong>nội dung</strong> để hệ thống tự động xác nhận.</p>
       </div>
 
       {verifyMessage && (

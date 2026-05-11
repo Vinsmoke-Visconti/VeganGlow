@@ -55,6 +55,7 @@
     "npm": ">=10.0.0"
   },
   "dependencies": {
-    "@payos/node": "^2.0.5"
+    "@payos/node": "^2.0.5",
+    "pg": "^8.20.0"
   }
 }

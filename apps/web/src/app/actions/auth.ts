@@ -331,6 +331,15 @@ export async function signup(_prevState: AuthFormState, formData: FormData) {
       return { error: GENERIC_SIGNUP_ERROR };
     }
 
+    // Gửi email chào mừng ngay sau khi tạo tài khoản thành công
+    try {
+      // Import dynamic để tránh vòng lặp hoặc lỗi nếu chưa import ở trên
+      const { sendWelcomeEmail } = await import('@/lib/email');
+      await sendWelcomeEmail(email, username);
+    } catch (emailErr) {
+      console.error('[signup] Failed to send welcome email:', emailErr);
+    }
+
     // Clean up the verification token
     await cacheDelete(tokenKey);
 

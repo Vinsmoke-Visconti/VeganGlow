@@ -7,6 +7,7 @@ import { headers } from 'next/headers';
 import { sendOrderConfirmation } from '@/lib/email';
 import { normalizePaymentMethod, type PaymentMethod } from '@/lib/payment';
 import { checkCheckoutIpRate } from '@/lib/security/rateLimit';
+import { createPayOSPaymentLink, deriveNumericOrderCode } from '@/lib/payos';
 
 import { checkoutSchema } from '@/lib/validations/checkout';
 
@@ -29,7 +30,7 @@ type CheckoutInput = {
 };
 
 type CheckoutResult =
-  | { success: true; order_id: string; order_code: string }
+  | { success: true; order_id: string; order_code: string; payos_checkout_url?: string }
   | { success: false; error: string };
 
 type PaymentStatusResult =
@@ -138,8 +139,58 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
 
   const { order_id, order_code, total_amount, reused } = data[0];
 
+  // Populate numeric_order_code for reliable PayOS matching
+  if (!reused) {
+    const serviceClient = createServiceClient();
+    await serviceClient
+      .from('orders')
+      .update({ numeric_order_code: deriveNumericOrderCode(order_code) } as any)
+      .eq('id', order_id);
+  }
+
   revalidatePath('/orders');
   revalidatePath('/products');
+
+  // For bank_transfer orders, create a PayOS payment link
+  let payosCheckoutUrl: string | undefined;
+  if (paymentMethod === 'bank_transfer' && !reused) {
+    try {
+      // Fetch order items for PayOS description
+      const serviceClient = createServiceClient();
+      const { data: orderItems } = await serviceClient
+        .from('order_items')
+        .select('product_name, quantity, unit_price')
+        .eq('order_id', order_id);
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://veganglow.vercel.app';
+
+      const payosResult = await createPayOSPaymentLink({
+        orderCode: order_code,
+        amount: Number(total_amount),
+        description: `DH ${order_code}`,
+        buyerName: input.customer_name.trim(),
+        buyerEmail: input.email.trim(),
+        buyerPhone: input.phone.trim(),
+        items: (orderItems ?? []).map((item) => ({
+          name: (item as { product_name: string }).product_name,
+          quantity: (item as { quantity: number }).quantity,
+          price: Number((item as { unit_price: number | string }).unit_price),
+        })),
+        returnUrl: `${appUrl}/checkout/pending/${order_code}`,
+        cancelUrl: `${appUrl}/checkout/failed/${order_code}`,
+      });
+
+      if (payosResult.success) {
+        payosCheckoutUrl = payosResult.checkoutUrl;
+      } else {
+        // PayOS failed — log but don't block order creation.
+        // User can still pay via VietQR fallback.
+        console.error('PayOS payment link creation failed:', payosResult.error);
+      }
+    } catch (payosErr) {
+      console.error('PayOS integration error:', payosErr);
+    }
+  }
 
   if (!reused) {
     after(async () => {
@@ -156,7 +207,7 @@ export async function createOrder(input: CheckoutInput): Promise<CheckoutResult>
     });
   }
 
-  return { success: true, order_id, order_code };
+  return { success: true, order_id, order_code, payos_checkout_url: payosCheckoutUrl };
 }
 
 export async function getOrderPaymentStatus(orderId: string): Promise<PaymentStatusResult> {

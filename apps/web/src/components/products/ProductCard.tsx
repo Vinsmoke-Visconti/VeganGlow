@@ -229,12 +229,18 @@ export default function ProductCard({
               <Star
                 key={i}
                 size={14}
-                fill={i < Math.floor(product.rating || 5) ? "currentColor" : "none"}
+                fill={i < Math.floor(product.rating || 0) ? "currentColor" : "none"}
               />
             ))}
           </div>
-          <span className={styles.ratingValue}>{product.rating?.toFixed(1) || '5.0'}</span>
-          <span className={styles.reviewsCount}>({product.reviews_count || 0} đánh giá)</span>
+          {(product.reviews_count ?? 0) > 0 ? (
+            <>
+              <span className={styles.ratingValue}>{(product.rating || 0).toFixed(1)}</span>
+              <span className={styles.reviewsCount}>({product.reviews_count} đánh giá)</span>
+            </>
+          ) : (
+            <span className={styles.reviewsCount}>Chưa có đánh giá</span>
+          )}
         </div>
 
         <div className={styles.priceContainer}>

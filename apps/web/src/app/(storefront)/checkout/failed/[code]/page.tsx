@@ -16,13 +16,15 @@ export default async function CheckoutFailedPage({ params }: Props) {
 
   if (!result.ok) {
     return (
-      <div className={styles.successContainer}>
-        <div className={styles.successContent}>
-          <h1 className={styles.successTitle}>Không tìm thấy đơn hàng</h1>
-          <p className={styles.successText}>Đường dẫn không hợp lệ.</p>
-          <Link href="/products" className={styles.submitBtn} style={{ width: 'auto', display: 'inline-flex', padding: '1rem 2rem' }}>
-            Tiếp tục mua sắm
-          </Link>
+      <div className={styles.page}>
+        <div className={styles.successContainer}>
+          <div className={styles.successContent}>
+            <h1 className={styles.successTitle}>Không tìm thấy đơn hàng</h1>
+            <p className={styles.successText}>Đường dẫn không hợp lệ.</p>
+            <Link href="/products" className={styles.submitBtn} style={{ width: 'auto', display: 'inline-flex', padding: '1rem 2rem' }}>
+              Tiếp tục mua sắm
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -47,29 +49,31 @@ export default async function CheckoutFailedPage({ params }: Props) {
   }
 
   return (
-    <div className={styles.successContainer}>
-      <div className={styles.successContent}>
-        <div className={styles.successIcon}>
-          <XCircle size={80} color="#dc2626" />
-        </div>
-        <h1 className={styles.successTitle}>
-          {expired ? 'Đơn hàng đã hết hạn thanh toán' : 'Thanh toán không thành công'}
-        </h1>
-        <p className={styles.successText}>
-          {expired
-            ? 'Hệ thống đã hủy đơn và hoàn lại tồn kho. Bạn có thể đặt lại nếu cần.'
-            : 'Đơn hàng đã bị hủy hoặc không thể tiếp tục thanh toán. Vui lòng đặt lại hoặc liên hệ hỗ trợ.'}
-          <br />
-          Mã đơn hàng: <strong>#{order.code}</strong>
-        </p>
+    <div className={styles.page}>
+      <div className={styles.successContainer}>
+        <div className={styles.successContent}>
+          <div className={styles.successIcon}>
+            <XCircle size={80} color="#dc2626" />
+          </div>
+          <h1 className={styles.successTitle}>
+            {expired ? 'Đơn hàng đã hết hạn thanh toán' : 'Thanh toán không thành công'}
+          </h1>
+          <p className={styles.successText}>
+            {expired
+              ? 'Hệ thống đã hủy đơn và hoàn lại tồn kho. Bạn có thể đặt lại nếu cần.'
+              : 'Đơn hàng đã bị hủy hoặc không thể tiếp tục thanh toán. Vui lòng đặt lại hoặc liên hệ hỗ trợ.'}
+            <br />
+            Mã đơn hàng: <strong>#{order.code}</strong>
+          </p>
 
-        <div className={styles.successActions}>
-          <Link href="/cart" className={styles.submitBtn} style={{ width: 'auto', padding: '1rem 2rem' }}>
-            Đặt hàng lại
-          </Link>
-          <Link href="/contact" className={styles.cartBtn} style={{ width: 'auto', padding: '1rem 2rem' }}>
-            Liên hệ hỗ trợ
-          </Link>
+          <div className={styles.successActions}>
+            <Link href="/cart" className={styles.submitBtn} style={{ width: 'auto', padding: '1rem 2rem' }}>
+              Đặt hàng lại
+            </Link>
+            <Link href="/contact" className={styles.cartBtn} style={{ width: 'auto', padding: '1rem 2rem' }}>
+              Liên hệ hỗ trợ
+            </Link>
+          </div>
         </div>
       </div>
     </div>

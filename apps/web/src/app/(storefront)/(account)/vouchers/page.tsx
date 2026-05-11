@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useMemo } from 'react';
+import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import {
   Ticket,
   Clock,
@@ -11,8 +11,12 @@ import {
   Truck,
   Percent,
   Calendar,
+  Copy,
+  CheckCircle2,
+  Gift,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase/client';
 import styles from './vouchers.module.css';
 
@@ -22,7 +26,15 @@ interface Voucher {
   title: string;
   description: string | null;
   discount_type: string;
+  discount_value: number;
+  min_order: number;
   end_date: string | null;
+  starts_at: string | null;
+  expires_at: string | null;
+  status: string;
+  quota: number;
+  used_count: number;
+  is_claimed?: boolean;
   is_used?: boolean;
 }
 
@@ -33,85 +45,102 @@ const FILTERS = [
 ] as const;
 
 function VouchersContent() {
+  const router = useRouter();
   const [filter, setFilter] = useState<(typeof FILTERS)[number]['value']>('all');
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [code, setCode] = useState('');
+  const [searchCode, setSearchCode] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const supabase = createBrowserClient();
 
-  const fetchVouchers = async () => {
+  const fetchVouchers = useCallback(async () => {
     setLoading(true);
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) {
+
+    // Fetch all active public vouchers
+    const { data: allVouchers, error: vErr } = await (supabase
+      .from('vouchers') as any)
+      .select('id, code, title, description, discount_type, discount_value, min_order, starts_at, expires_at, status, quota, used_count')
+      .eq('status', 'active');
+
+    if (vErr) {
+      console.error('Error fetching vouchers:', vErr);
       setLoading(false);
       return;
     }
 
-    const { data, error } = await supabase
-      .from('user_vouchers')
-      .select(
-        `
-        is_used,
-        vouchers (
-          id,
-          code,
-          title,
-          description,
-          discount_type,
-          end_date
-        )
-      `,
-      )
-      .eq('user_id', user.id);
+    // Fetch user's claimed vouchers if logged in
+    let claimedMap = new Map<string, boolean>();
+    if (user) {
+      const { data: userVouchers } = await supabase
+        .from('user_vouchers')
+        .select('voucher_id, is_used')
+        .eq('user_id', user.id);
 
-    if (error) {
-      console.error('Error fetching vouchers:', error);
-    } else if (data) {
-      type UserVoucherJoin = {
-        is_used: boolean;
-        vouchers: {
-          id: string;
-          code: string;
-          title: string;
-          description: string | null;
-          discount_type: string;
-          end_date: string | null;
-        } | null;
-      };
-      const rows = data as unknown as UserVoucherJoin[];
-      const flattened = rows
-        .filter((r) => r.vouchers)
-        .map((r) => ({
-          ...(r.vouchers as NonNullable<UserVoucherJoin['vouchers']>),
-          is_used: r.is_used,
-        }));
-      setVouchers(flattened);
+      if (userVouchers) {
+        for (const uv of userVouchers as { voucher_id: string; is_used: boolean }[]) {
+          claimedMap.set(uv.voucher_id, uv.is_used);
+        }
+      }
     }
+
+    const now = new Date();
+    const merged: Voucher[] = (allVouchers || [])
+      .filter((v: any) => {
+        // Filter out expired
+        if (v.expires_at && new Date(v.expires_at) < now) return false;
+        // Filter out not yet started
+        if (v.starts_at && new Date(v.starts_at) > now) return false;
+        // Filter out used-up quotas
+        if (v.quota > 0 && v.used_count >= v.quota) return false;
+        return true;
+      })
+      .map((v: any) => ({
+        ...v,
+        end_date: v.expires_at,
+        is_claimed: claimedMap.has(v.id),
+        is_used: claimedMap.get(v.id) ?? false,
+      }));
+
+    setVouchers(merged);
     setLoading(false);
-  };
+  }, [supabase]);
 
   useEffect(() => {
     fetchVouchers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchVouchers]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { all: vouchers.length, shipping: 0, discount: 0 };
     for (const v of vouchers) {
       if (v.discount_type === 'shipping') map.shipping++;
-      else if (v.discount_type === 'percentage' || v.discount_type === 'fixed') map.discount++;
+      else map.discount++;
     }
     return map;
   }, [vouchers]);
 
   const filteredVouchers = vouchers.filter((v) => {
-    if (filter === 'all') return true;
     if (filter === 'shipping') return v.discount_type === 'shipping';
-    if (filter === 'discount') return v.discount_type === 'percentage' || v.discount_type === 'fixed';
+    if (filter === 'discount') return v.discount_type !== 'shipping';
     return true;
+  }).filter((v) => {
+    if (!searchCode.trim()) return true;
+    return v.code.toLowerCase().includes(searchCode.toLowerCase()) ||
+           v.title.toLowerCase().includes(searchCode.toLowerCase());
   });
+
+  const handleCopyCode = (code: string, id: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleUseNow = (code: string) => {
+    // Navigate to checkout or products with voucher pre-filled
+    router.push(`/products?voucher=${encodeURIComponent(code)}`);
+  };
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: 'var(--space-4)' }}>
@@ -130,7 +159,7 @@ function VouchersContent() {
                 <h1 className={styles.title} style={{ margin: 0, fontSize: '1.75rem' }}>Kho voucher</h1>
               </div>
               <p className={styles.subtitle} style={{ marginLeft: '48px' }}>
-                Sử dụng voucher để được giảm giá khi thanh toán cho các sản phẩm mỹ phẩm thuần chay yêu thích.
+                Áp dụng mã giảm giá khi thanh toán để nhận ưu đãi hấp dẫn cho các sản phẩm mỹ phẩm thuần chay.
               </p>
             </div>
             
@@ -139,13 +168,12 @@ function VouchersContent() {
                 <Search size={16} className={styles.inputIcon} />
                 <input
                   type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="Nhập mã voucher tại đây..."
+                  value={searchCode}
+                  onChange={(e) => setSearchCode(e.target.value.toUpperCase())}
+                  placeholder="Tìm mã voucher..."
                   className={styles.voucherInput}
                 />
               </div>
-              <button className={styles.applyBtn} disabled={!code.trim()} style={{ opacity: !code.trim() ? 0.5 : 1 }}>Lưu mã</button>
             </div>
           </div>
 
@@ -176,15 +204,25 @@ function VouchersContent() {
             <div className={styles.emptyIcon} style={{ background: 'var(--color-bg-secondary)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)' }}>
               <Ticket size={32} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', margin: '0' }}>Chưa có voucher</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-text)', margin: '0' }}>
+              {searchCode ? 'Không tìm thấy voucher' : 'Chưa có voucher'}
+            </h3>
             <p className={styles.emptyHint}>
-              Bạn chưa có voucher nào trong danh mục này. Hãy quay lại sau, chúng tôi sẽ có ưu đãi mới cho bạn.
+              {searchCode
+                ? `Không có voucher nào khớp với "${searchCode}". Hãy thử từ khóa khác.`
+                : 'Hiện chưa có voucher nào khả dụng. Hãy quay lại sau, chúng tôi sẽ có ưu đãi mới cho bạn.'}
             </p>
           </div>
         ) : (
           <div className={styles.voucherGrid}>
             {filteredVouchers.map((v) => (
-              <VoucherTicket key={v.id} voucher={v} />
+              <VoucherTicket
+                key={v.id}
+                voucher={v}
+                copiedId={copiedId}
+                onCopy={handleCopyCode}
+                onUse={handleUseNow}
+              />
             ))}
           </div>
         )}
@@ -193,11 +231,23 @@ function VouchersContent() {
   );
 }
 
-function VoucherTicket({ voucher }: { voucher: Voucher }) {
+function VoucherTicket({ voucher, copiedId, onCopy, onUse }: {
+  voucher: Voucher;
+  copiedId: string | null;
+  onCopy: (code: string, id: string) => void;
+  onUse: (code: string) => void;
+}) {
   const isShipping = voucher.discount_type === 'shipping';
   const expired = voucher.end_date !== null && new Date(voucher.end_date) < new Date();
   const usable = !voucher.is_used && !expired;
   const TypeIcon = isShipping ? Truck : Percent;
+  const isCopied = copiedId === voucher.id;
+
+  const discountLabel = isShipping
+    ? 'Miễn phí vận chuyển'
+    : voucher.discount_type === 'percent'
+    ? `Giảm ${voucher.discount_value}%`
+    : `Giảm ${Number(voucher.discount_value).toLocaleString('vi-VN')}đ`;
 
   return (
     <article className={`${styles.voucherCard} ${!usable ? styles.cardUsed : ''}`}>
@@ -216,13 +266,19 @@ function VoucherTicket({ voucher }: { voucher: Voucher }) {
       <div className={styles.cardRight}>
         <div className={styles.cardInfoTop}>
           <h3 className={styles.voucherTitle}>{voucher.title}</h3>
-          <span className={styles.tagLimited} style={{ background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-light)' }}>
-            {voucher.code}
+          <span className={styles.tagLimited} style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary)', border: '1px solid var(--color-primary-100)', fontWeight: 700 }}>
+            {discountLabel}
           </span>
         </div>
         
         {voucher.description && (
           <p className={styles.voucherDesc}>{voucher.description}</p>
+        )}
+
+        {voucher.min_order > 0 && (
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0.25rem 0 0' }}>
+            Đơn tối thiểu: {Number(voucher.min_order).toLocaleString('vi-VN')}đ
+          </p>
         )}
 
         <div className={styles.voucherFooter}>
@@ -234,15 +290,25 @@ function VoucherTicket({ voucher }: { voucher: Voucher }) {
                 <Tag size={10} /> Đã dùng
               </span>
             )}
-            {expired && !voucher.is_used && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fee2e2', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', color: '#991b1b' }}>
-                <Clock size={10} /> Hết hạn
-              </span>
-            )}
           </div>
-          <button className={styles.useBtn} disabled={!usable}>
-            {voucher.is_used ? 'Đã dùng' : 'Dùng ngay'}
-          </button>
+
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <button
+              className={styles.useBtn}
+              style={{ background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', padding: '0.375rem 0.75rem', fontSize: '0.75rem' }}
+              onClick={() => onCopy(voucher.code, voucher.id)}
+              title="Sao chép mã"
+            >
+              {isCopied ? <><CheckCircle2 size={12} /> Đã sao chép</> : <><Copy size={12} /> {voucher.code}</>}
+            </button>
+            <button
+              className={styles.useBtn}
+              disabled={!usable}
+              onClick={() => onUse(voucher.code)}
+            >
+              {voucher.is_used ? 'Đã dùng' : 'Dùng ngay'}
+            </button>
+          </div>
         </div>
       </div>
     </article>
