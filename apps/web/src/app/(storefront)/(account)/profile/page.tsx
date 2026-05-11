@@ -155,15 +155,12 @@ export default function ProfilePage() {
       }
       setEmail(user.email || '');
 
-      const [profileRes, tiersRes, ordersRes, vouchersRes] = await Promise.all([
+      const [profileRes, tiersRes, ordersRes, vouchersRes, userVouchersRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
         supabase.from('loyalty_tiers').select('*').order('position'),
         supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase
-          .from('user_vouchers')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('is_used', false),
+        (supabase.from('vouchers') as any).select('id, expires_at, starts_at, quota, used_count').eq('status', 'active'),
+        supabase.from('user_vouchers').select('voucher_id').eq('user_id', user.id).eq('is_used', true),
       ]);
 
       if (profileRes.data) {
@@ -200,8 +197,18 @@ export default function ProfilePage() {
         }
       }
 
+      const usedSet = new Set((userVouchersRes.data || []).map((uv: any) => uv.voucher_id));
+      const now = new Date();
+      const validVouchers = (vouchersRes.data || []).filter((v: any) => {
+        if (usedSet.has(v.id)) return false;
+        if (v.quota > 0 && v.used_count >= v.quota) return false;
+        if (v.expires_at && new Date(v.expires_at) < now) return false;
+        if (v.starts_at && new Date(v.starts_at) > now) return false;
+        return true;
+      });
+
       setOrderCount(ordersRes.count || 0);
-      setVoucherCount(vouchersRes.count || 0);
+      setVoucherCount(validVouchers.length);
       setLoading(false);
     })();
   }, [router, supabase]);

@@ -1,16 +1,38 @@
 /* ============================================
    Checkout Page — Minimalist Premium
    ============================================ */
+.page {
+  padding: var(--space-8) var(--space-4) var(--space-24);
+  position: relative;
+  min-height: 100vh;
+}
+
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: var(--bg-cart) no-repeat center center;
+  background-size: cover;
+  filter: blur(8px) brightness(0.95);
+  z-index: -1;
+  transform: scale(1.05);
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-4) var(--space-4) var(--space-12);
-  min-height: 80vh;
+  padding: 3rem;
+  background: var(--glass-bg-tint), var(--glass-bg);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
 }
 
 @media (min-width: 768px) {
   .container {
-    padding: var(--space-4) var(--space-8) var(--space-12);
+    padding: 3rem 4rem;
   }
 }
 
@@ -80,11 +102,13 @@
    Card
    ============================================ */
 .card {
-  background: white;
+  background: var(--glass-bg-tint), rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 4px 20px hsla(0, 0%, 0%, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 30px hsla(0, 0%, 0%, 0.05);
 }
 
 .card h2 {
@@ -446,11 +470,13 @@
 .successContent {
   text-align: center;
   max-width: 500px;
-  background: white;
+  background: var(--glass-bg-tint), rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: var(--space-10);
   border-radius: var(--radius-2xl, 1.5rem);
   box-shadow: 0 12px 40px hsla(0, 0%, 0%, 0.06);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .successIcon {

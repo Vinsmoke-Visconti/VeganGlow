@@ -1,6 +1,7 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
+import { FREESHIP_THRESHOLD } from '@/lib/payment';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -62,6 +63,7 @@ function CheckoutContent() {
   const idempotencyKeyRef = useRef(createCheckoutIdempotencyKey());
 
   const [submitting, setSubmitting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [address, setAddress] = useState<VnAddressValue>(emptyVnAddress);
   const [prefill, setPrefill] = useState<{ full_name: string; phone: string; email: string; address: string } | null>(null);
@@ -78,6 +80,11 @@ function CheckoutContent() {
   } | null>(null);
   const [checkingVoucher, setCheckingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState('');
+  const [availableVouchers, setAvailableVouchers] = useState<Array<{
+    id: string; code: string; title: string; discount_type: string;
+    discount_value: number; min_order: number; expires_at: string | null;
+  }>>([]);
+  const [showVoucherPicker, setShowVoucherPicker] = useState(false);
 
   useEffect(() => {
     if (!buyNowFlag) {
@@ -99,6 +106,7 @@ function CheckoutContent() {
 
       if (!user || !alive) return;
 
+      // Fetch profile
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, phone, address, ward, ward_code, province, province_code')
@@ -136,6 +144,22 @@ function CheckoutContent() {
           });
         }
       }
+
+      // Fetch available vouchers
+      const { data: vList } = await (supabase.from('vouchers') as any)
+        .select('id, code, title, discount_type, discount_value, min_order, expires_at, starts_at, quota, used_count')
+        .eq('status', 'active');
+      if (alive && vList) {
+        const _now = new Date();
+        setAvailableVouchers(
+          (vList as any[]).filter((v: any) => {
+            if (v.quota > 0 && v.used_count >= v.quota) return false;
+            if (v.expires_at && new Date(v.expires_at) < _now) return false;
+            if (v.starts_at && new Date(v.starts_at) > _now) return false;
+            return true;
+          })
+        );
+      }
     })();
     return () => { alive = false; };
   }, []);
@@ -154,11 +178,13 @@ function CheckoutContent() {
     [items],
   );
 
+  const isFreeship = subtotal >= FREESHIP_THRESHOLD;
+  const shippingFee = isFreeship ? 0 : 30000; // 30k demo shipping
+
   const totalAmount = useMemo(() => {
-    const baseTotal = subtotal;
     const discount = appliedVoucher?.discount || 0;
-    return Math.max(0, baseTotal - discount);
-  }, [subtotal, appliedVoucher]);
+    return Math.max(0, subtotal + shippingFee - discount);
+  }, [subtotal, shippingFee, appliedVoucher]);
 
   const updateItemQty = (id: string, nextQty: number) => {
     if (nextQty < 1) return;
@@ -212,24 +238,26 @@ function CheckoutContent() {
     setVoucherError('');
   };
 
-  if (buyNowReady && items.length === 0) {
+  if (buyNowReady && items.length === 0 && !isRedirecting) {
     return (
-      <div className={styles.successContainer}>
-        <div className={styles.successContent}>
-          <div className={styles.successIcon}>
-            <Package size={80} color="var(--color-text-muted)" />
+      <div className={styles.page}>
+        <div className={styles.successContainer}>
+          <div className={styles.successContent}>
+            <div className={styles.successIcon}>
+              <Package size={80} color="var(--color-text-muted)" />
+            </div>
+            <h2 className={styles.successTitle}>
+              {buyNowFlag ? 'Không có sản phẩm để thanh toán' : 'Giỏ hàng trống'}
+            </h2>
+            <p className={styles.successText}>
+              {buyNowFlag
+                ? 'Phiên mua ngay đã hết hạn. Vui lòng quay lại sản phẩm và thử lại.'
+                : 'Bạn chưa có sản phẩm nào trong giỏ hàng để thực hiện thanh toán.'}
+            </p>
+            <Link href="/products" className={styles.submitBtn} style={{ width: 'auto', display: 'inline-flex', padding: '1rem 2rem' }}>
+              Quay lại cửa hàng
+            </Link>
           </div>
-          <h2 className={styles.successTitle}>
-            {buyNowFlag ? 'Không có sản phẩm để thanh toán' : 'Giỏ hàng trống'}
-          </h2>
-          <p className={styles.successText}>
-            {buyNowFlag
-              ? 'Phiên mua ngay đã hết hạn. Vui lòng quay lại sản phẩm và thử lại.'
-              : 'Bạn chưa có sản phẩm nào trong giỏ hàng để thực hiện thanh toán.'}
-          </p>
-          <Link href="/products" className={styles.submitBtn} style={{ width: 'auto', display: 'inline-flex', padding: '1rem 2rem' }}>
-            Quay lại cửa hàng
-          </Link>
         </div>
       </div>
     );
@@ -237,9 +265,11 @@ function CheckoutContent() {
 
   if (!buyNowReady) {
     return (
-      <div className={styles.successContainer}>
-        <div className={styles.successContent}>
-          <Loader2 size={48} className="animate-spin" />
+      <div className={styles.page}>
+        <div className={styles.successContainer}>
+          <div className={styles.successContent}>
+            <Loader2 size={48} className="animate-spin" />
+          </div>
         </div>
       </div>
     );
@@ -296,6 +326,8 @@ function CheckoutContent() {
       // sessionStorage may be unavailable in private mode; non-fatal.
     }
 
+    setIsRedirecting(true);
+
     if (isBuyNowMode) {
       clearBuyNow();
     } else {
@@ -317,22 +349,23 @@ function CheckoutContent() {
   };
 
   return (
-    <div className={styles.container}>
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <Link href={isBuyNowMode ? '/products' : '/cart'} className={styles.backLink}>
-          <ArrowLeft size={18} />
-          {isBuyNowMode ? 'Quay lại sản phẩm' : 'Quay lại giỏ hàng'}
-        </Link>
-        <h1 className={styles.title}>
-          Thanh toán
-          {isBuyNowMode && <span className={styles.modeBadge}>Mua ngay</span>}
-        </h1>
-        {isBuyNowMode && (
-          <p className={styles.modeHint}>
-            Bạn đang mua nhanh sản phẩm này. Giỏ hàng hiện tại không bị ảnh hưởng.
-          </p>
-        )}
-      </motion.div>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          <Link href={isBuyNowMode ? '/products' : '/cart'} className={styles.backLink}>
+            <ArrowLeft size={18} />
+            {isBuyNowMode ? 'Quay lại sản phẩm' : 'Quay lại giỏ hàng'}
+          </Link>
+          <h1 className={styles.title}>
+            Thanh toán
+            {isBuyNowMode && <span className={styles.modeBadge}>Mua ngay</span>}
+          </h1>
+          {isBuyNowMode && (
+            <p className={styles.modeHint}>
+              Bạn đang mua nhanh sản phẩm này. Giỏ hàng hiện tại không bị ảnh hưởng.
+            </p>
+          )}
+        </motion.div>
 
       <div className={styles.content}>
         <motion.div
@@ -393,8 +426,8 @@ function CheckoutContent() {
                 <label className={styles.paymentMethod}>
                   <input type="radio" name="payment" value="bank_transfer" />
                   <div className={styles.paymentMethodContent}>
-                    <span className={styles.paymentMethodName}>Thanh toán VietQR / Chuyển khoản</span>
-                    <span className={styles.paymentMethodDesc}>Nhận mã QR để thanh toán qua ứng dụng ngân hàng ngay sau khi đặt hàng</span>
+                    <span className={styles.paymentMethodName}>Thanh toán PayOS / Chuyển khoản</span>
+                    <span className={styles.paymentMethodDesc}>Thanh toán qua cổng PayOS hoặc quét mã QR ngay sau khi đặt hàng</span>
                   </div>
                 </label>
               </div>
@@ -503,22 +536,122 @@ function CheckoutContent() {
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Truck size={16} /> Phí giao hàng
               </span>
-              <span style={{ color: 'var(--color-primary)' }}>Miễn phí</span>
+              {isFreeship ? (
+                <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Miễn phí</span>
+              ) : (
+                <span style={{ fontWeight: 600 }}>{shippingFee.toLocaleString('vi-VN')}đ</span>
+              )}
             </div>
+            {!isFreeship && (
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem', paddingLeft: '1.5rem' }}>
+                Mua thêm {(FREESHIP_THRESHOLD - subtotal).toLocaleString('vi-VN')}đ để được miễn phí vận chuyển
+              </div>
+            )}
 
             <div className={styles.voucherSection}>
+              {/* Voucher picker toggle */}
+              {!appliedVoucher && availableVouchers.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowVoucherPicker(!showVoucherPicker)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%',
+                    padding: '0.625rem 0.875rem', background: 'var(--color-primary-50)',
+                    border: '1px dashed var(--color-primary-200)', borderRadius: 'var(--radius-md)',
+                    color: 'var(--color-primary-dark)', fontSize: '0.8125rem', fontWeight: 600,
+                    cursor: 'pointer', marginBottom: '0.75rem', transition: 'all 0.2s ease',
+                  }}
+                >
+                  <TagIcon size={16} />
+                  {showVoucherPicker ? 'Ẩn danh sách voucher' : `Chọn voucher (${availableVouchers.length} có sẵn)`}
+                </button>
+              )}
+
+              {/* Available voucher list */}
+              {showVoucherPicker && !appliedVoucher && (
+                <div style={{
+                  maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column',
+                  gap: '0.5rem', marginBottom: '0.75rem', paddingRight: '0.25rem',
+                }}>
+                  {availableVouchers.map((v) => {
+                    const eligible = subtotal >= Number(v.min_order);
+                    const label = v.discount_type === 'shipping'
+                      ? 'Miễn phí ship'
+                      : v.discount_type === 'percent'
+                      ? `Giảm ${v.discount_value}%`
+                      : `Giảm ${Number(v.discount_value).toLocaleString('vi-VN')}đ`;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        disabled={!eligible || checkingVoucher}
+                        onClick={() => {
+                          setVoucherInput(v.code);
+                          setShowVoucherPicker(false);
+                          // Auto-apply
+                          setVoucherInput(v.code);
+                          setTimeout(async () => {
+                            setCheckingVoucher(true);
+                            setVoucherError('');
+                            try {
+                              const res = await validateVoucher(v.code, subtotal);
+                              if (res.ok) {
+                                setAppliedVoucher({ code: res.voucherCode!, discount: res.discount!, title: res.title! });
+                                setVoucherInput('');
+                              } else {
+                                setVoucherError(res.error || 'Mã không hợp lệ');
+                              }
+                            } catch { setVoucherError('Lỗi kiểm tra mã'); }
+                            finally { setCheckingVoucher(false); }
+                          }, 0);
+                        }}
+                        style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          padding: '0.625rem 0.875rem', border: '1px solid var(--color-border-light)',
+                          borderRadius: 'var(--radius-md)', background: eligible ? 'white' : 'var(--color-bg-secondary)',
+                          cursor: eligible ? 'pointer' : 'not-allowed', opacity: eligible ? 1 : 0.55,
+                          transition: 'all 0.15s ease', textAlign: 'left',
+                        }}
+                        onMouseOver={(e) => eligible && (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                        onMouseOut={(e) => eligible && (e.currentTarget.style.borderColor = 'var(--color-border-light)')}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.8125rem', color: 'var(--color-primary-dark)' }}>
+                            {v.title}
+                          </span>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)' }}>
+                            Mã: {v.code}
+                            {v.min_order > 0 && ` · Đơn từ ${Number(v.min_order).toLocaleString('vi-VN')}đ`}
+                          </span>
+                        </div>
+                        <span style={{
+                          padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)',
+                          background: eligible ? 'var(--color-primary-50)' : 'var(--color-bg-secondary)',
+                          color: eligible ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                          fontSize: '0.75rem', fontWeight: 700, whiteSpace: 'nowrap',
+                        }}>
+                          {label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Manual voucher input */}
               <div className={styles.voucherInputWrap}>
                 <input
                   type="text"
-                  placeholder="Mã giảm giá..."
+                  placeholder="Nhập mã giảm giá..."
                   value={voucherInput}
                   onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
                   className={styles.voucherInput}
+                  disabled={!!appliedVoucher}
                 />
                 <button
                   type="button"
                   onClick={handleApplyVoucher}
-                  disabled={checkingVoucher || !voucherInput.trim()}
+                  disabled={checkingVoucher || !voucherInput.trim() || !!appliedVoucher}
                   className={styles.voucherBtn}
                 >
                   {checkingVoucher ? <Loader2 size={16} className="animate-spin" /> : 'Áp dụng'}
@@ -527,7 +660,7 @@ function CheckoutContent() {
               {voucherError && <p className={styles.voucherError}>{voucherError}</p>}
               {appliedVoucher && (
                 <p className={styles.voucherSuccess}>
-                  Đã áp dụng: <strong>{appliedVoucher.title}</strong>
+                  ✓ Đã áp dụng: <strong>{appliedVoucher.title}</strong>
                 </p>
               )}
             </div>
@@ -539,11 +672,11 @@ function CheckoutContent() {
               <span className={styles.totalPrice}>{totalAmount.toLocaleString('vi-VN')}đ</span>
             </div>
 
-            <div className={styles.demoNotice}>
-              <AlertCircle size={18} />
+            <div style={{ display: 'flex', gap: '0.75rem', padding: '1rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-6)', color: 'var(--color-primary-dark)', fontSize: '0.8125rem', lineHeight: 1.6 }}>
+              <Info size={18} style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
-                <strong>Lưu ý quan trọng (Demo):</strong>
-                <p>Mọi sản phẩm, đơn hàng và giao dịch trên trang web này đều mang tính chất minh họa (Mockup). Chúng tôi không thực hiện giao hàng thật hoặc thu tiền thật từ người dùng.</p>
+                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Thanh toán an toàn:</strong>
+                <p style={{ margin: 0, opacity: 0.85 }}>Đơn hàng được xử lý qua cổng thanh toán PayOS. Thông tin của bạn được bảo mật tuyệt đối.</p>
               </div>
             </div>
 
@@ -567,6 +700,7 @@ function CheckoutContent() {
             </div>
           </div>
         </motion.div>
+      </div>
       </div>
     </div>
   );

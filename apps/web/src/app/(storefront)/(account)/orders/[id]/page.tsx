@@ -134,11 +134,25 @@ export default function OrderDetailPage() {
 
   return (
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '3rem 1.5rem' }}>
-      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <Link href="/orders" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#10b981', fontWeight: 600, marginBottom: '1.5rem' }}>
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        style={{
+          background: 'var(--glass-bg-tint), rgba(255, 255, 255, 0.6)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          borderRadius: 16,
+          padding: '1.5rem 2rem',
+          marginBottom: '2rem',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <Link href="/orders" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#10b981', fontWeight: 600, marginBottom: '1.25rem' }}>
           <ArrowLeft size={18} /> Quay lại
         </Link>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a4d2e', marginBottom: 4 }}>
               Đơn hàng #{order.code}
@@ -162,11 +176,14 @@ export default function OrderDetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           style={{
-            background: 'var(--vg-bg-card)',
-            border: '1px solid var(--vg-border)',
+            background: 'var(--glass-bg-tint), rgba(255, 255, 255, 0.6)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
             borderRadius: 16,
             padding: '2rem 1.5rem',
             marginBottom: '2rem',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
@@ -176,7 +193,7 @@ export default function OrderDetailPage() {
               left: 30,
               right: 30,
               height: 3,
-              background: 'var(--vg-border)',
+              background: 'rgba(255, 255, 255, 0.5)',
               zIndex: 0,
             }} />
             <motion.div
@@ -207,12 +224,13 @@ export default function OrderDetailPage() {
                       height: 44,
                       margin: '0 auto 8px',
                       borderRadius: '50%',
-                      background: reached ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--vg-bg-main)',
+                      background: reached ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255, 255, 255, 0.7)',
                       color: reached ? 'white' : 'var(--vg-ink-400)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       boxShadow: active ? '0 0 0 6px rgba(16, 185, 129, 0.15)' : 'none',
+                      border: reached ? 'none' : '1px solid rgba(255, 255, 255, 0.5)',
                       transition: 'box-shadow 0.3s ease',
                     }}
                   >
@@ -238,7 +256,7 @@ export default function OrderDetailPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
-          style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.5rem' }}
+          style={{ background: 'var(--glass-bg-tint), rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: 16, padding: '1.5rem', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)' }}
         >
           <h2 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--vg-ink-900)', marginBottom: '1rem' }}>
             Sản phẩm đã đặt
@@ -253,7 +271,8 @@ export default function OrderDetailPage() {
                   gap: '1rem',
                   alignItems: 'center',
                   padding: '0.75rem',
-                  background: 'var(--vg-bg-main)',
+                  background: 'rgba(255, 255, 255, 0.6)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                   borderRadius: 12,
                 }}
               >
@@ -278,7 +297,7 @@ export default function OrderDetailPage() {
             ))}
           </div>
 
-          <div style={{ borderTop: '1px solid var(--vg-border)', marginTop: '1rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.4)', marginTop: '1rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ color: 'var(--vg-ink-500)' }}>Tạm tính</span>
             <span>{Number(order.total_amount).toLocaleString('vi-VN')}đ</span>
           </div>
@@ -299,7 +318,7 @@ export default function OrderDetailPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
         >
-          <div style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.25rem' }}>
+          <div style={{ background: 'var(--glass-bg-tint), rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: 16, padding: '1.25rem', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)' }}>
             <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--vg-ink-500)', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
               Thông tin nhận hàng
             </h3>
@@ -318,7 +337,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.25rem' }}>
+          <div style={{ background: 'var(--glass-bg-tint), rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: 16, padding: '1.25rem', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)' }}>
             <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--vg-ink-500)', fontWeight: 700, marginBottom: '0.75rem', letterSpacing: '0.05em' }}>
               Thanh toán
             </h3>
@@ -364,7 +383,7 @@ export default function OrderDetailPage() {
           </div>
 
           {order.note && (
-            <div style={{ background: 'var(--vg-bg-card)', border: '1px solid var(--vg-border)', borderRadius: 16, padding: '1.25rem' }}>
+            <div style={{ background: 'var(--glass-bg-tint), rgba(255, 255, 255, 0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: 16, padding: '1.25rem', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.05)' }}>
               <h3 style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--vg-ink-900)', fontWeight: 700, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
                 Ghi chú
               </h3>

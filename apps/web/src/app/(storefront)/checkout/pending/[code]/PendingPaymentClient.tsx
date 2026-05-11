@@ -85,8 +85,8 @@ export function PendingPaymentClient({ orderId, code, amount, paymentDueAt }: Pr
 
   return (
     <div className={styles.qrAction}>
-      <h3 className={styles.qrLabel}>Thanh toán bằng VietQR</h3>
-      <p className={styles.qrSubLabel}>Quét mã bằng ứng dụng Ngân hàng của bạn</p>
+      <h3 className={styles.qrLabel}>Thanh toán qua PayOS</h3>
+      <p className={styles.qrSubLabel}>Quét mã bằng ứng dụng Ngân hàng hoặc chuyển khoản theo thông tin bên dưới</p>
       
       <div className={styles.qrWrapper}>
         <div className={styles.qrContainer}>
@@ -126,9 +126,9 @@ export function PendingPaymentClient({ orderId, code, amount, paymentDueAt }: Pr
         )}
       </div>
 
-      <div className={styles.demoNotice} style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', padding: '1rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary-100)', borderRadius: 'var(--radius-lg)', textAlign: 'left', marginBottom: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-primary-dark)' }}>
         <AlertCircle size={18} style={{ flexShrink: 0 }} />
-        <p>Đây là hệ thống demo. <strong>Vui lòng không chuyển khoản thật.</strong> Chúng tôi không chịu trách nhiệm cho các giao dịch thực tế.</p>
+        <p style={{ margin: 0 }}>Vui lòng chuyển khoản <strong>đúng số tiền</strong> và <strong>nội dung</strong> để hệ thống tự động xác nhận.</p>
       </div>
 
       {verifyMessage && (
@@ -144,7 +144,7 @@ export function PendingPaymentClient({ orderId, code, amount, paymentDueAt }: Pr
             <Loader2 size={18} className="animate-spin" /> Đang kiểm tra...
           </>
         ) : (
-          'Tôi đã chuyển khoản thành công'
+          'Tôi đã chuyển khoản, kiểm tra lại'
         )}
       </button>
     </div>
